@@ -1,0 +1,95 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="Dashik.Shared.Views.AddFeedControl"
+             x:DataType="viewModels:AddFeedViewModel">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Dashik.Shared/Resources/FontAwesome.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0 0 0 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center" Orientation="Vertical">
+                <Label>The default package feed is included:</Label>
+                <TextBlock Classes="hyperlink" Text="{Binding DefaultFeedUri}" />
+            </StackPanel>
+            <Button Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding AddFeedCommand}" Content="+Add" />
+        </Grid>
+
+        <Panel Grid.Row="1" IsVisible="{Binding !Feeds.Count}">
+            <Label HorizontalAlignment="Center">There are no additional feeds. Click "Add" to create a new one!</Label>
+        </Panel>
+
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding Feeds}" VerticalAlignment="Top">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderThickness="2" BorderBrush="LightGray" Margin="5" Padding="5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="80" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Vertical">
+                                <DockPanel LastChildFill="True">
+                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="Name" Width="100" />
+                                    <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" Text="{Binding Name}" IsReadOnly="{Binding !InEditMode}" Margin="3" />
+                                </DockPanel>
+                                <DockPanel LastChildFill="True">
+                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="URL" Width="100" />
+                                    <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" Text="{Binding Uri}" IsReadOnly="{Binding !InEditMode}" Margin="3" />
+                                </DockPanel>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                                <Button
+                                    Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).ApplyFeedCommand}"
+                                    CommandParameter="{Binding}"
+                                    IsVisible="{Binding InEditMode}"
+                                    HorizontalAlignment="Center"
+                                    HorizontalContentAlignment="Center"
+                                    Width="70"
+                                    Content="Apply" />
+                                <Button
+                                    Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).EditFeedCommand}"
+                                    CommandParameter="{Binding}"
+                                    IsVisible="{Binding !InEditMode}"
+                                    HorizontalAlignment="Center"
+                                    HorizontalContentAlignment="Center"
+                                    Width="70"
+                                    Content="Edit" />
+                                <Button
+                                    Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).RemoveFeedCommand}"
+                                    CommandParameter="{Binding}"
+                                    HorizontalAlignment="Center"
+                                    HorizontalContentAlignment="Center"
+                                    Width="70"
+                                    Content="Remove" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

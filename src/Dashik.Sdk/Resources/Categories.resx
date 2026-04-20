@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Misc_Description" xml:space="preserve">
+    <value>Uncategorized or uncategorizable widgets that doesn't fit in any other category</value>
+  </data>
+  <data name="Accessibility_Description" xml:space="preserve">
+    <value>Accessibility tools, screen readers and similar</value>
+  </data>
+  <data name="ApplicationLaunchers_Description" xml:space="preserve">
+    <value>Application launchers, applets and similar</value>
+  </data>
+  <data name="Clipboard_Description" xml:space="preserve">
+    <value>Clipboard managers and similar</value>
+  </data>
+  <data name="DateTime_Description" xml:space="preserve">
+    <value>Date and time</value>
+  </data>
+  <data name="EnvironmentWeather_Description" xml:space="preserve">
+    <value>Environment and weather information</value>
+  </data>
+  <data name="FileSystem_Description" xml:space="preserve">
+    <value>File explorers, disk usage and similar</value>
+  </data>
+  <data name="FunGames_Description" xml:space="preserve">
+    <value>Fun games, quizzes and similar</value>
+  </data>
+  <data name="Graphics_Description" xml:space="preserve">
+    <value>Image viewers, screen capture and similar</value>
+  </data>
+  <data name="Language_Description" xml:space="preserve">
+    <value>Language translation, dictionaries and similar</value>
+  </data>
+  <data name="Multimedia_Description" xml:space="preserve">
+    <value>Audio and video players, streaming services and similar</value>
+  </data>
+  <data name="OnlineServices_Description" xml:space="preserve">
+    <value>Online services, social media, news and similar</value>
+  </data>
+  <data name="SystemInformation_Description" xml:space="preserve">
+    <value>System information, performance monitoring and hardware control</value>
+  </data>
+  <data name="Productivity_Description" xml:space="preserve">
+    <value>Todo lists, tasks and notes</value>
+  </data>
+  <data name="SoftwareDevelopment_Description" xml:space="preserve">
+    <value>Software development</value>
+  </data>
+  <data name="Utilities_Description" xml:space="preserve">
+    <value>Different utilities</value>
+  </data>
+</root>

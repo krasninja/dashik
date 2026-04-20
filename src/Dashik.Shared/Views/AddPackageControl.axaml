@@ -1,0 +1,188 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="Dashik.Shared.Views.AddPackageControl"
+             x:DataType="viewModels:AddPackageViewModel">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Dashik.Shared/Resources/FontAwesome.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <Label HorizontalAlignment="Center" FontWeight="Bold">
+                You need to restart the application in order to changes to take effect.
+            </Label>
+            <Label HorizontalAlignment="Center" FontWeight="Bold">
+                Please select the packages you want to install or update and click the "Install" or "Upgrade" button.
+            </Label>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <ListBox ItemsSource="{Binding Packages}"
+                     SelectedItem="{Binding $parent[UserControl].((viewModels:AddPackageViewModel)DataContext).SelectedPackageNode}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Image Source="{Binding PackageGroup.Current.IconFileImage^}" Width="24" Height="24" />
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Padding="10,0,0,0"
+                                    Text="{Binding Title}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" IsVisible="{Binding 'PackageGroup.Installed'}" Orientation="Horizontal">
+                                <PathIcon
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Right"
+                                    Data="{StaticResource FontAwesomeSolidCheck}"
+                                    Foreground="LightGreen"
+                                    ToolTip.Tip="Installed"
+                                    IsVisible="{Binding '!PackageGroup.HasUpdate'}" />
+                                <PathIcon
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Right"
+                                    Data="{StaticResource FontAwesomeSolidCircleArrowUp}"
+                                    Foreground="Green"
+                                    ToolTip.Tip="Upgrade available"
+                                    IsVisible="{Binding PackageGroup.HasUpdate}" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Grid Grid.Column="1" IsVisible="{Binding SelectedPackageNode, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <ContentControl Content="{Binding SelectedPackageNode}">
+                        <!-- No selection -->
+                        <ContentControl.Styles>
+                            <Style Selector="ContentControl:empty">
+                                <Setter Property="Content">
+                                    <Template>
+                                        <Label FontSize="18" HorizontalContentAlignment="Center" Content="Select a widget to see details" />
+                                    </Template>
+                                </Setter>
+                            </Style>
+                        </ContentControl.Styles>
+                        <!-- Package selected -->
+                        <ContentControl.DataTemplates>
+                            <DataTemplate DataType="{x:Type viewModels:AddPackageViewModel+PackageNode}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Image Source="{Binding PackageGroup.Current.IconFileImage^}" Width="24" Height="24" />
+                                        <Label FontSize="24"
+                                               HorizontalContentAlignment="Center"
+                                               Content="{Binding Title}" />
+                                    </StackPanel>
+                                    <Label FontSize="12"
+                                           FontStyle="Italic"
+                                           HorizontalContentAlignment="Center"
+                                           Content="{Binding Id}" />
+                                    <TextBlock FontSize="18"
+                                               TextWrapping="Wrap"
+                                               HorizontalAlignment="Center"
+                                               Text="{Binding Description}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="130" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+
+                                        <Label Grid.Column="0" Grid.Row="0">Summary:</Label>
+                                        <Label Grid.Column="1" Grid.Row="0" Content="{Binding PackageGroup.Current.Summary}" />
+
+                                        <Label Grid.Column="0" Grid.Row="1">Authors:</Label>
+                                        <Label Grid.Column="1" Grid.Row="1" Content="{Binding PackageGroup.Current.Authors}" />
+
+                                        <Label Grid.Column="0" Grid.Row="2">Is installed:</Label>
+                                        <Label Grid.Column="1" Grid.Row="2" Content="{Binding PackageGroup.Installed}" />
+
+                                        <Label Grid.Column="0" Grid.Row="3">Local URI:</Label>
+                                        <Label Grid.Column="1" Grid.Row="3" Content="{Binding PackageGroup.Local.NugetPackageFile}" />
+
+                                        <Label Grid.Column="0" Grid.Row="4">Local Version:</Label>
+                                        <Label Grid.Column="1" Grid.Row="4" Content="{Binding PackageGroup.Local.Version}" />
+
+                                        <Label Grid.Column="0" Grid.Row="5">Remote URI:</Label>
+                                        <Label Grid.Column="1" Grid.Row="5" Content="{Binding PackageGroup.Remote.RemoteFileUri}" />
+
+                                        <Label Grid.Column="0" Grid.Row="6">Remote Version:</Label>
+                                        <Label Grid.Column="1" Grid.Row="6" Content="{Binding PackageGroup.Remote.Version}" />
+                                    </Grid>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ContentControl.DataTemplates>
+                    </ContentControl>
+                </Grid>
+                <Grid Grid.Row="1" HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" IsVisible="{Binding SelectedPackageNode.PackageGroup.Installed}">
+                            <Button
+                                Command="{Binding InstallPackageCommand}"
+                                CommandParameter="{Binding SelectedPackageNode}"
+                                IsVisible="{Binding SelectedPackageNode.PackageGroup.HasUpdate}"
+                                Content="Upgrade"
+                                Width="120"
+                                Padding="10"
+                                HorizontalContentAlignment="Center" />
+                            <Button
+                                Command="{Binding RemovePackageCommand}"
+                                CommandParameter="{Binding SelectedPackageNode}"
+                                IsVisible="{Binding SelectedPackageNode.PackageGroup.Installed}"
+                                Content="Remove"
+                                Width="120"
+                                Padding="10"
+                                HorizontalContentAlignment="Center" />
+                        </StackPanel>
+                        <Button
+                            Command="{Binding InstallPackageCommand}"
+                            CommandParameter="{Binding SelectedPackageNode}"
+                            IsVisible="{Binding !SelectedPackageNode.PackageGroup.Installed}"
+                            Content="Install"
+                            Width="120"
+                            Padding="10"
+                            HorizontalContentAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

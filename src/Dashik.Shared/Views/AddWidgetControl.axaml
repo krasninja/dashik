@@ -1,0 +1,143 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="Dashik.Shared.Views.AddWidgetControl"
+             x:DataType="viewModels:AddWidgetViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Panel Grid.Row="0" IsVisible="{Binding !Categories.Count}">
+            <StackPanel>
+                <Label HorizontalAlignment="Center" Margin="10">No widgets loaded.</Label>
+                <Label HorizontalAlignment="Center">Please, install packages.</Label>
+            </StackPanel>
+        </Panel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <ItemsControl
+                Grid.Column="0"
+                Name="WidgetsList"
+                ItemsSource="{Binding Categories}"
+                HorizontalAlignment="Stretch">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Expander
+                            HorizontalAlignment="Stretch"
+                            IsExpanded="True"
+                            Padding="0,5,0,0"
+                            Margin="0,10,0,0">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Info.Icon}" RenderOptions.BitmapInterpolationMode="MediumQuality" Width="24" Height="24" />
+                                    <Label Content="{Binding Title}" Padding="10,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Expander.Header>
+
+                            <ListBox ItemsSource="{Binding Widgets}"
+                                     SelectionMode="Single"
+                                     SelectedItem="{Binding $parent[UserControl].((viewModels:AddWidgetViewModel)DataContext).SelectedWidgetNode}">
+                                <ListBox.ItemContainerTheme>
+                                    <ControlTheme
+                                        TargetType="ListBoxItem"
+                                        BasedOn="{StaticResource {x:Type ListBoxItem}}"
+                                        x:DataType="viewModels:AddWidgetViewModel+WidgetNode">
+                                        <Setter Property="IsSelected" Value="{Binding Selected}" />
+                                    </ControlTheme>
+                                </ListBox.ItemContainerTheme>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding Icon}" Width="24" Height="24" />
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Padding="10,0,0,0"
+                                                Text="{Binding Title}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Expander>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Grid Grid.Column="1" IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <ContentControl Content="{Binding SelectedWidgetNode}">
+                        <!-- No selection -->
+                        <ContentControl.Styles>
+                            <Style Selector="ContentControl:empty">
+                                <Setter Property="Content">
+                                    <Template>
+                                        <Label FontSize="18" HorizontalContentAlignment="Center" Content="Select a widget to see details" />
+                                    </Template>
+                                </Setter>
+                            </Style>
+                        </ContentControl.Styles>
+                        <!-- Widget selected -->
+                        <ContentControl.DataTemplates>
+                            <DataTemplate DataType="{x:Type viewModels:AddWidgetViewModel+WidgetNode}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Image Source="{Binding Icon}" Height="24" />
+                                        <Label FontSize="24"
+                                               HorizontalContentAlignment="Center"
+                                               Content="{Binding Title}" />
+                                    </StackPanel>
+                                    <Carousel
+                                        HorizontalAlignment="Center"
+                                        Height="280"
+                                        VerticalAlignment="Center"
+                                        ItemsSource="{Binding PreviewImages}">
+                                        <Carousel.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel>
+                                                    <Image Source="{Binding}" Stretch="None" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </Carousel.ItemTemplate>
+                                    </Carousel>
+                                    <Label FontSize="12"
+                                           FontStyle="Italic"
+                                           HorizontalContentAlignment="Center"
+                                           Content="{Binding Id}" />
+                                    <TextBlock FontSize="18"
+                                               HorizontalAlignment="Center"
+                                               TextWrapping="Wrap"
+                                               Text="{Binding Description}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ContentControl.DataTemplates>
+                    </ContentControl>
+                </Grid>
+                <Grid Grid.Row="1" HorizontalAlignment="Center">
+                    <Button
+                        Command="{Binding AddWidgetCommand}"
+                        CommandParameter="{Binding SelectedWidgetNode}"
+                        Content="Add"
+                        Width="120"
+                        Padding="10"
+                        HorizontalContentAlignment="Center" />
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

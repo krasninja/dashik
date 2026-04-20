@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels.Settings"
+             x:Class="Dashik.Shared.Views.Settings.SettingsJsonControl"
+             x:DataType="viewModels:SettingsJsonViewModel">
+    <StackPanel Orientation="Vertical">
+        <Border
+            IsVisible="{Binding JsonError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+            BorderThickness="1">
+            <TextBlock
+                Text="{Binding JsonError}"
+                Padding="5"
+                TextWrapping="Wrap"
+                Background="LightCoral" />
+        </Border>
+        <avaloniaEdit:TextEditor
+            Name="Editor"
+            ShowLineNumbers="True"
+            FontFamily="Adwaita Mono, Consolas, Menlo, Monospace" />
+    </StackPanel>
+</UserControl>

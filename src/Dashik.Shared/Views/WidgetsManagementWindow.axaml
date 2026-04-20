@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
+        xmlns:controls="clr-namespace:Dashik.Shared.Views"
+        mc:Ignorable="d"
+        d:DesignWidth="800"
+        d:DesignHeight="450"
+        x:Class="Dashik.Shared.Views.WidgetsManagementWindow"
+        Title="Add Widget"
+        Width="800"
+        Height="600"
+        WindowState="Normal"
+        WindowStartupLocation="CenterOwner"
+        x:DataType="viewModels:WidgetsManagementViewModel">
+    <TabControl>
+        <TabItem Header="Widgets">
+            <controls:AddWidgetControl DataContext="{Binding AddWidgetViewModel}" />
+        </TabItem>
+        <TabItem Header="Packages">
+            <controls:AddPackageControl DataContext="{Binding AddPackageViewModel}" />
+        </TabItem>
+        <TabItem Header="Feeds">
+            <controls:AddFeedControl DataContext="{Binding AddFeedViewModel}" />
+        </TabItem>
+    </TabControl>
+</Window>

@@ -1,0 +1,91 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
+        xmlns:converters="clr-namespace:Dashik.Shared.Infrastructure.Converters"
+        mc:Ignorable="d"
+        d:DesignWidth="800"
+        d:DesignHeight="600"
+        Width="1000"
+        Height="700"
+        WindowState="Normal"
+        WindowStartupLocation="CenterOwner"
+        x:Class="Dashik.Shared.Views.LogsWindow"
+        Title="Logs"
+        x:DataType="viewModels:LogsViewModel">
+    <Window.Resources>
+        <converters:LogLevelBackgroundConverter x:Key="LogLevelBackgroundConverter" />
+    </Window.Resources>
+    <Design.DataContext>
+        <viewModels:LogsViewModel />
+    </Design.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <StackPanel Orientation="Horizontal" Margin="10">
+                <Label VerticalAlignment="Center">Level:</Label>
+                <ComboBox ItemsSource="{Binding LogLevels}" SelectedItem="{Binding LogLevelFilter}" VerticalAlignment="Center" Width="100" />
+                <Label VerticalAlignment="Center" Padding="5,0,0,0">Category:</Label>
+                <TextBox Text="{Binding CategoryFilter}" VerticalAlignment="Center" Width="300" />
+            </StackPanel>
+        </Grid>
+
+        <DataGrid
+            Grid.Row="1"
+            Margin="10"
+            ItemsSource="{Binding FilteredLogs}"
+            SelectedItem="{Binding SelectLog}"
+            AutoGenerateColumns="False"
+            CanUserReorderColumns="False"
+            CanUserSortColumns="False"
+            CanUserResizeColumns="True"
+            IsReadOnly="True"
+            GridLinesVisibility="All"
+            BorderThickness="1"
+            SelectionMode="Single"
+            BorderBrush="LightGray">
+            <DataGrid.Styles>
+                <Style Selector="DataGridCell">
+                    <!-- 'Status' is a property in your data model -->
+                    <Setter Property="Background" Value="{Binding ., Converter={StaticResource LogLevelBackgroundConverter}}" />
+                </Style>
+            </DataGrid.Styles>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Time" Binding="{Binding Time}" Width="185" />
+                <DataGridTextColumn Header="Log Level" Binding="{Binding LogLevel}" Width="120" />
+                <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="250" />
+                <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <GridSplitter Grid.Row="2" Background="LightGray" Margin="5,0,5,0" />
+
+        <TextBox
+            Grid.Row="3"
+            Margin="10"
+            FontFamily="Adwaita Mono, Consolas, Menlo, Monospace"
+            TextWrapping="Wrap"
+            IsReadOnly="True">
+            <TextBox.Text>
+                <MultiBinding StringFormat="{}{0} :: {1}">
+                    <Binding Path="SelectLog.Message" />
+                    <Binding Path="SelectLog.Exception" />
+                </MultiBinding>
+            </TextBox.Text>
+        </TextBox>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Command="{Binding CloseCommand}" Classes="primary default" VerticalAlignment="Center">OK</Button>
+            <Button Command="{Binding ClearCommand}" Classes="primary default" VerticalAlignment="Center">Clear</Button>
+        </StackPanel>
+    </Grid>
+</Window>

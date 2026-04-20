@@ -1,0 +1,202 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
+        xmlns:views="clr-namespace:Dashik.Shared.Views"
+        xmlns:controls="clr-namespace:Dashik.Shared.Controls"
+        xmlns:converters="clr-namespace:Dashik.Shared.Infrastructure.Converters"
+        mc:Ignorable="d"
+        d:DesignWidth="750"
+        d:DesignHeight="450"
+        x:Class="Dashik.Shared.Views.WidgetsContainerWindow"
+        Width="{Binding WindowWidth, Mode=TwoWay}"
+        Height="{Binding WindowHeight, Mode=TwoWay}"
+        MinWidth="250"
+        MinHeight="250"
+        PositionChanged="WindowBase_OnPositionChanged"
+        WindowState="Normal"
+        WindowStartupLocation="Manual"
+        Title="Dashik"
+        Icon="/Assets/Icon.ico"
+        x:DataType="viewModels:WidgetsContainerViewModel">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Dashik.Shared/Resources/FontAwesome.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+        <Color x:Key="ContainerHeaderBackground">#FF6D7E8F</Color> <!-- DarkSlateBlue + Dark -->
+        <Color x:Key="ContainerBackground">#FF778899</Color> <!-- DarkSlateBlue -->
+        <Color x:Key="ContainerWidgetBackground">#FFF0F8FF</Color> <!-- AliceBlue -->
+
+        <converters:EqualsMultiValueConverter x:Key="EqualsMultiValueConverter" />
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="Border.widget">
+            <Setter Property="Margin" Value="3" />
+            <Setter Property="Padding" Value="3" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Width" Value="250" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="ClipToBounds" Value="True" />
+            <Setter Property="Background" Value="{StaticResource ContainerWidgetBackground}" />
+        </Style>
+        <Style Selector="Button.space">
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style Selector="PathIcon.header">
+            <Setter Property="Height" Value="14" />
+            <Setter Property="Width" Value="14" />
+        </Style>
+    </Window.Styles>
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+N" Command="{Binding AddWidgetCommand}" />
+        <KeyBinding Gesture="Ctrl+Q" Command="{Binding CloseApplicationCommand}" />
+    </Window.KeyBindings>
+
+    <Grid Background="{StaticResource ContainerBackground}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border
+            Grid.Row="0"
+            Padding="2"
+            HorizontalAlignment="Stretch"
+            Height="34"
+            Background="{StaticResource ContainerHeaderBackground}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button ToolTip.Tip="Menu">
+                        <Button.Content>
+                            <PathIcon Classes="header" Data="{StaticResource FontAwesomeSolidBars}" />
+                        </Button.Content>
+                        <Button.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                                <MenuItem Header="Add Widget" Command="{Binding AddWidgetCommand}" InputGesture="Ctrl+N" HotKey="Ctrl+N" />
+                                <MenuItem Header="Spaces" ItemsSource="{Binding Spaces}">
+                                    <MenuItem.Styles>
+                                        <Style Selector="MenuItem">
+                                            <Setter Property="Command" Value="{Binding $parent[Window].((viewModels:WidgetsContainerViewModel)DataContext).SwitchSpaceCommand}" />
+                                            <Setter Property="CommandParameter" Value="{Binding .}" />
+                                        </Style>
+                                    </MenuItem.Styles>
+                                    <MenuItem.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <PathIcon Data="{StaticResource FontAwesomeSolidAsterisk}" Margin="0,0,5,0" Foreground="Green" VerticalAlignment="Center">
+                                                    <PathIcon.IsVisible>
+                                                        <MultiBinding Converter="{StaticResource EqualsMultiValueConverter}">
+                                                            <Binding Path="$parent[Window].((viewModels:WidgetsContainerViewModel)DataContext).SelectedSpace" />
+                                                            <Binding Path="." />
+                                                        </MultiBinding>
+                                                    </PathIcon.IsVisible>
+                                                </PathIcon>
+                                                <TextBlock Text="{Binding Name}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </MenuItem.ItemTemplate>
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand}" />
+                                <MenuItem Header="Help">
+                                    <MenuItem Header="Logs" Command="{Binding OpenLogsCommand}" />
+                                    <MenuItem Header="Website" Command="{Binding OpenWebsiteCommand}" />
+                                    <MenuItem Header="Fonts" Command="{Binding OpenFontsCommand}" />
+                                    <Separator />
+                                    <MenuItem Header="About" Command="{Binding OpenAboutCommand}" />
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem Header="Exit" InputGesture="Ctrl+Q" HotKey="Ctrl+Q" Command="{Binding CloseApplicationCommand}" />
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="0">
+                    <ItemsControl ItemsSource="{Binding Spaces}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ToggleButton
+                                    Content="{Binding Name}"
+                                    Command="{Binding $parent[Window].((viewModels:WidgetsContainerViewModel)DataContext).SwitchSpaceCommand}"
+                                    CommandParameter="{Binding .}"
+                                    MaxWidth="100"
+                                    Classes="space">
+                                    <ToggleButton.IsChecked>
+                                        <MultiBinding Converter="{StaticResource EqualsMultiValueConverter}">
+                                            <Binding Path="$parent[Window].((viewModels:WidgetsContainerViewModel)DataContext).SelectedSpace" />
+                                            <Binding Path="." />
+                                        </MultiBinding>
+                                    </ToggleButton.IsChecked>
+                                </ToggleButton>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Command="{Binding UpdateCommand}" IsVisible="{Binding UpdateInfo.HasNewVersion}" ToolTip.Tip="Update">
+                        <Button.Content>
+                            <PathIcon Classes="header" Foreground="Green" Data="{StaticResource FontAwesomeSolidCircleArrowUp}" />
+                        </Button.Content>
+                    </Button>
+                    <ToggleButton IsChecked="{Binding Topmost}" ToolTip.Tip="Topmost">
+                        <ToggleButton.Content>
+                            <PathIcon Classes="header" Data="{StaticResource FontAwesomeRegularWindowRestore}" />
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    <Button Command="{Binding AddWidgetCommand}" ToolTip.Tip="Add widget">
+                        <PathIcon Classes="header" Data="{StaticResource FontAwesomeSolidCirclePlus}" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Panel Grid.Row="1" IsVisible="{Binding !SelectedSpace.Widgets.Count}">
+            <Border Classes="widget" Padding="10">
+                <StackPanel>
+                    <TextBlock HorizontalAlignment="Center">There are no widgets in the space. Click </TextBlock>
+                    <Button Command="{Binding AddWidgetCommand}" HorizontalAlignment="Center">Add Widget</Button>
+                    <TextBlock HorizontalAlignment="Center">to start with the new</TextBlock>
+                    <TextBlock HorizontalAlignment="Center">widgets adding!</TextBlock>
+                </StackPanel>
+            </Border>
+        </Panel>
+
+        <ScrollViewer Grid.Row="2">
+            <ItemsControl ItemsSource="{Binding SelectedSpace.Widgets}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <controls:WidgetsPanel HorizontalAlignment="Stretch" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Classes="widget">
+                            <views:WidgetControl DataContext="{Binding}" />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Window>

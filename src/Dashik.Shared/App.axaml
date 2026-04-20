@@ -1,0 +1,17 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:desktop="clr-namespace:Dashik.Shared"
+             x:Class="Dashik.Shared.App"
+             RequestedThemeVariant="Default">
+    <Application.DataTemplates>
+        <desktop:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+        <StyleInclude Source="avares://Dashik.Sdk/Styles/ControlsStyles.axaml" />
+        <StyleInclude Source="avares://Dashik.Shared/Styles/Main.axaml" />
+    </Application.Styles>
+</Application>

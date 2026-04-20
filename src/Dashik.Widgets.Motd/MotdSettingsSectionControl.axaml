@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Dashik.Widgets.Motd;assembly=Dashik.Widgets.Motd"
+             xmlns:models="clr-namespace:Dashik.Sdk.Models;assembly=Dashik.Sdk"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="Dashik.Widgets.Motd.MotdSettingsSectionControl"
+             x:DataType="models:SettingsSectionModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0" Click="AddButton_OnClick">Add</Button>
+
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding ((viewModels:MotdWidgetSettings)Settings).Messages}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0" Text="{Binding Text}" />
+                        <Button
+                            Grid.Column="1"
+                            Click="RemoveButton_OnClick"
+                            Tag="{Binding .}"
+                            Content="Remove">
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

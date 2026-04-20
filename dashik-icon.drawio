@@ -1,0 +1,22 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.5.1">
+  <diagram name="Страница-1" id="s1QKw4Lx5N7-O5alHcN9">
+    <mxGraphModel dx="656" dy="346" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="413" pageHeight="291" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="8eDVxQ5UumELMMrKGHxq-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b0e3e6;strokeColor=none;gradientDirection=west;fillStyle=auto;" value="" vertex="1">
+          <mxGeometry height="170.6666666666667" width="120.4714740549563" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="8eDVxQ5UumELMMrKGHxq-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="76" width="120.47" x="10" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="8eDVxQ5UumELMMrKGHxq-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=none;fontColor=#ffffff;" value="" vertex="1">
+          <mxGeometry height="170.6666666666667" width="120.4714740549563" x="145.5285259450437" y="95.33333333333336" as="geometry" />
+        </mxCell>
+        <mxCell id="8eDVxQ5UumELMMrKGHxq-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fa6800;strokeColor=none;fontColor=#000000;" value="" vertex="1">
+          <mxGeometry height="76" width="120.47" x="145.53" y="10" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

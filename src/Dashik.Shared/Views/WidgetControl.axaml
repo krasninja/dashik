@@ -1,0 +1,154 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
+             xmlns:converters="clr-namespace:Dashik.Shared.Infrastructure.Converters"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="Dashik.Shared.Views.WidgetControl"
+             x:DataType="viewModels:WidgetViewModel">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Dashik.Shared/Resources/FontAwesome.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+        <converters:TimeAgoConverter x:Key="TimeAgoConverter" />
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="StackPanel.headerIcons Button">
+            <Setter Property="Padding" Value="3" />
+            <Setter Property="Margin" Value="1" />
+        </Style>
+        <Style Selector="StackPanel.headerIcons PathIcon, StackPanel.headerIcons Button > PathIcon">
+            <Setter Property="Foreground" Value="DarkGray" />
+            <Setter Property="Height" Value="14" />
+            <Setter Property="Width" Value="14" />
+            <Setter Property="Padding" Value="3" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
+    </UserControl.Styles>
+
+    <Border
+        Width="250"
+        MaxHeight="400"
+        VerticalAlignment="Top"
+        BorderThickness="1"
+        Margin="2"
+        Padding="2"
+        CornerRadius="3">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Image Source="{Binding WidgetInstance.Info.Icon}" Height="16" />
+                    <Label Content="{Binding Title}" VerticalAlignment="Center" />
+                </StackPanel>
+                <StackPanel
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    Classes="headerIcons"
+                    Height="24"
+                    HorizontalAlignment="Right">
+                    <PathIcon
+                        Data="{StaticResource FontAwesomeSolidRotate}"
+                        IsVisible="{Binding Updating}"
+                        ToolTip.Tip="Updating...">
+                        <PathIcon.Styles>
+                            <Style Selector="PathIcon">
+                                <Style.Animations>
+                                    <Animation Duration="0:0:2" IterationCount="INFINITE">
+                                        <KeyFrame Cue="0%">
+                                            <Setter Property="RotateTransform.Angle" Value="0" />
+                                        </KeyFrame>
+                                        <KeyFrame Cue="100%">
+                                            <Setter Property="RotateTransform.Angle" Value="360" />
+                                        </KeyFrame>
+                                    </Animation>
+                                </Style.Animations>
+                            </Style>
+                        </PathIcon.Styles>
+                    </PathIcon>
+                    <PathIcon
+                        Data="{StaticResource FontAwesomeSolidCircleXmark}"
+                        Foreground="Red"
+                        IsVisible="{Binding LastException, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        ToolTip.Tip="{Binding LastException.Message}" />
+                    <Button
+                        Background="Transparent"
+                        ToolTip.Tip="Expand"
+                        Command="{Binding ExpandWidgetCommand}"
+                        CommandParameter="{Binding}"
+                        IsVisible="{Binding WidgetInstance.MainSettings.Hidden}">
+                        <Button.Content>
+                            <PathIcon Data="{StaticResource FontAwesomeSolidChevronDown}" />
+                        </Button.Content>
+                    </Button>
+                    <Button
+                        Background="Transparent"
+                        ToolTip.Tip="Collapse"
+                        Command="{Binding CollapseWidgetCommand}"
+                        CommandParameter="{Binding}"
+                        IsVisible="{Binding !WidgetInstance.MainSettings.Hidden}">
+                        <Button.Content>
+                            <PathIcon Data="{StaticResource FontAwesomeSolidChevronUp}" />
+                        </Button.Content>
+                    </Button>
+                    <Button CornerRadius="12" Background="Transparent">
+                        <Button.Content>
+                            <PathIcon Data="{StaticResource FontAwesomeEllipses}" />
+                        </Button.Content>
+                        <Button.Flyout>
+                            <MenuFlyout>
+                                <Label
+                                    Foreground="DarkGray"
+                                    Content="{Binding LastUpdatedUtc, Converter={StaticResource TimeAgoConverter}}" />
+                                <Separator />
+                                <MenuItem
+                                    Header="Settings"
+                                    Command="{Binding OpenWidgetSettingsCommand}"
+                                    CommandParameter="{Binding}" />
+                                <Separator />
+                                <MenuItem
+                                    Header="Refresh"
+                                    Command="{Binding UpdateWidgetCommand}"
+                                    CommandParameter="{Binding}" />
+                                <MenuItem
+                                    Header="Disable"
+                                    IsVisible="{Binding !WidgetInstance.MainSettings.Disabled}"
+                                    Command="{Binding DisableWidgetCommand}"
+                                    CommandParameter="{Binding}" />
+                                <MenuItem
+                                    Header="Enable"
+                                    IsVisible="{Binding WidgetInstance.MainSettings.Disabled}"
+                                    Command="{Binding EnableWidgetCommand}"
+                                    CommandParameter="{Binding}" />
+                                <MenuItem
+                                    Header="Remove"
+                                    Foreground="Red"
+                                    Command="{Binding RemoveWidgetCommand}"
+                                    CommandParameter="{Binding}" />
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            <ScrollViewer Grid.Row="1" IsVisible="{Binding !WidgetInstance.MainSettings.Hidden}">
+                <ContentPresenter Content="{Binding Widget.Control}" />
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</UserControl>

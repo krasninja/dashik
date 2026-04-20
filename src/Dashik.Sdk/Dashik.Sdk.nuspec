@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Dashik.Sdk</id>
+    <title>Dashik SDK</title>
+    <icon>icon.png</icon>
+    <summary>Small cozy dashboard app SDK</summary>
+    <version>0.0.0</version>
+    <description>Small cozy dashboard software SDK to build widgets.</description>
+    <authors>Ivan Kozhin</authors>
+    <owners>Ivan Kozhin</owners>
+    <license type="file">LICENSE.txt</license>
+    <projectUrl>https://github.com/krasninja/dashik</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>(c) Ivan Kozhin, 2026</copyright>
+    <tags>dashboard widgets</tags>
+    <repository type="git" url="https://github.com/krasninja/dashik" commit="$CommitHash$" />
+    <dependencies>
+      <group targetFramework="net10.0">
+        <dependency id="Avalonia" version="[11.3.13, )" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="[10.0.0, )" />
+        <dependency id="Projektanker.Icons.Avalonia.FontAwesome" version="[9.6.2, )" />
+        <dependency id="ReactiveUI.Avalonia" version="[11.4.12, )" />
+        <dependency id="Xaml.Behaviors.Interactions" version="[11.3.9.5, )" />
+        <dependency id="Xaml.Behaviors.Interactivity" version="[11.3.9.5, )" />
+      </group>
+    </dependencies>
+    <readme>README.md</readme>
+    <releaseNotes>You can find changelog at https://github.com/krasninja/dashik/blob/develop/CHANGELOG.md</releaseNotes>
+  </metadata>
+  <files>
+    <file src="bin\Release\net10.0\Dashik.Sdk.dll" target="lib\net10.0" />
+    <file src="bin\Release\net10.0\Dashik.Sdk.pdb" target="lib\net10.0" />
+    <file src="bin\Release\net10.0\Dashik.Sdk.xml" target="lib\net10.0" />
+    <file src="..\..\README.md" target="README.md" />
+    <file src="..\..\LICENSE.md" target="LICENSE.md" />
+    <file src="..\..\icon.png" target="icon.png" />
+  </files>
+</package>

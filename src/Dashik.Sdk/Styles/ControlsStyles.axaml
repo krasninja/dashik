@@ -1,0 +1,42 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="TextBlock.hyperlink">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="{DynamicResource HyperlinkButtonForeground}" />
+        <Setter Property="TextDecorations" Value="Underline" />
+        <Setter Property="RenderTransform" Value="none" />
+        <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Foreground" Value="{DynamicResource HyperlinkButtonForegroundPointerOver}" />
+        </Style>
+        <Style Selector="^:pressed">
+            <Setter Property="RenderTransform" Value="scale(0.98)" />
+        </Style>
+    </Style>
+
+    <Style Selector="Button.default">
+        <Setter Property="Margin" Value="5" />
+    </Style>
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="#007ACC" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="#007ACC" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="#005A9E" />
+            <Setter Property="BorderBrush" Value="#005A9E" />
+        </Style>
+        <Style Selector="^:pressed">
+            <Setter Property="Background" Value="#004578" />
+            <Setter Property="BorderBrush" Value="#004578" />
+        </Style>
+    </Style>
+</Styles>

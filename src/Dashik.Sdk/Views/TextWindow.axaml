@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:Dashik.Sdk.ViewModels"
+        mc:Ignorable="d"
+        d:DesignWidth="800"
+        d:DesignHeight="450"
+        Width="1000"
+        Height="700"
+        WindowState="Normal"
+        WindowStartupLocation="CenterOwner"
+        x:Class="Dashik.Sdk.Views.TextWindow"
+        Title="Message"
+        x:DataType="viewModels:TextWindowViewModel">
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+
+        <TextBox
+            Grid.Row="0"
+            IsReadOnly="True"
+            Text="{Binding Text}"
+            FontFamily="Adwaita Mono, Consolas, Menlo, Monospace"
+            TextWrapping="Wrap" />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Command="{Binding CloseCommand}" Classes="primary default" VerticalAlignment="Center">OK</Button>
+        </StackPanel>
+    </Grid>
+</Window>
