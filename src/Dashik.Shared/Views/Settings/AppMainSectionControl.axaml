@@ -6,6 +6,13 @@
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
-             x:Class="Dashik.Shared.Views.Settings.AppSettingsControl"
-             x:DataType="viewModels:SettingsSectionViewModel">
+             x:Class="Dashik.Shared.Views.Settings.AppMainSectionControl"
+             x:DataType="viewModels:AppMainSectionViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <CheckBox IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).IsTopmost}">Is topmost</CheckBox>
+    </Grid>
 </UserControl>

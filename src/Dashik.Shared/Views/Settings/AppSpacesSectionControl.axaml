@@ -6,8 +6,8 @@
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
-             x:Class="Dashik.Shared.Views.Settings.AppSpacesSettingsControl"
-             x:DataType="viewModels:AppSpacesSettingsViewModel">
+             x:Class="Dashik.Shared.Views.Settings.AppSpacesSectionControl"
+             x:DataType="viewModels:AppSpacesSectionViewModel">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

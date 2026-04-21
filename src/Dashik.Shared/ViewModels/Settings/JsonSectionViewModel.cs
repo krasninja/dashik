@@ -5,7 +5,7 @@ using Dashik.Sdk.Models;
 
 namespace Dashik.Shared.ViewModels.Settings;
 
-public class SettingsJsonViewModel : SettingsSectionModel
+public class JsonSectionViewModel : SettingsSectionModel
 {
     private JObject _jsonSettings;
     private readonly JsonSerializer _serializer;
@@ -30,7 +30,7 @@ public class SettingsJsonViewModel : SettingsSectionModel
     };
 
     /// <inheritdoc />
-    public SettingsJsonViewModel()
+    public JsonSectionViewModel()
     {
         _jsonSettings = JObject.Parse("{}");
         _serializer = JsonSerializer.Create(JsonSerializerOptions);

@@ -13,6 +13,8 @@ public class AppSettingsViewModel
 
     public AvaloniaList<SpaceModel> Spaces { get; set; } = [];
 
+    public bool IsTopmost { get; set; }
+
     public AppSettingsViewModel()
     {
     }

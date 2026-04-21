@@ -6,8 +6,8 @@
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
-             x:Class="Dashik.Shared.Views.Settings.AppFeedsSettingsControl"
-             x:DataType="viewModels:AppFeedsSettingsModel">
+             x:Class="Dashik.Shared.Views.Settings.AppFeedsSectionControl"
+             x:DataType="viewModels:AppFeedsSectionModel">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

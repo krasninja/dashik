@@ -45,7 +45,7 @@
             <ContentControl
                 Grid.Column="2"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
+                VerticalAlignment="Top"
                 Padding="5"
                 Content="{Binding $parent[Window].((viewModels:SettingsViewModel)DataContext).SelectedSection.Control}"/>
         </Grid>

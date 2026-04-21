@@ -2,9 +2,9 @@ using Avalonia.Controls;
 
 namespace Dashik.Shared.Views.Settings;
 
-public partial class AppSettingsControl : UserControl
+public partial class AppSpacesSectionControl : UserControl
 {
-    public AppSettingsControl()
+    public AppSpacesSectionControl()
     {
         InitializeComponent();
     }

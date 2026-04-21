@@ -284,13 +284,13 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     private async Task LoadUiState(CancellationToken cancellationToken)
     {
-        var settingsModel = await _settingsStorage.LoadWindowStateAsync(cancellationToken);
-        WindowHeight = settingsModel.WindowHeight;
-        WindowWidth = settingsModel.WindowWidth;
+        var windowState = await _settingsStorage.LoadWindowStateAsync(cancellationToken);
+        WindowHeight = windowState.WindowHeight;
+        WindowWidth = windowState.WindowWidth;
 
         if (!string.IsNullOrEmpty(WindowScreen))
         {
-            if (settingsModel.WindowPositions.TryGetValue(WindowScreen, out var windowPosition))
+            if (windowState.WindowPositions.TryGetValue(WindowScreen, out var windowPosition))
             {
                 WindowPosition = new PixelPoint(windowPosition.X, windowPosition.Y);
             }
@@ -298,17 +298,17 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
         foreach (var space in Spaces)
         {
-            var order = settingsModel.WidgetsOrder.TryGetValue(space.Id, out var widgetsOrder)
+            var order = windowState.WidgetsOrder.TryGetValue(space.Id, out var widgetsOrder)
                 ? widgetsOrder
                 : space.Widgets.Select(w => w.WidgetId).ToArray();
             space.Widgets = new AvaloniaList<WidgetViewModel>(space.Widgets.Order(new WidgetsIdComparer(order)));
         }
-        if (!string.IsNullOrEmpty(settingsModel.ActiveSpace))
+        if (!string.IsNullOrEmpty(windowState.ActiveSpace))
         {
-            SelectedSpace = Spaces.FirstOrDefault(s => s.Id == settingsModel.ActiveSpace) ?? SelectedSpace;
+            SelectedSpace = Spaces.FirstOrDefault(s => s.Id == windowState.ActiveSpace) ?? SelectedSpace;
         }
 
-        Topmost = settingsModel.Topmost;
+        Topmost = windowState.Topmost;
     }
 
     #endregion
@@ -372,21 +372,29 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     private async Task OpenSettingsWindow(CancellationToken cancellationToken)
     {
-        var appSettingsViewModel = new AppSettingsViewModel(_appSettings);
+        var appSettingsViewModel = new AppSettingsViewModel(_appSettings)
+        {
+            IsTopmost = Topmost
+        };
         var viewModel = _mvvmService.CreateViewModel<SettingsViewModel>(appSettingsViewModel);
 
         viewModel.AddSection(
-            SettingsSection.Create<AppSpacesSettingsControl, AppSpacesSettingsViewModel>("Spaces")
+            SettingsSection.Create<AppMainSectionControl, WidgetMainSectionViewModel>("Main")
+        );
+        viewModel.AddSection(
+            SettingsSection.Create<AppSpacesSectionControl, AppSpacesSectionViewModel>("Spaces")
         );
         viewModel.AddJsonSection();
 
         if (await _mvvmService.OpenAsync(viewModel, cancellationToken) == DialogResult.OK)
         {
-            var newAppSettings = ((AppSettingsViewModel)viewModel.Settings).ToAppSettings();
+            var newSettings = (AppSettingsViewModel)viewModel.Settings;
+            var newAppSettings = newSettings.ToAppSettings();
             using var cloner = new AppCloner();
             cloner.CloneTo(newAppSettings, _appSettings);
             await _settingsStorage.SaveAsync(_appSettings, cancellationToken);
-            await LoadAsync(cancellationToken);
+            await LoadInternalAsync(cancellationToken);
+            Topmost = newSettings.IsTopmost;
         }
     }
 
@@ -459,8 +467,21 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     {
         var stopwatch = Stopwatch.StartNew();
 
-        var instances = (await _widgetInstanceProvider.LoadAsync(cancellationToken)).ToList();
+        await LoadInternalAsync(cancellationToken: cancellationToken);
+        Observable
+            .Timer(TimeSpan.FromSeconds(10))
+            .Select(_ => Unit.Default)
+            .InvokeCommand(CheckUpdatesCommand);
+        await base.LoadAsync(cancellationToken);
+
+        stopwatch.Stop();
+        _logger.LogTrace($"App state loaded in {stopwatch.ElapsedMilliseconds} ms.");
+    }
+
+    private async Task LoadInternalAsync(CancellationToken cancellationToken = default)
+    {
         Loading = true;
+        var instances = (await _widgetInstanceProvider.LoadAsync(cancellationToken)).ToList();
 
         Spaces.Clear();
         Spaces.AddRange(_appSettings.Spaces.Select(s => new SpaceViewModel(s)));
@@ -470,6 +491,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             throw new DashikException("No space found. Please add at least one space in settings.");
         }
 
+        // Load instance.
         var vms = new List<WidgetViewModel>(capacity: instances.Count);
         foreach (var instance in instances)
         {
@@ -496,17 +518,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
         await LoadUiState(cancellationToken);
 
-        await base.LoadAsync(cancellationToken);
-
-        Observable
-            .Timer(TimeSpan.FromSeconds(10))
-            .Select(_ => Unit.Default)
-            .InvokeCommand(CheckUpdatesCommand);
-
         Loading = false;
-
-        stopwatch.Stop();
-        _logger.LogTrace($"App state loaded in {stopwatch.ElapsedMilliseconds} ms.");
     }
 
     private void PrepareWidgetViewModel(WidgetViewModel widgetViewModel)

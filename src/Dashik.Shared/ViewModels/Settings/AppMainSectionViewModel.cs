@@ -1,6 +1,8 @@
+using Dashik.Sdk.Models;
+
 namespace Dashik.Shared.ViewModels.Settings;
 
-public class AppFeedsSettingsModel : Sdk.Models.SettingsSectionModel
+public class AppMainSectionViewModel : SettingsSectionModel
 {
     public AppSettingsViewModel AppSettings => (AppSettingsViewModel)Settings!;
 }

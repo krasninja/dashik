@@ -4,6 +4,9 @@ using Dashik.Shared.Infrastructure.UI;
 
 namespace Dashik.Shared.ViewModels.Settings;
 
+/// <summary>
+/// Settings section.
+/// </summary>
 public class SettingsSectionViewModel : ViewModelBase
 {
     private readonly Sdk.Models.SettingsSectionModel _controlModel;

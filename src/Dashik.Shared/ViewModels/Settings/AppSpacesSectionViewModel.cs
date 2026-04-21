@@ -5,7 +5,7 @@ using Dashik.Sdk.Models;
 
 namespace Dashik.Shared.ViewModels.Settings;
 
-public class AppSpacesSettingsViewModel : SettingsSectionModel
+public class AppSpacesSectionViewModel : SettingsSectionModel
 {
     public AppSettingsViewModel AppSettings => (AppSettingsViewModel)Settings!;
 
@@ -28,7 +28,7 @@ public class AppSpacesSettingsViewModel : SettingsSectionModel
     }
 
     /// <inheritdoc />
-    public AppSpacesSettingsViewModel()
+    public AppSpacesSectionViewModel()
     {
         AddSpaceCommand = ReactiveCommand.Create(() =>
         {

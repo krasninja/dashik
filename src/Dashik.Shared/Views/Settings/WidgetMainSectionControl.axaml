@@ -8,7 +8,7 @@
              d:DesignWidth="800"
              d:DesignHeight="450"
              x:Class="Dashik.Shared.Views.Settings.WidgetMainSettingsControl"
-             x:DataType="settings:MainSettingsSectionViewModel">
+             x:DataType="settings:WidgetMainSectionViewModel">
     <UserControl.Styles>
         <Style Selector="TextBlock">
             <Setter Property="VerticalAlignment" Value="Top" />
@@ -29,7 +29,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Column="0" Grid.Row="0">Update interval:</TextBlock>
-        <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0">
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0">
             <TimePicker
                 ClockIdentifier="24HourClock"
                 UseSeconds="True"

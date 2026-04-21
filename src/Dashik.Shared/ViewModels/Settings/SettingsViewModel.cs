@@ -10,6 +10,9 @@ using Dashik.Sdk.Mvvm;
 
 namespace Dashik.Shared.ViewModels.Settings;
 
+/// <summary>
+/// Main view model for settings that contains sections and save functionality.
+/// </summary>
 public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<int>
 {
     private readonly IServiceProvider _serviceProvider;
@@ -69,7 +72,7 @@ public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDia
 
     public void AddJsonSection()
     {
-        var jsonSection = SettingsSection.Create<SettingsJsonControl, SettingsJsonViewModel>("JSON");
+        var jsonSection = SettingsSection.Create<JsonSectionControl, JsonSectionViewModel>("JSON");
         AddSection(jsonSection);
     }
 

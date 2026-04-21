@@ -41,11 +41,11 @@
       <DependentUpon>SettingsWindow.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Settings\SettingsJsonControl.axaml.cs">
+    <Compile Update="Views\Settings\JsonSectionControl.axaml.cs">
       <DependentUpon>SettingsJsonControl.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Settings\AppSettingsControl.axaml.cs">
+    <Compile Update="Views\Settings\AppMainSectionControl.axaml.cs">
       <DependentUpon>AppSettingsControl.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>

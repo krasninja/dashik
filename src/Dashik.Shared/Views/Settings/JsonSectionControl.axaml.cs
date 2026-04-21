@@ -10,13 +10,13 @@ using Dashik.Shared.Utils;
 
 namespace Dashik.Shared.Views.Settings;
 
-public sealed partial class SettingsJsonControl : ReactiveUserControl<SettingsJsonViewModel>, IDisposable
+public sealed partial class JsonSectionControl : ReactiveUserControl<JsonSectionViewModel>, IDisposable
 {
     private readonly IDisposable _textChangedSubscription;
     private bool _suppressTextChanged;
     private bool _pendingChanges;
 
-    public SettingsJsonControl()
+    public JsonSectionControl()
     {
         InitializeComponent();
 

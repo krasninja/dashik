@@ -182,7 +182,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
     private void AddSettingsSection(SettingsViewModel viewModel, IWidget widget)
     {
         viewModel.AddSection(
-            SettingsSection.Create<WidgetMainSettingsControl, MainSettingsSectionViewModel>("Main"),
+            SettingsSection.Create<WidgetMainSettingsControl, WidgetMainSectionViewModel>("Main"),
             obj => ((WidgetAllSettings)obj).MainSettings
         );
 
