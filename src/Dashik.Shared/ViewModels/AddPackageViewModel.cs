@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using ReactiveUI;
 using Microsoft.Extensions.Logging;
 using Dashik.Abstractions;
+using Dashik.Sdk.Models;
 using Dashik.Shared.Infrastructure.UI;
 using Dashik.Shared.Services.Packages;
 using Dashik.Sdk.Mvvm;

@@ -1,5 +1,5 @@
 using Avalonia.Media.Imaging;
-using Dashik.Abstractions;
+using Dashik.Sdk.Models;
 using Dashik.Sdk.Utils;
 
 namespace Dashik.Shared.Services.Packages;

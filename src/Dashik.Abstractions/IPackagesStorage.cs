@@ -1,3 +1,5 @@
+using Dashik.Sdk.Models;
+
 namespace Dashik.Abstractions;
 
 /// <summary>

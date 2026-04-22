@@ -1,6 +1,6 @@
 using Avalonia.Media.Imaging;
 using NuGet.Packaging;
-using Dashik.Abstractions;
+using Dashik.Sdk.Models;
 
 namespace Dashik.Shared.Services.Packages;
 

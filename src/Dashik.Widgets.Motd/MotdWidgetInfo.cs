@@ -8,6 +8,6 @@ public sealed class MotdWidgetInfo : WidgetInfo
     /// <inheritdoc />
     public MotdWidgetInfo(WidgetInfoAttribute infoAttribute, Type widgetType) : base(infoAttribute, widgetType)
     {
-        Icon = EmbeddedResourceUtils.GetAsBitmap(typeof(MotdWidgetInfo).Assembly, "Dashik.Widgets.Motd.Assets.Icon.png");
+        Icon = EmbeddedResourceUtils.GetAsBitmap("Dashik.Widgets.Motd.Assets.Icon.png", typeof(MotdWidgetInfo).Assembly);
     }
 }

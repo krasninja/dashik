@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Dashik.Abstractions;
+using Dashik.Sdk.Models;
 
 namespace Dashik.Shared.Services.Packages;
 

@@ -1,5 +1,5 @@
 using Xunit;
-using Dashik.Abstractions;
+using Dashik.Sdk.Models;
 using Dashik.Shared.Services.Packages;
 
 namespace Dashik.Tests.Services;
