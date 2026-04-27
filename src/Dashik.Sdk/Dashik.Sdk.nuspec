@@ -9,7 +9,7 @@
     <description>Small cozy dashboard software SDK to build widgets.</description>
     <authors>Ivan Kozhin</authors>
     <owners>Ivan Kozhin</owners>
-    <license type="file">LICENSE.txt</license>
+    <license type="file">LICENSE</license>
     <projectUrl>https://github.com/krasninja/dashik</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>(c) Ivan Kozhin, 2026</copyright>
@@ -17,12 +17,11 @@
     <repository type="git" url="https://github.com/krasninja/dashik" commit="$CommitHash$" />
     <dependencies>
       <group targetFramework="net10.0">
-        <dependency id="Avalonia" version="[11.3.13, )" />
+        <dependency id="Avalonia" version="[12.0.1, )" />
+        <dependency id="ReactiveUI.Avalonia" version="[12.0.1, )" />
+        <dependency id="Xaml.Behaviors.Interactions" version="[12.0.0, )" />
+        <dependency id="Xaml.Behaviors.Interactivity" version="[12.0.0, )" />
         <dependency id="Microsoft.Extensions.Logging.Abstractions" version="[10.0.0, )" />
-        <dependency id="Projektanker.Icons.Avalonia.FontAwesome" version="[9.6.2, )" />
-        <dependency id="ReactiveUI.Avalonia" version="[11.4.12, )" />
-        <dependency id="Xaml.Behaviors.Interactions" version="[11.3.9.5, )" />
-        <dependency id="Xaml.Behaviors.Interactivity" version="[11.3.9.5, )" />
       </group>
     </dependencies>
     <readme>README.md</readme>
@@ -33,7 +32,7 @@
     <file src="bin\Release\net10.0\Dashik.Sdk.pdb" target="lib\net10.0" />
     <file src="bin\Release\net10.0\Dashik.Sdk.xml" target="lib\net10.0" />
     <file src="..\..\README.md" target="README.md" />
-    <file src="..\..\LICENSE.md" target="LICENSE.md" />
+    <file src="..\..\LICENSE" target="LICENSE" />
     <file src="..\..\icon.png" target="icon.png" />
   </files>
 </package>

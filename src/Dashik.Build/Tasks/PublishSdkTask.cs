@@ -18,7 +18,7 @@ public sealed class PublishSdkTask : AsyncFrostingTask<BuildContext>
         var currentSha = new string('0', 64);
         try
         {
-            currentSha = context.GitLogTip("../../").Sha;
+            currentSha = context.GitLogTip(".").Sha;
         }
         catch (Exception e)
         {
