@@ -88,6 +88,8 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
+    public bool CanUpdate => Widget is IWidgetUpdate;
+
     public ReactiveCommand<WidgetViewModel, Unit> UpdateWidgetCommand { get; }
 
     public ReactiveCommand<WidgetViewModel, Unit> DisableWidgetCommand { get; }
@@ -173,9 +175,13 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         {
             CopySettings((WidgetAllSettings)viewModel.Settings);
             UpdateTitle();
-            await vm.Widget.InitializeAsync(new WidgetInitInfo(vm.WidgetInstance, vm.WidgetInstance.WidgetSettings), cancellationToken);
-            await LoadAsync(cancellationToken);
             _saveWidgetRequested.OnNext(vm.WidgetId);
+            await vm.Widget.InitializeAsync(new WidgetInitInfo(vm.WidgetInstance, vm.WidgetInstance.WidgetSettings), cancellationToken);
+            if (vm.Widget is IWidgetUpdate widgetUpdate)
+            {
+                await widgetUpdate.UpdateAsync(cancellationToken);
+            }
+            await LoadAsync(cancellationToken);
         }
     }
 
@@ -211,6 +217,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         if (newSettings.Settings != null && Widget is IWidgetSettings widgetWithSettings)
         {
             AppCloner.CloneObjectTo(newSettings.Settings, widgetWithSettings.Settings);
+            WidgetInstance.WidgetSettings = JsonSerializer.SerializeToNode(widgetWithSettings.Settings)!.AsObject();
         }
     }
 

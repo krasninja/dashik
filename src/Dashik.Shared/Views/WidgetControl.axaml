@@ -125,7 +125,8 @@
                                 <MenuItem
                                     Header="Refresh"
                                     Command="{Binding UpdateWidgetCommand}"
-                                    CommandParameter="{Binding}" />
+                                    CommandParameter="{Binding}"
+                                    IsVisible="{Binding CanUpdate}" />
                                 <MenuItem
                                     Header="Disable"
                                     IsVisible="{Binding !WidgetInstance.MainSettings.Disabled}"
