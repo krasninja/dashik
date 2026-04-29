@@ -1,11 +1,11 @@
-using Dashik.Sdk.Models;
+using ReactiveUI;
 
 namespace Dashik.Widgets.Motd;
 
 /// <summary>
 /// MOTD object.
 /// </summary>
-public sealed class Motd : ObservableObject
+public sealed class Motd : ReactiveObject
 {
     /// <summary>
     /// Message text.

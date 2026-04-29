@@ -9,7 +9,7 @@ using Dashik.Sdk.Mvvm;
 
 namespace Dashik.Sdk.ViewModels;
 
-public class MessageBoxViewModel : ObservableObject, ICloseableViewModel, IDialogViewModel<DialogResult>
+public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogViewModel<DialogResult>
 {
     private static readonly IImage _infoIcon;
     private static readonly IImage _questionIcon;

@@ -8,7 +8,6 @@ using Dashik.Shared.Models;
 using Dashik.Shared.Services;
 using Dashik.Shared.Services.Packages;
 using Dashik.Shared.Utils;
-using Dashik.Sdk.Models;
 using Dashik.Sdk.Mvvm;
 using Dashik.Sdk.ViewModels;
 
@@ -20,7 +19,7 @@ public sealed class AddFeedViewModel : ViewModelBase
     private readonly IMvvmService _mvvmService;
     private readonly SettingsStorage _settingsStorage;
 
-    public sealed class FeedViewModel : ObservableObject
+    public sealed class FeedViewModel : ReactiveObject
     {
         [Required]
         [MaxLength(120)]

@@ -2,8 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using ReactiveUI;
 using Dashik.Sdk.Abstract;
-using Dashik.Sdk.Models;
 using Dashik.Sdk.Widgets;
 
 namespace Dashik.Shared.Services.Widgets;
@@ -17,7 +17,7 @@ namespace Dashik.Shared.Services.Widgets;
     name: "Not Found",
     Description = "The stub widget for widgets which packages were not found or any other error."
 )]
-internal sealed class StubWidget : ObservableObject, IWidget
+internal sealed class StubWidget : ReactiveObject, IWidget
 {
     /// <inheritdoc />
     public string Header

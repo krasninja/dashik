@@ -6,7 +6,6 @@ using Avalonia.Media;
 using Dashik.Abstractions;
 using Dashik.Sdk.Widgets;
 using Dashik.Shared.Infrastructure.UI;
-using Dashik.Sdk.Models;
 
 namespace Dashik.Shared.ViewModels;
 
@@ -32,7 +31,7 @@ public sealed class AddWidgetViewModel : ViewModelBase
         }
     }
 
-    public sealed class WidgetNode(WidgetInfo widgetInfo) : ObservableObject
+    public sealed class WidgetNode(WidgetInfo widgetInfo) : ReactiveObject
     {
         public string Id => WidgetInfo.Id;
 

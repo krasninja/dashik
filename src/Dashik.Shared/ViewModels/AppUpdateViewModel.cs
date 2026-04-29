@@ -1,13 +1,13 @@
 using System.Text;
-using Dashik.Abstractions;
+using ReactiveUI;
 using Microsoft.Extensions.Logging;
+using Dashik.Abstractions;
 using Dashik.Shared.Infrastructure.Updates;
 using Dashik.Shared.Services.Packages;
-using Dashik.Sdk.Models;
 
 namespace Dashik.Shared.ViewModels;
 
-public class AppUpdateViewModel : ObservableObject
+public class AppUpdateViewModel : ReactiveObject
 {
     private readonly IAppUpdateService _updateService;
     private readonly IPackagesInstaller _packagesInstaller;
@@ -28,7 +28,7 @@ public class AppUpdateViewModel : ObservableObject
         set
         {
             this.RaiseAndSetIfChanged(ref field, value);
-            OnPropertyChanged(nameof(HasNewVersion));
+            this.RaisePropertyChanged(nameof(HasNewVersion));
         }
     }
 
@@ -38,7 +38,7 @@ public class AppUpdateViewModel : ObservableObject
         set
         {
             this.RaiseAndSetIfChanged(ref field, value);
-            OnPropertyChanged(nameof(HasNewVersion));
+            this.RaisePropertyChanged(nameof(HasNewVersion));
         }
     }
     = [];

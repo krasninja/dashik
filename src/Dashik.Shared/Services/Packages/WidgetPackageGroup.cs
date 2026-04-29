@@ -1,3 +1,4 @@
+using ReactiveUI;
 using Dashik.Abstractions;
 using Dashik.Sdk.Models;
 
@@ -6,7 +7,7 @@ namespace Dashik.Shared.Services.Packages;
 /// <summary>
 /// The group contains info about package feed, it's local copy and remote.
 /// </summary>
-public sealed class WidgetPackageGroup : ObservableObject
+public sealed class WidgetPackageGroup : ReactiveObject
 {
     public PackageFeed? Feed { get; set; }
 
@@ -16,9 +17,9 @@ public sealed class WidgetPackageGroup : ObservableObject
         set
         {
             this.RaiseAndSetIfChanged(ref field, value);
-            OnPropertyChanged(nameof(Current));
-            OnPropertyChanged(nameof(UpToDate));
-            OnPropertyChanged(nameof(Installed));
+            this.RaisePropertyChanged(nameof(Current));
+            this.RaisePropertyChanged(nameof(UpToDate));
+            this.RaisePropertyChanged(nameof(Installed));
         }
     }
 

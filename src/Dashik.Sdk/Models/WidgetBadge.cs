@@ -1,11 +1,12 @@
 using Avalonia.Media;
+using ReactiveUI;
 
 namespace Dashik.Sdk.Models;
 
 /// <summary>
 /// Widget badge.
 /// </summary>
-public class WidgetBadge : ObservableObject
+public class WidgetBadge : ReactiveObject
 {
     public string Name
     {

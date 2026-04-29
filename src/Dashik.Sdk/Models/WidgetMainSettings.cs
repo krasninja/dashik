@@ -1,9 +1,11 @@
+using ReactiveUI;
+
 namespace Dashik.Sdk.Models;
 
 /// <summary>
 /// Widgets main settings. It contains common properties for all widgets.
 /// </summary>
-public class WidgetMainSettings : ObservableObject
+public class WidgetMainSettings : ReactiveObject
 {
     /// <summary>
     /// Widget update interval.

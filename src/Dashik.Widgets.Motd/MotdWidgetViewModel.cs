@@ -1,8 +1,8 @@
-using Dashik.Sdk.Models;
+using ReactiveUI;
 
 namespace Dashik.Widgets.Motd;
 
-public class MotdWidgetViewModel : ObservableObject
+public class MotdWidgetViewModel : ReactiveObject
 {
     /// <summary>
     /// Current date MOTD.

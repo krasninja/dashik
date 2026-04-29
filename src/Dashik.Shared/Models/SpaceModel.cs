@@ -1,5 +1,5 @@
+using ReactiveUI;
 using System.Text.Json.Serialization;
-using Dashik.Sdk.Models;
 using Dashik.Sdk.Utils;
 
 namespace Dashik.Shared.Models;
@@ -7,7 +7,7 @@ namespace Dashik.Shared.Models;
 /// <summary>
 /// Space with the container for widgets.
 /// </summary>
-public class SpaceModel : ObservableObject
+public class SpaceModel : ReactiveObject
 {
     private const string DefaultId = "DEFAULT";
 

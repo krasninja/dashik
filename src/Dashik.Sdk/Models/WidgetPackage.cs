@@ -1,11 +1,12 @@
 using Avalonia.Media.Imaging;
+using ReactiveUI;
 
 namespace Dashik.Sdk.Models;
 
 /// <summary>
 /// Package.
 /// </summary>
-public class WidgetPackage : ObservableObject
+public class WidgetPackage : ReactiveObject
 {
     /// <summary>
     /// Package id.

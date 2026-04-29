@@ -1,11 +1,10 @@
 using System.Reactive;
 using ReactiveUI;
-using Dashik.Sdk.Models;
 using Dashik.Sdk.Mvvm;
 
 namespace Dashik.Sdk.ViewModels;
 
-public class TextWindowViewModel : ObservableObject, ICloseableViewModel
+public class TextWindowViewModel : ReactiveObject, ICloseableViewModel
 {
     public string Text
     {

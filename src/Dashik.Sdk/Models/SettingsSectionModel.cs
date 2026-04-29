@@ -1,6 +1,8 @@
+using ReactiveUI;
+
 namespace Dashik.Sdk.Models;
 
-public class SettingsSectionModel : ObservableObject
+public class SettingsSectionModel : ReactiveObject
 {
     public object? Settings
     {
