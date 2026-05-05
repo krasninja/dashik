@@ -62,6 +62,7 @@
                     Orientation="Horizontal"
                     Classes="headerIcons"
                     Height="24"
+                    IsVisible="{Binding !ReadOnly}"
                     HorizontalAlignment="Right">
                     <PathIcon
                         Data="{StaticResource FontAwesomeSolidRotate}"

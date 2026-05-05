@@ -12,7 +12,7 @@ namespace Dashik.Widgets.Motd;
     Category = WidgetCategory.Misc,
     InfoType = typeof(MotdWidgetInfo)
 )]
-public sealed class MotdWidget : IWidget, IWidgetSettings, IWidgetUpdate
+public sealed class MotdWidget : IWidget, IWidgetSettings, IWidgetPreview, IWidgetUpdate
 {
     private readonly IWidgetContext _context;
 
@@ -64,4 +64,40 @@ public sealed class MotdWidget : IWidget, IWidgetSettings, IWidgetUpdate
     [
         SettingsSection.Create<MotdSettingsSectionControl>("MOTD"),
     ];
+
+    /// <inheritdoc />
+    public IReadOnlyList<WidgetPreview> GetPreviewConfigurations()
+    {
+        return
+        [
+            new WidgetPreview("MOTD message")
+            {
+                Settings = new MotdWidgetSettings
+                {
+                    Messages =
+                    [
+                        new Motd("Welcome to Dashik!"),
+                    ],
+                }
+            },
+            new WidgetPreview("Another MOTD message")
+            {
+                Settings = new MotdWidgetSettings
+                {
+                    Messages =
+                    [
+                        new Motd("Hello, world!"),
+                        new Motd("Have a nice day!"),
+                    ],
+                }
+            }
+        ];
+    }
+
+    /// <inheritdoc />
+    public void SetPreview(WidgetPreview widgetPreview)
+    {
+        var preview = (MotdWidgetSettings)widgetPreview.Settings!;
+        ViewModel.Motd = preview.Messages[0].Text;
+    }
 }

@@ -30,8 +30,6 @@ public class WidgetInfo
 
     public IImage Icon { get; protected set; } = Assets.GenericWidgetIcon;
 
-    public IImage[] PreviewImages { get; protected set; } = [Assets.GenericWidgetIcon];
-
     public TimeSpan DefaultUpdateInterval { get; protected set; } = TimeSpan.FromMinutes(5);
 
     public WidgetInfo(WidgetInfoAttribute infoAttribute, Type widgetType)

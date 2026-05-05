@@ -17,6 +17,15 @@ public sealed class Motd : ReactiveObject
     }
     = string.Empty;
 
+    public Motd()
+    {
+    }
+
+    public Motd(string text)
+    {
+        Text = text;
+    }
+
     /// <inheritdoc />
     public override string ToString() => Text;
 }

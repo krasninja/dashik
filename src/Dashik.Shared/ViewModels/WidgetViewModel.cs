@@ -90,6 +90,15 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
     public bool CanUpdate => Widget is IWidgetUpdate;
 
+    /// <summary>
+    /// Disable widget menu.
+    /// </summary>
+    public bool ReadOnly
+    {
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    }
+
     public ReactiveCommand<WidgetViewModel, Unit> UpdateWidgetCommand { get; }
 
     public ReactiveCommand<WidgetViewModel, Unit> DisableWidgetCommand { get; }

@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
+             xmlns:views="clr-namespace:Dashik.Shared.Views"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -102,27 +103,56 @@
                                                HorizontalContentAlignment="Center"
                                                Content="{Binding Title}" />
                                     </StackPanel>
-                                    <Carousel
+                                    <Panel
+                                        IsVisible="{Binding HasPreviewItems}">
+                                        <Carousel
+                                            Name="PreviewCarousel"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            WrapSelection="True"
+                                            IsSwipeEnabled="True"
+                                            ItemsSource="{Binding WidgetPreviewViewModels}"
+                                            SelectedIndex="{Binding SelectedPreviewIndex}">
+                                            <Carousel.PageTransition>
+                                                <CrossFade Duration="0:00:00.300" />
+                                            </Carousel.PageTransition>
+                                            <Carousel.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type viewModels:AddWidgetViewModel+WidgetNodePreviewInfo}">
+                                                    <StackPanel>
+                                                        <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="1" Padding="5" Margin="5" Height="250">
+                                                            <views:WidgetControl DataContext="{Binding WidgetViewModel}" />
+                                                        </Border>
+                                                        <TextBlock
+                                                            FontSize="18"
+                                                            HorizontalAlignment="Center"
+                                                            FontStyle="Italic"
+                                                            TextWrapping="Wrap"
+                                                            Text="{Binding PreviewConfiguration.Name}" />
+                                                        <TextBlock
+                                                            FontSize="16"
+                                                            HorizontalAlignment="Center"
+                                                            FontStyle="Italic"
+                                                            TextWrapping="Wrap"
+                                                            Text="{Binding PreviewConfiguration.Description}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </Carousel.ItemTemplate>
+                                        </Carousel>
+                                        <Panel Margin="10">
+                                            <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetViewModel)DataContext).PreviousPreviewCommand}">&lt;</Button>
+                                            <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetViewModel)DataContext).NextPreviewCommand}" HorizontalAlignment="Right">&gt;</Button>
+                                        </Panel>
+                                    </Panel>
+                                    <Label
+                                        FontSize="12"
+                                        FontStyle="Italic"
+                                        HorizontalContentAlignment="Center"
+                                        Content="{Binding Id}" />
+                                    <TextBlock
+                                        FontSize="18"
                                         HorizontalAlignment="Center"
-                                        Height="280"
-                                        VerticalAlignment="Center"
-                                        ItemsSource="{Binding PreviewImages}">
-                                        <Carousel.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel>
-                                                    <Image Source="{Binding}" Stretch="None" />
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </Carousel.ItemTemplate>
-                                    </Carousel>
-                                    <Label FontSize="12"
-                                           FontStyle="Italic"
-                                           HorizontalContentAlignment="Center"
-                                           Content="{Binding Id}" />
-                                    <TextBlock FontSize="18"
-                                               HorizontalAlignment="Center"
-                                               TextWrapping="Wrap"
-                                               Text="{Binding Description}" />
+                                        TextWrapping="Wrap"
+                                        Text="{Binding Description}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ContentControl.DataTemplates>
