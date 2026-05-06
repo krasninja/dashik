@@ -186,10 +186,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             UpdateTitle();
             _saveWidgetRequested.OnNext(vm.WidgetId);
             await vm.Widget.InitializeAsync(new WidgetInitInfo(vm.WidgetInstance, vm.WidgetInstance.WidgetSettings), cancellationToken);
-            if (vm.Widget is IWidgetUpdate widgetUpdate)
-            {
-                await widgetUpdate.UpdateAsync(cancellationToken);
-            }
+            await UpdateWidgetAsync(force: true, cancellationToken);
             await LoadAsync(cancellationToken);
         }
     }
@@ -239,22 +236,29 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public async Task UpdateWidgetAsync(bool force = false, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Update widget data. The update might be skipped if widget is not
+    /// updatable, or it is not time to refresh.
+    /// </summary>
+    /// <param name="force">Skip any checks and force update.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns><c>True</c> if update was run, <c>false</c> otherwise.</returns>
+    public async Task<bool> UpdateWidgetAsync(bool force = false, CancellationToken cancellationToken = default)
     {
         if (WidgetInstance == null
             || Widget == null
             || Updating)
         {
-            return;
+            return false;
         }
         if (Widget is not IWidgetUpdate widgetUpdate)
         {
-            return;
+            return false;
         }
         if (!force
             && DateTime.UtcNow - LastUpdatedUtc < WidgetInstance.MainSettings.UpdateInterval)
         {
-            return;
+            return false;
         }
 
         try
@@ -276,6 +280,8 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             LastUpdatedUtc = DateTime.UtcNow;
             Pending = false;
         }
+
+        return true;
     }
 
     private void UpdateTitle()
