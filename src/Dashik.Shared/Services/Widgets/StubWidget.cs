@@ -15,7 +15,7 @@ namespace Dashik.Shared.Services.Widgets;
 /// </summary>
 [WidgetInfo(
     id: "com.dashik.widgets.stub",
-    name: "Not Found",
+    name: "Stub",
     Description = "The stub widget for widgets which packages were not found or any other error."
 )]
 internal sealed class StubWidget : ReactiveObject, IWidget

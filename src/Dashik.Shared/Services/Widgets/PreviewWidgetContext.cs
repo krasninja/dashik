@@ -7,5 +7,8 @@ public sealed class PreviewWidgetContext : IWidgetContext
     public static PreviewWidgetContext Instance { get; } = new();
 
     /// <inheritdoc />
+    public bool PreviewMode => true;
+
+    /// <inheritdoc />
     public HttpClient CreateHttpClient() => new();
 }

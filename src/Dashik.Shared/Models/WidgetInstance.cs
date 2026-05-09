@@ -24,6 +24,9 @@ public class WidgetInstance : IWidgetInstance, IDisposable
     /// <inheritdoc />
     public WidgetInfo Info { get; }
 
+    /// <inheritdoc />
+    public bool PreviewMode => false;
+
     public WidgetInstance(string id, WidgetInfo widgetInfo)
     {
         Id = id;

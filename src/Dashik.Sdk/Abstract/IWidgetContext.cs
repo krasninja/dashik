@@ -10,4 +10,9 @@ public interface IWidgetContext
     /// </summary>
     /// <returns>Instance of <see cref="HttpClient" />.</returns>
     public HttpClient CreateHttpClient();
+
+    /// <summary>
+    /// Is in the preview mode.
+    /// </summary>
+    public bool PreviewMode { get; }
 }

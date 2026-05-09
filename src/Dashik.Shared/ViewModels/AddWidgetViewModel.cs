@@ -21,6 +21,15 @@ public sealed class AddWidgetViewModel : ViewModelBase
     private readonly IServiceProvider _serviceProvider;
     private readonly IWidgetsFactory _widgetsFactory;
 
+    private static readonly WidgetMainSettings _defaultPreviewSettings = new()
+    {
+        UpdateInterval = TimeSpan.FromSeconds(30),
+        UseCustomTitle = false,
+        Height = 300,
+        Disabled = false,
+        Hidden = false,
+    };
+
     #region Types
 
     public sealed class WidgetCategoryNode
@@ -181,7 +190,7 @@ public sealed class AddWidgetViewModel : ViewModelBase
             {
                 var widgetPreview = (IWidgetPreview)await _widgetsFactory.CreateAsync(
                     widgetInfo.WidgetType,
-                    new WidgetInitInfo(PreviewWidgetContext.Instance, new JsonObject()),
+                    new WidgetInitInfo(PreviewWidgetContext.Instance, _defaultPreviewSettings, new JsonObject()),
                     cancellationToken
                 );
                 var previewConfigurations = widgetPreview.GetPreviewConfigurations();
@@ -189,7 +198,7 @@ public sealed class AddWidgetViewModel : ViewModelBase
                 {
                     widgetPreview = (IWidgetPreview)await _widgetsFactory.CreateAsync(
                         widgetInfo.WidgetType,
-                        new WidgetInitInfo(PreviewWidgetContext.Instance, new JsonObject()),
+                        new WidgetInitInfo(PreviewWidgetContext.Instance, _defaultPreviewSettings, new JsonObject()),
                         cancellationToken
                     );
                     var widgetPreviewViewModel = _serviceProvider.GetRequiredService<WidgetViewModel>();

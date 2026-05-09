@@ -9,9 +9,15 @@ internal sealed class TransientWidgetInstance : WidgetInstance
 
     public string Message { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Is it the instance that indicates about widget error.
+    /// </summary>
     public bool Error { get; set; }
 
-    public bool RequiresSetup { get; set; } = true;
+    /// <summary>
+    /// Show "setup" widget button.
+    /// </summary>
+    public bool RequiresSetup { get; set; }
 
     /// <inheritdoc />
     public TransientWidgetInstance(string id, WidgetInfo widgetInfo) : base(id, widgetInfo)

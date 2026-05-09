@@ -2,6 +2,9 @@ using System.Collections.ObjectModel;
 
 namespace Dashik.Widgets.Motd;
 
+/// <summary>
+/// MOTD widget settings.
+/// </summary>
 public class MotdWidgetSettings
 {
     /// <summary>

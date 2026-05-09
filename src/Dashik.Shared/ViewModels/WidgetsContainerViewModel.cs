@@ -416,7 +416,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             {
                 var widget = await _widgetsFactory.CreateAsync(
                     widgetInfo.WidgetType,
-                    new WidgetInitInfo(instance, instance.WidgetSettings),
+                    new WidgetInitInfo(instance, instance.MainSettings, instance.WidgetSettings),
                     cancellationToken
                 );
                 var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
@@ -498,7 +498,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         {
             var widget = await _widgetsFactory.CreateAsync(
                 instance.Info.WidgetType,
-                new WidgetInitInfo(instance, instance.WidgetSettings),
+                new WidgetInitInfo(instance, instance.MainSettings, instance.WidgetSettings),
                 cancellationToken);
             var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
             vm.Widget = widget;

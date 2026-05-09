@@ -185,7 +185,9 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             CopySettings((WidgetAllSettings)viewModel.Settings);
             UpdateTitle();
             _saveWidgetRequested.OnNext(vm.WidgetId);
-            await vm.Widget.InitializeAsync(new WidgetInitInfo(vm.WidgetInstance, vm.WidgetInstance.WidgetSettings), cancellationToken);
+            await vm.Widget.InitializeAsync(
+                new WidgetInitInfo(vm.WidgetInstance, vm.WidgetInstance.MainSettings, vm.WidgetInstance.WidgetSettings),
+                cancellationToken);
             await UpdateWidgetAsync(force: true, cancellationToken);
             await LoadAsync(cancellationToken);
         }
