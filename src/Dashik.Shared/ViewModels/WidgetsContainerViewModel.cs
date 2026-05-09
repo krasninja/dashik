@@ -429,11 +429,12 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             catch (Exception e)
             {
                 var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
-                vm.Widget = new StubWidget
+                var stubWidget = new StubWidget
                 {
                     Header = widgetInfo.Id,
                     Text = e.Message,
                 };
+                vm.Widget = stubWidget;
                 vm.WidgetInstance = instance;
                 PrepareWidgetViewModel(vm);
                 SelectedSpace.Widgets.Add(vm);

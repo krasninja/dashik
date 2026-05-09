@@ -11,6 +11,8 @@ internal sealed class TransientWidgetInstance : WidgetInstance
 
     public bool Error { get; set; }
 
+    public bool RequiresSetup { get; set; } = true;
+
     /// <inheritdoc />
     public TransientWidgetInstance(string id, WidgetInfo widgetInfo) : base(id, widgetInfo)
     {

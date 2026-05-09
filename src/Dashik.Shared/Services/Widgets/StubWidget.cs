@@ -5,6 +5,7 @@ using Avalonia.Media;
 using ReactiveUI;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Widgets;
+using Dashik.Shared.ViewModels;
 
 namespace Dashik.Shared.Services.Widgets;
 
@@ -22,10 +23,10 @@ internal sealed class StubWidget : ReactiveObject, IWidget
     /// <inheritdoc />
     public string Header
     {
-        get => field;
+        get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
-    = "ERROR";
+        = "ERROR";
 
     public string Text
     {
@@ -46,12 +47,14 @@ internal sealed class StubWidget : ReactiveObject, IWidget
     }
 
     private readonly TextBlock _textBlock;
+    private readonly StackPanel _rootPanel;
 
     /// <inheritdoc />
-    public Control Control => _textBlock;
+    public Control Control => _rootPanel;
 
     public StubWidget()
     {
+        _rootPanel = new StackPanel();
         _textBlock = new TextBlock
         {
             Foreground = Brushes.Black,
@@ -61,6 +64,7 @@ internal sealed class StubWidget : ReactiveObject, IWidget
             TextWrapping = TextWrapping.WrapWithOverflow,
             Padding = new Thickness(2),
         };
+        _rootPanel.Children.Add(_textBlock);
     }
 
     /// <inheritdoc />
@@ -77,6 +81,24 @@ internal sealed class StubWidget : ReactiveObject, IWidget
                 Header = transientInstance.Title;
             }
             Error = transientInstance.Error;
+
+            if (transientInstance.RequiresSetup)
+            {
+                var button = new Button
+                {
+                    Content = "Setup",
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                };
+                button.Click += (_, _) =>
+                {
+                    if (Control.DataContext is WidgetViewModel widgetViewModel)
+                    {
+                        widgetViewModel.OpenWidgetSettingsCommand.Execute(widgetViewModel)
+                            .Subscribe();
+                    }
+                };
+                _rootPanel.Children.Add(button);
+            }
         }
         return Task.CompletedTask;
     }
