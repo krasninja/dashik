@@ -4,7 +4,7 @@ namespace Dashik.Sdk;
 /// Widget exception. Used to indicate errors related to widgets, such as widget creation or update errors.
 /// The exception can be shown to the user.
 /// </summary>
-public sealed class WidgetException : DashikException
+public class WidgetException : DashikException
 {
     public WidgetException()
     {
