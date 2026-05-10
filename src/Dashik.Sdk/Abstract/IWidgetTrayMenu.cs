@@ -11,5 +11,5 @@ public interface IWidgetTrayMenu
     /// System tray menu icons.
     /// </summary>
     /// <returns>List of widget specific menu items.</returns>
-    IReadOnlyList<MenuItem> GetTrayMenuItems();
+    IReadOnlyList<NativeMenu> GetTrayMenuItems();
 }

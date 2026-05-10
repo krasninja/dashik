@@ -11,8 +11,17 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <CheckBox IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).IsTopmost}">Is topmost</CheckBox>
+        <CheckBox
+            Grid.Row="0"
+            IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).IsTopmost}"
+            Content="Is topmost" />
+
+        <CheckBox
+            Grid.Row="1"
+            IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).ShowSystemTrayIcon}"
+            Content="Show system tray icon" />
     </Grid>
 </UserControl>

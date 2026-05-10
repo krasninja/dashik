@@ -17,6 +17,8 @@ public class MainWindowStateSaveModel
 
     public bool Topmost { get; set; }
 
+    public bool ShowSystemTrayIcon { get; set; }
+
     public string ActiveSpace { get; set; } = string.Empty;
 
     /// <summary>

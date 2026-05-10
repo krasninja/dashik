@@ -56,6 +56,7 @@ public sealed partial class App : Application, IDisposable
         {
             var containerViewModel = Root.Container.GetInstance<WidgetsContainerViewModel>();
             containerViewModel.WidgetFilter = Root.AppArguments.WidgetsFilter.ToArray();
+            DataContext = containerViewModel;
             desktop.MainWindow = new WidgetsContainerWindow
             {
                 DataContext = containerViewModel,
@@ -105,6 +106,18 @@ public sealed partial class App : Application, IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
+        Dispatcher.UIThread.UnhandledException -= UIThreadOnUnhandledException;
         Root.Dispose();
+    }
+
+    private void TrayIcon_OnClicked(object? sender, EventArgs e)
+    {
+        if (Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            && desktop.MainWindow != null)
+        {
+            var mainWindow = desktop.MainWindow;
+            mainWindow.Show();
+            mainWindow.Activate();
+        }
     }
 }

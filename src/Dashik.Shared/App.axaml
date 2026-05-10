@@ -1,8 +1,10 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:desktop="clr-namespace:Dashik.Shared"
+             xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
              x:Class="Dashik.Shared.App"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Default"
+             x:DataType="viewModels:WidgetsContainerViewModel">
     <Application.DataTemplates>
         <desktop:ViewLocator />
     </Application.DataTemplates>
@@ -14,4 +16,20 @@
         <StyleInclude Source="avares://Dashik.Sdk/Styles/ControlsStyles.axaml" />
         <StyleInclude Source="avares://Dashik.Shared/Styles/Main.axaml" />
     </Application.Styles>
+
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon
+                Clicked="TrayIcon_OnClicked"
+                IsVisible="{Binding ShowSystemTrayIcon}"
+                Icon="/Assets/Icon.ico"
+                ToolTipText="Dashik">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Quit" Command="{Binding CloseApplicationCommand}" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
 </Application>

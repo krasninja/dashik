@@ -15,6 +15,8 @@ public class AppSettingsViewModel
 
     public bool IsTopmost { get; set; }
 
+    public bool ShowSystemTrayIcon { get; set; }
+
     public AppSettingsViewModel()
     {
     }

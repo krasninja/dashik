@@ -50,46 +50,48 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     /// </summary>
     public IEnumerable<WidgetViewModel> Widgets => Spaces.SelectMany(s => s.Widgets);
 
-    private WindowState _windowState;
-
     public WindowState WindowState
     {
-        get => _windowState;
-        set => this.RaiseAndSetIfChanged(ref _windowState, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
-
-    private double _windowHeight = 750;
 
     public double WindowHeight
     {
-        get => _windowHeight;
-        set => this.RaiseAndSetIfChanged(ref _windowHeight, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
-
-    private double _windowWidth = 450;
+        = 750;
 
     public double WindowWidth
     {
-        get => _windowWidth;
-        set => this.RaiseAndSetIfChanged(ref _windowWidth, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
+        = 450;
 
     public PixelPoint WindowPosition
     {
-        get => field;
+        get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public string WindowScreen
     {
-        get => field;
+        get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
-    = string.Empty;
+        = string.Empty;
 
     public bool Topmost
     {
-        get => field;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    }
+
+    public bool ShowSystemTrayIcon
+    {
+        get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
@@ -278,6 +280,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             WindowScreen = WindowScreen,
             WidgetsOrder = Spaces.ToDictionary(s => s.Id, s => s.Widgets.Select(w => w.WidgetId).ToArray()),
             Topmost = Topmost,
+            ShowSystemTrayIcon = ShowSystemTrayIcon,
             ActiveSpace = SelectedSpace?.Id ?? string.Empty,
         }, cancellationToken);
     }
@@ -309,6 +312,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         }
 
         Topmost = windowState.Topmost;
+        ShowSystemTrayIcon = windowState.ShowSystemTrayIcon;
     }
 
     #endregion
@@ -374,7 +378,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     {
         var appSettingsViewModel = new AppSettingsViewModel(_appSettings)
         {
-            IsTopmost = Topmost
+            IsTopmost = Topmost,
+            ShowSystemTrayIcon = ShowSystemTrayIcon,
         };
         var viewModel = _mvvmService.CreateViewModel<SettingsViewModel>(appSettingsViewModel);
 
@@ -395,6 +400,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             await _settingsStorage.SaveAsync(_appSettings, cancellationToken);
             await LoadInternalAsync(cancellationToken);
             Topmost = newSettings.IsTopmost;
+            ShowSystemTrayIcon = newSettings.ShowSystemTrayIcon;
         }
     }
 

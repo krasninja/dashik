@@ -82,6 +82,7 @@ public sealed class SettingsStorage
         var model = await LoadWindowStateAsync(cancellationToken);
         model.WindowHeight = mainWindowState.WindowHeight;
         model.WindowWidth = mainWindowState.WindowWidth;
+        model.ShowSystemTrayIcon = mainWindowState.ShowSystemTrayIcon;
         if (!string.IsNullOrEmpty(mainWindowState.WindowScreen)
             && mainWindowState.WindowPositionX.HasValue
             && mainWindowState.WindowPositionY.HasValue)
@@ -94,6 +95,7 @@ public sealed class SettingsStorage
         }
         model.ActiveSpace = mainWindowState.ActiveSpace;
         model.Topmost = mainWindowState.Topmost;
+        model.ShowSystemTrayIcon = mainWindowState.ShowSystemTrayIcon;
 
         // Save spaces.
         foreach (var widgetsOrder in mainWindowState.WidgetsOrder)

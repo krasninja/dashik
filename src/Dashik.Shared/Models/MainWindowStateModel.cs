@@ -15,8 +15,19 @@ public class MainWindowStateModel
 
     public Dictionary<string, WindowPosition> WindowPositions { get; set; } = new();
 
+    /// <summary>
+    /// Show over all other windows. Always on top.
+    /// </summary>
     public bool Topmost { get; set; }
 
+    /// <summary>
+    /// Show system tray icon.
+    /// </summary>
+    public bool ShowSystemTrayIcon { get; set; }
+
+    /// <summary>
+    /// Current selected user's space.
+    /// </summary>
     public string ActiveSpace { get; set; } = string.Empty;
 
     /// <summary>
