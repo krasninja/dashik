@@ -124,6 +124,10 @@
                                     CommandParameter="{Binding}" />
                                 <Separator />
                                 <MenuItem
+                                    Header="Widget Actions"
+                                    IsVisible="{Binding WidgetMenuItems.Count}"
+                                    ItemsSource="{Binding WidgetMenuItems}" />
+                                <MenuItem
                                     Header="Refresh"
                                     Command="{Binding UpdateWidgetCommand}"
                                     CommandParameter="{Binding}"

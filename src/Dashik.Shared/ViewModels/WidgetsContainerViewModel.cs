@@ -504,6 +504,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             vm.Widget = widget;
             vm.WidgetInstance = instance;
             PrepareWidgetViewModel(vm);
+            await vm.LoadAsync(cancellationToken);
             vms.Add(vm);
         }
         foreach (var space in Spaces)

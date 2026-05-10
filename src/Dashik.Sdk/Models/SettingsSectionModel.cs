@@ -10,6 +10,9 @@ public class SettingsSectionModel : ReactiveObject
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
+    /// <summary>
+    /// To be called when update settings are set.
+    /// </summary>
     public virtual void SyncSetting()
     {
     }

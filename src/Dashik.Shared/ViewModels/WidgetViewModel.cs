@@ -3,9 +3,11 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Dashik.Abstractions;
+using Avalonia.Collections;
+using Avalonia.Controls;
 using ReactiveUI;
 using Microsoft.Extensions.Logging;
+using Dashik.Abstractions;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Widgets;
 using Dashik.Shared.Infrastructure.UI;
@@ -31,7 +33,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
     public IWidgetInstance? WidgetInstance
     {
-        get => field;
+        get;
         set
         {
             this.RaiseAndSetIfChanged(ref field, value);
@@ -41,7 +43,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
     public IWidget? Widget
     {
-        get => field;
+        get;
         set
         {
             this.RaiseAndSetIfChanged(ref field, value);
@@ -53,10 +55,10 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
     public string Title
     {
-        get => field;
+        get;
         private set => this.RaiseAndSetIfChanged(ref field, value);
     }
-    = "Empty";
+        = "Empty";
 
     public Exception? LastException
     {
@@ -98,6 +100,8 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
+
+    public AvaloniaList<MenuItem> WidgetMenuItems { get; } = new();
 
     public ReactiveCommand<WidgetViewModel, Unit> UpdateWidgetCommand { get; }
 
@@ -284,6 +288,25 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         }
 
         return true;
+    }
+
+    /// <inheritdoc />
+    public override async Task LoadAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateWidgetMenuItems();
+        await base.LoadAsync(cancellationToken);
+    }
+
+    private void UpdateWidgetMenuItems()
+    {
+        if (Widget is IWidgetMenu widgetWithMenu)
+        {
+            WidgetMenuItems.Clear();
+            foreach (var menuItem in widgetWithMenu.GetWidgetMenuItems())
+            {
+                WidgetMenuItems.Add(menuItem);
+            }
+        }
     }
 
     private void UpdateTitle()

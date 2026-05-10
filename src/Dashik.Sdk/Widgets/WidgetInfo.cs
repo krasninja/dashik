@@ -1,5 +1,6 @@
 using System.Reflection;
 using Avalonia.Media;
+using Dashik.Sdk.Abstract;
 
 namespace Dashik.Sdk.Widgets;
 
@@ -15,10 +16,19 @@ public class WidgetInfo
     /// </summary>
     public string Id => _infoAttribute.Id;
 
+    /// <summary>
+    /// Widget type. Should inherit from <see cref="IWidget" />.
+    /// </summary>
     public Type WidgetType { get; }
 
+    /// <summary>
+    /// Widget setting type.
+    /// </summary>
     public Type? SettingsType => _infoAttribute.SettingsType;
 
+    /// <summary>
+    /// Widget name. It is used in header.
+    /// </summary>
     public string Name => _infoAttribute.Name;
 
     /// <summary>
@@ -28,8 +38,14 @@ public class WidgetInfo
 
     public WidgetInfoAttribute Info => _infoAttribute;
 
+    /// <summary>
+    /// Widget icon.
+    /// </summary>
     public IImage Icon { get; protected set; } = Assets.GenericWidgetIcon;
 
+    /// <summary>
+    /// Default update interval.
+    /// </summary>
     public TimeSpan DefaultUpdateInterval { get; protected set; } = TimeSpan.FromMinutes(5);
 
     public WidgetInfo(WidgetInfoAttribute infoAttribute, Type widgetType)

@@ -3,14 +3,27 @@ using Avalonia.Media;
 
 namespace Dashik.Sdk.Models;
 
+/// <summary>
+/// Section to be added to widget settings dialog.
+/// </summary>
 public sealed class SettingsSection
 {
+    /// <summary>
+    /// Section name.
+    /// </summary>
     public string Name { get; }
 
     public IImage? Icon { get; set; }
 
+    /// <summary>
+    /// Avalonia control to render.
+    /// </summary>
     public Type ControlType { get; }
 
+    /// <summary>
+    /// Control view model to be attached to control.
+    /// Should inherit <see cref="SettingsSectionModel" />.
+    /// </summary>
     public Type ViewModelType { get; }
 
     public SettingsSection(string name, Type controlType, Type viewModelType)

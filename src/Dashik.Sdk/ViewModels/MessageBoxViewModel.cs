@@ -1,10 +1,10 @@
+using System.ComponentModel.DataAnnotations;
 using System.Reactive;
 using Avalonia;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using ReactiveUI;
-using Dashik.Sdk.Models;
 using Dashik.Sdk.Mvvm;
 
 namespace Dashik.Sdk.ViewModels;
@@ -16,6 +16,9 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
     private static readonly IImage _exclamationIcon;
     private static readonly IImage _errorIcon;
 
+    /// <summary>
+    /// Message box caption.
+    /// </summary>
     public string Caption
     {
         get => field;
@@ -23,6 +26,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
     }
     = "Information";
 
+    /// <summary>
+    /// Message to be displayed for user.
+    /// </summary>
+    [Required]
     public string Message { get; }
 
     /// <inheritdoc />
@@ -43,6 +50,9 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
     }
     = _infoIcon;
 
+    /// <summary>
+    /// Show "OK" button.
+    /// </summary>
     public bool ShowOkButton
     {
         get;
@@ -50,42 +60,63 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
     }
     = true;
 
+    /// <summary>
+    /// Show "Yes" button.
+    /// </summary>
     public bool ShowYesButton
     {
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
+    /// <summary>
+    /// Show "No" button.
+    /// </summary>
     public bool ShowNoButton
     {
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
+    /// <summary>
+    /// Show "Cancel" button.
+    /// </summary>
     public bool ShowCancelButton
     {
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
+    /// <summary>
+    /// Show "Continue" button.
+    /// </summary>
     public bool ShowContinueButton
     {
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
+    /// <summary>
+    /// Show "Abort" button.
+    /// </summary>
     public bool ShowAbortButton
     {
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
+    /// <summary>
+    /// Show "Retry" button.
+    /// </summary>
     public bool ShowRetryButton
     {
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
+    /// <summary>
+    /// Show "Ignore" button.
+    /// </summary>
     public bool ShowIgnoreButton
     {
         get;

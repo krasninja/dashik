@@ -12,7 +12,7 @@ namespace Dashik.Widgets.Motd;
     Category = WidgetCategory.Misc,
     InfoType = typeof(MotdWidgetInfo)
 )]
-public sealed class MotdWidget : IWidget, IWidgetSettings, IWidgetPreview, IWidgetUpdate
+public sealed class MotdWidget : IWidget, IWidgetSettings, IWidgetPreview, IWidgetUpdate, IWidgetMenu
 {
     private readonly IWidgetContext _context;
 
@@ -42,15 +42,20 @@ public sealed class MotdWidget : IWidget, IWidgetSettings, IWidgetPreview, IWidg
     /// <inheritdoc />
     public Task InitializeAsync(WidgetInitInfo initInfo, CancellationToken cancellationToken = default)
     {
+        SetMotd();
+        return Task.CompletedTask;
+    }
+
+    private void SetMotd()
+    {
         var settings = (MotdWidgetSettings)Settings;
         if (settings.Messages.Count < 1)
         {
             ViewModel.Motd = "(No messages configured)";
-            return Task.CompletedTask;
+            return;
         }
-        var message = settings.Messages[Random.Shared.Next(0, settings.Messages.Count - 1)];
+        var message = settings.Messages[Random.Shared.Next(0, settings.Messages.Count)];
         ViewModel.Motd = message.Text;
-        return Task.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -99,5 +104,22 @@ public sealed class MotdWidget : IWidget, IWidgetSettings, IWidgetPreview, IWidg
     {
         var preview = (MotdWidgetSettings)widgetPreview.Settings!;
         ViewModel.Motd = preview.Messages[0].Text;
+    }
+
+    /// <inheritdoc />
+    public IReadOnlyList<MenuItem> GetWidgetMenuItems()
+    {
+        var mi = new MenuItem
+        {
+            Header = "New MOTD",
+        };
+        mi.Click += (sender, args) =>
+        {
+            SetMotd();
+        };
+        return
+        [
+            mi,
+        ];
     }
 }

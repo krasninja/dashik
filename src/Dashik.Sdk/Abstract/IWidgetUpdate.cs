@@ -1,5 +1,8 @@
 namespace Dashik.Sdk.Abstract;
 
+/// <summary>
+/// The interface indicates that widget should be updated for period of time.
+/// </summary>
 public interface IWidgetUpdate
 {
     /// <summary>
