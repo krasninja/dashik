@@ -22,10 +22,13 @@
             <TrayIcon
                 Clicked="TrayIcon_OnClicked"
                 IsVisible="{Binding ShowSystemTrayIcon}"
+                Command="{Binding ShowTrayIconCommand}"
                 Icon="/Assets/Icon.ico"
                 ToolTipText="Dashik">
                 <TrayIcon.Menu>
                     <NativeMenu>
+                        <NativeMenuItem Header="Add Widget" Command="{Binding AddWidgetCommand}" />
+                        <NativeMenuItemSeparator />
                         <NativeMenuItem Header="Quit" Command="{Binding CloseApplicationCommand}" />
                     </NativeMenu>
                 </TrayIcon.Menu>

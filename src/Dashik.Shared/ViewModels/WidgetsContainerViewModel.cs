@@ -1,3 +1,4 @@
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -8,6 +9,7 @@ using Avalonia;
 using Avalonia.Collections;
 using ReactiveUI;
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 using DynamicData;
 using Microsoft.Extensions.Logging;
 using Dashik.Abstractions;
@@ -22,6 +24,7 @@ using Dashik.Shared.Utils;
 using Dashik.Shared.ViewModels.Settings;
 using Dashik.Shared.Views.Settings;
 using Dashik.Sdk;
+using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Models;
 using Dashik.Sdk.ViewModels;
 
@@ -103,6 +106,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
+    public AvaloniaList<NativeMenuItem> WidgetMenuItems { get; } = new();
+
     public string[] WidgetFilter { get; set; } = [];
 
     public AppUpdateViewModel UpdateInfo { get; }
@@ -126,6 +131,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     public ReactiveCommand<Unit, Unit> CheckUpdatesCommand { get; }
 
     public ReactiveCommand<SpaceViewModel, Unit> SwitchSpaceCommand { get; }
+
+    public ReactiveCommand<Unit, Unit> ShowTrayIconCommand { get; }
 
     private readonly Subject<string> _widgetSave = new();
 
@@ -218,6 +225,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         UpdateCommand = ReactiveCommand.CreateFromTask(UpdateInfo.UpdateAsync);
         CheckUpdatesCommand = ReactiveCommand.CreateFromTask(CheckUpdates);
         SwitchSpaceCommand = ReactiveCommand.Create<SpaceViewModel>(SwitchSpace);
+        ShowTrayIconCommand = ReactiveCommand.Create(ShowTrayIcon);
 
         _dispatcher.Start();
     }
@@ -354,6 +362,12 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     private async Task OpenWebsite(CancellationToken cancellationToken)
     {
+        var mainWindow = _mvvmService.GetMainWindow();
+        if (mainWindow == null)
+        {
+            return;
+        }
+        await mainWindow.Launcher.LaunchUriAsync(new Uri(@"https://github.com/krasninja/dashik"));
     }
 
     private async Task CheckUpdates(CancellationToken cancellationToken)
@@ -372,6 +386,10 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     private void SwitchSpace(SpaceViewModel space)
     {
         SelectedSpace = space;
+    }
+
+    private void ShowTrayIcon()
+    {
     }
 
     private async Task OpenSettingsWindow(CancellationToken cancellationToken)
@@ -488,8 +506,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     private async Task LoadInternalAsync(CancellationToken cancellationToken = default)
     {
         Loading = true;
-        var instances = (await _widgetInstanceProvider.LoadAsync(cancellationToken)).ToList();
 
+        // Load spaces.
         Spaces.Clear();
         Spaces.AddRange(_appSettings.Spaces.Select(s => new SpaceViewModel(s)));
         SelectedSpace = Spaces.FirstOrDefault(s => s.Default);
@@ -498,7 +516,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             throw new DashikException("No space found. Please add at least one space in settings.");
         }
 
-        // Load instance.
+        // Load instances.
+        var instances = (await _widgetInstanceProvider.LoadAsync(cancellationToken)).ToList();
         var vms = new List<WidgetViewModel>(capacity: instances.Count);
         foreach (var instance in instances)
         {
@@ -524,9 +543,45 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         // Add not assigned to the default space.
         SelectedSpace.Widgets.AddRange(vms);
 
+        // Add system tray items.
+        LoadSystemTrayMenuItems();
+
+        // Load UI.
         await LoadUiState(cancellationToken);
 
         Loading = false;
+    }
+
+    private void LoadSystemTrayMenuItems()
+    {
+        WidgetMenuItems.Clear();
+        foreach (var widgetViewModel in Widgets)
+        {
+            if (widgetViewModel.Widget != null && widgetViewModel.Widget is IWidgetTrayMenu widgetTrayMenu)
+            {
+                var rootMenuItem = new NativeMenuItem
+                {
+                    Header = widgetViewModel.Title,
+                };
+                var rootSubMenu = new NativeMenu();
+                if (widgetViewModel.WidgetInstance?.Info.Icon is Bitmap bitmap)
+                {
+                    rootMenuItem.Icon = bitmap;
+                }
+
+                rootSubMenu.Items.AddRange(widgetTrayMenu.TrayMenuItems);
+                widgetTrayMenu.TrayMenuItems.CollectionChanged -= TrayMenuItemsOnCollectionChanged;
+                widgetTrayMenu.TrayMenuItems.CollectionChanged += TrayMenuItemsOnCollectionChanged;
+
+                void TrayMenuItemsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+                {
+                    CollectionUtils.SyncFromChangedEventArg(e, rootSubMenu.Items);
+                }
+
+                rootMenuItem.Menu = rootSubMenu;
+                WidgetMenuItems.Add(rootMenuItem);
+            }
+        }
     }
 
     private void PrepareWidgetViewModel(WidgetViewModel widgetViewModel)
