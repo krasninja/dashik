@@ -117,16 +117,16 @@
                                 <Label
                                     Foreground="DarkGray"
                                     Content="{Binding LastUpdatedUtc, Converter={StaticResource TimeAgoConverter}}" />
+                                <MenuItem
+                                    Header="Widget Actions"
+                                    IsVisible="{Binding WidgetMenuItems.Count}"
+                                    ItemsSource="{Binding WidgetMenuItems}" />
                                 <Separator />
                                 <MenuItem
                                     Header="Settings"
                                     Command="{Binding OpenWidgetSettingsCommand}"
                                     CommandParameter="{Binding}" />
                                 <Separator />
-                                <MenuItem
-                                    Header="Widget Actions"
-                                    IsVisible="{Binding WidgetMenuItems.Count}"
-                                    ItemsSource="{Binding WidgetMenuItems}" />
                                 <MenuItem
                                     Header="Refresh"
                                     Command="{Binding UpdateWidgetCommand}"

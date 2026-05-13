@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Avalonia.Controls;
 
 namespace Dashik.Sdk.Abstract;
@@ -8,8 +9,7 @@ namespace Dashik.Sdk.Abstract;
 public interface IWidgetTrayMenu
 {
     /// <summary>
-    /// System tray menu icons.
+    /// List of widget specific menu items.
     /// </summary>
-    /// <returns>List of widget specific menu items.</returns>
-    IReadOnlyList<NativeMenu> GetTrayMenuItems();
+    ObservableCollection<NativeMenuItem> TrayMenuItems { get; }
 }
