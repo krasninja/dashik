@@ -15,7 +15,10 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Button Grid.Row="0" Click="AddButton_OnClick">Add</Button>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="5">
+            <Button Click="AddButton_OnClick">Add</Button>
+            <Button Click="LoadCsvButton_OnClick">Load from CSV</Button>
+        </StackPanel>
 
         <ItemsControl Grid.Row="1" ItemsSource="{Binding ((viewModels:MotdWidgetSettings)Settings).Messages}">
             <ItemsControl.ItemTemplate>
