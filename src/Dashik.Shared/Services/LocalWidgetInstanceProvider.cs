@@ -24,6 +24,7 @@ public sealed class LocalWidgetInstanceProvider : IWidgetInstanceProvider
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     public LocalWidgetInstanceProvider(
