@@ -27,4 +27,7 @@ public sealed class SpaceViewModel : ReactiveObject
         Name = model.Name;
         Widgets = [];
     }
+
+    /// <inheritdoc />
+    public override string ToString() => Name;
 }

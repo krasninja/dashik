@@ -123,6 +123,10 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
     public IObservable<string> SaveWidgetRequested => _saveWidgetRequested;
 
+    private readonly Subject<Unit> _reorderWidgetRequested = new();
+
+    public IObservable<Unit> ReorderWidgetRequested => _reorderWidgetRequested;
+
     public WidgetViewModel(IMvvmService mvvmService, ILogger<WidgetViewModel> logger)
     {
         _mvvmService = mvvmService;
@@ -181,6 +185,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
         var widgetSettings = vm.Widget is IWidgetSettings widgetWithSettings ? widgetWithSettings.Settings : null;
         var settingsModel = new WidgetAllSettings(vm.WidgetInstance.MainSettings, widgetSettings);
+        var originalSpaceId = settingsModel.MainSettings.SpaceId;
         var viewModel = _mvvmService.CreateViewModel<SettingsViewModel>(settingsModel);
         AddSettingsSection(viewModel, vm.Widget);
 
@@ -194,6 +199,11 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
                 cancellationToken);
             await UpdateWidgetAsync(force: true, cancellationToken);
             await LoadAsync(cancellationToken);
+
+            if (originalSpaceId != settingsModel.MainSettings.SpaceId)
+            {
+                _reorderWidgetRequested.OnNext(Unit.Default);
+            }
         }
     }
 
@@ -328,6 +338,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _saveWidgetRequested.Dispose();
+        _reorderWidgetRequested.Dispose();
     }
 
     /// <inheritdoc />

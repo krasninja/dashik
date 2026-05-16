@@ -102,7 +102,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     public SpaceViewModel? SelectedSpace
     {
-        get => field;
+        get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
@@ -507,16 +507,35 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     {
         Loading = true;
 
-        // Load spaces.
-        Spaces.Clear();
-        Spaces.AddRange(_appSettings.Spaces.Select(s => new SpaceViewModel(s)));
-        SelectedSpace = Spaces.FirstOrDefault(s => s.Default);
-        if (SelectedSpace == null)
+        try
         {
-            throw new DashikException("No space found. Please add at least one space in settings.");
-        }
+            // Load spaces.
+            Spaces.Clear();
+            Spaces.AddRange(_appSettings.Spaces.Select(s => new SpaceViewModel(s)));
+            SelectedSpace = Spaces.FirstOrDefault(s => s.Default);
+            if (SelectedSpace == null)
+            {
+                throw new DashikException("No space found. Please add at least one space in settings.");
+            }
 
-        // Load instances.
+            // Load instances.
+            var widgetViewModels = await LoadInstancesAsync(cancellationToken);
+            ArrangeWidgetsBySpaces(widgetViewModels);
+
+            // Add system tray items.
+            LoadSystemTrayMenuItems();
+
+            // Load UI.
+            await LoadUiState(cancellationToken);
+        }
+        finally
+        {
+            Loading = false;
+        }
+    }
+
+    private async Task<IReadOnlyList<WidgetViewModel>> LoadInstancesAsync(CancellationToken cancellationToken = default)
+    {
         var instances = (await _widgetInstanceProvider.LoadAsync(cancellationToken)).ToList();
         var vms = new List<WidgetViewModel>(capacity: instances.Count);
         foreach (var instance in instances)
@@ -532,6 +551,16 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             await vm.LoadAsync(cancellationToken);
             vms.Add(vm);
         }
+        return vms;
+    }
+
+    private void ArrangeWidgetsBySpaces(IEnumerable<WidgetViewModel> widgetsViewModels)
+    {
+        var vms = new List<WidgetViewModel>(widgetsViewModels);
+        foreach (var space in Spaces)
+        {
+            space.Widgets.Clear();
+        }
         foreach (var space in Spaces)
         {
             var widgets = vms
@@ -540,16 +569,13 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             space.Widgets.AddRange(widgets);
             vms.Remove(widgets);
         }
+
         // Add not assigned to the default space.
-        SelectedSpace.Widgets.AddRange(vms);
-
-        // Add system tray items.
-        LoadSystemTrayMenuItems();
-
-        // Load UI.
-        await LoadUiState(cancellationToken);
-
-        Loading = false;
+        var defaultSpace = Spaces.FirstOrDefault(s => s.Default) ?? Spaces.FirstOrDefault();
+        if (defaultSpace != null)
+        {
+            defaultSpace.Widgets.AddRange(vms);
+        }
     }
 
     private void LoadSystemTrayMenuItems()
@@ -591,6 +617,11 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             .Subscribe();
         widgetViewModel.SaveWidgetRequested
             .Subscribe(widgetId => _widgetSave.OnNext(widgetId));
+        widgetViewModel.ReorderWidgetRequested
+            .Subscribe(_ =>
+            {
+                ArrangeWidgetsBySpaces(Widgets);
+            });
     }
 
     public async Task SaveAsync(CancellationToken cancellationToken = default)

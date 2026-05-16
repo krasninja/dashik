@@ -26,6 +26,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Column="0" Grid.Row="0">Update interval:</TextBlock>
@@ -49,8 +50,17 @@
             Grid.Row="2"
             Text="{Binding ((models:WidgetMainSettings)Settings).CustomTitle}" />
 
-        <TextBlock Grid.Column="0" Grid.Row="3">Proxy server:</TextBlock>
-        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="3">
+        <TextBlock Grid.Column="0" Grid.Row="3">Space:</TextBlock>
+        <ComboBox
+            Grid.Column="1"
+            Grid.Row="3"
+            ItemsSource="{Binding Spaces}"
+            SelectedValueBinding="{Binding Id}"
+            DisplayMemberBinding="{Binding Name}"
+            SelectedValue="{Binding ((models:WidgetMainSettings)Settings).SpaceId}" />
+
+        <TextBlock Grid.Column="0" Grid.Row="4">Proxy server:</TextBlock>
+        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="4">
             <TextBox
                 Text="{Binding ((models:WidgetMainSettings)Settings).WebProxy}" />
             <TextBlock FontStyle="Italic">Examples: socks5://127.0.0.1:1080</TextBlock>
