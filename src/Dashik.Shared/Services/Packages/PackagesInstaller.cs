@@ -36,7 +36,7 @@ public sealed class PackagesInstaller : IPackagesInstaller
                 Tags = nuspec.GetTags().Split([',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
                 Copyright = nuspec.GetCopyright(),
                 Owner = nuspec.GetOwners(),
-                IconFileName = nuspec.GetIcon(),
+                IconFileName = nuspec.GetIcon() ?? string.Empty,
                 FileSize = new FileInfo(file).Length,
             };
             widgetEntries.Add(widgetEntry);
