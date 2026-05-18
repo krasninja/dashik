@@ -112,6 +112,10 @@
                                 </MenuItem>
                                 <Separator />
                                 <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand}" />
+                                <MenuItem Header="View">
+                                    <MenuItem Header="Fit" Command="{Binding FitCommand}" />
+                                    <MenuItem Header="Topmost" ToggleType="CheckBox" IsChecked="{Binding Topmost, Mode=TwoWay}" />
+                                </MenuItem>
                                 <MenuItem Header="Help">
                                     <MenuItem Header="Logs" Command="{Binding OpenLogsCommand}" />
                                     <MenuItem Header="Website" Command="{Binding OpenWebsiteCommand}" />

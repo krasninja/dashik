@@ -134,6 +134,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     public ReactiveCommand<Unit, Unit> ShowTrayIconCommand { get; }
 
+    public ReactiveCommand<Unit, Unit> FitCommand { get; }
+
     private readonly Subject<string> _widgetSave = new();
 
     private sealed class WidgetsIdComparer : IComparer<WidgetViewModel>
@@ -226,6 +228,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         CheckUpdatesCommand = ReactiveCommand.CreateFromTask(CheckUpdates);
         SwitchSpaceCommand = ReactiveCommand.Create<SpaceViewModel>(SwitchSpace);
         ShowTrayIconCommand = ReactiveCommand.Create(ShowTrayIcon);
+        FitCommand = ReactiveCommand.Create(Fit);
 
         _dispatcher.Start();
     }
@@ -390,6 +393,12 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     private void ShowTrayIcon()
     {
+    }
+
+    private void Fit()
+    {
+        var columnsCount = (int)(WindowWidth / WidgetViewModel.DefaultWidgetWidth);
+        WindowWidth = columnsCount * WidgetViewModel.DefaultWidgetWidth + 15;
     }
 
     private async Task OpenSettingsWindow(CancellationToken cancellationToken)

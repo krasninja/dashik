@@ -34,7 +34,7 @@
     </UserControl.Styles>
 
     <Border
-        Width="250"
+        Width="{Binding WidgetWidth}"
         MaxHeight="400"
         VerticalAlignment="Top"
         BorderThickness="1"

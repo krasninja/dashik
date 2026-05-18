@@ -21,6 +21,8 @@ namespace Dashik.Shared.ViewModels;
 
 public sealed class WidgetViewModel : ViewModelBase, IDisposable
 {
+    public const double DefaultWidgetWidth = 250;
+
     private readonly IMvvmService _mvvmService;
     private readonly ILogger _logger;
 
@@ -29,6 +31,11 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         public WidgetMainSettings MainSettings { get; } = mainSettings;
 
         public object? Settings { get; } = settings;
+    }
+
+    public double WidgetWidth
+    {
+        get => DefaultWidgetWidth;
     }
 
     public IWidgetInstance? WidgetInstance
