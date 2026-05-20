@@ -398,7 +398,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     private void Fit()
     {
         var columnsCount = (int)(WindowWidth / WidgetViewModel.DefaultWidgetWidth);
-        WindowWidth = columnsCount * WidgetViewModel.DefaultWidgetWidth + 15;
+        WindowWidth = columnsCount * WidgetViewModel.DefaultWidgetWidth + 16;
     }
 
     private async Task OpenSettingsWindow(CancellationToken cancellationToken)

@@ -294,7 +294,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating widget {WidgetId}.", WidgetId);
+            _logger.LogError(ex, "Error updating widget {WidgetId} ('{Title}').", WidgetId, Title);
             LastException = ex;
         }
         finally
