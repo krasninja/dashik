@@ -12,6 +12,8 @@ namespace Dashik.Shared.Models;
 /// </summary>
 public class WidgetInstance : IWidgetInstance, IDisposable
 {
+    private readonly IWidgetsStateStorage _stateStorage;
+
     /// <inheritdoc />
     public string Id { get; }
 
@@ -27,15 +29,17 @@ public class WidgetInstance : IWidgetInstance, IDisposable
     /// <inheritdoc />
     public bool PreviewMode => false;
 
-    public WidgetInstance(string id, WidgetInfo widgetInfo)
+    public WidgetInstance(string id, WidgetInfo info, IWidgetsStateStorage stateStorage)
     {
         Id = id;
-        Info = widgetInfo;
+        Info = info;
         MainSettings.UpdateInterval = Info.DefaultUpdateInterval;
+
+        _stateStorage = stateStorage;
     }
 
-    public WidgetInstance(WidgetInfo widgetInfo)
-        : this(IdGenerator.Generate(length: 8), widgetInfo)
+    public WidgetInstance(WidgetInfo info, IWidgetsStateStorage widgetsStateStorage)
+        : this(IdGenerator.Generate(length: 8), info, widgetsStateStorage)
     {
     }
 
@@ -67,6 +71,20 @@ public class WidgetInstance : IWidgetInstance, IDisposable
         }
         return _httpClient;
     }
+
+    /// <inheritdoc />
+    public async Task SetStateAsync(object state, CancellationToken cancellationToken = default)
+    {
+        await _stateStorage.SetStateAsync(state, GetStateId(), cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<object?> GetStateAsync(Type stateType, CancellationToken cancellationToken = default)
+    {
+        return _stateStorage.GetStateAsync(stateType, GetStateId(), cancellationToken);
+    }
+
+    private string GetStateId() => $"{Info.InfoAttribute.Id}-{Id}";
 
     #endregion
 

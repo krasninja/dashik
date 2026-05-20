@@ -41,6 +41,7 @@ internal sealed class AppServicesSetup(Container container, AppArguments appArgu
             var appService = container.GetRequiredService<IAppService>();
             return CreateExecutionThread(appService);
         });
+        container.Register<IWidgetsStateStorage, FileWidgetsStateStorage>();
         container.Register(() =>
         {
             var thread = container.GetRequiredService<IExecutionThread>();

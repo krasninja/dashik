@@ -17,6 +17,7 @@ public sealed class LocalWidgetInstanceProvider : IWidgetInstanceProvider
 
     private readonly IAppService _service;
     private readonly IWidgetsProvider _widgetsProvider;
+    private readonly IWidgetsStateStorage _stateStorage;
     private readonly ILogger<LocalWidgetInstanceProvider> _logger;
 
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
@@ -30,10 +31,12 @@ public sealed class LocalWidgetInstanceProvider : IWidgetInstanceProvider
     public LocalWidgetInstanceProvider(
         IAppService service,
         IWidgetsProvider widgetsProvider,
+        IWidgetsStateStorage stateStorage,
         ILogger<LocalWidgetInstanceProvider> logger)
     {
         _service = service;
         _widgetsProvider = widgetsProvider;
+        _stateStorage = stateStorage;
         _logger = logger;
     }
 
@@ -79,7 +82,7 @@ public sealed class LocalWidgetInstanceProvider : IWidgetInstanceProvider
             }
 
             // Create widget instance and init it.
-            instance ??= new WidgetInstance(id: widgetId, widgetInfo: info);
+            instance ??= new WidgetInstance(id: widgetId, info: info, _stateStorage);
             try
             {
                 var settingsJson = await JsonSerializer.DeserializeAsync<JsonObject>(

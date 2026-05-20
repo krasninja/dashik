@@ -36,6 +36,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     private readonly SettingsStorage _settingsStorage;
     private readonly IWidgetsFactory _widgetsFactory;
     private readonly IWidgetInstanceProvider _widgetInstanceProvider;
+    private readonly IWidgetsStateStorage _stateStorage;
     private readonly IMvvmService _mvvmService;
     private readonly ILogger<WidgetsContainerViewModel> _logger;
     private readonly ParallelDispatcher _dispatcher = new(maxDegreeOfParallelism: 2);
@@ -205,6 +206,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         AppUpdateViewModel updateInfo,
         IWidgetsFactory widgetsFactory,
         IWidgetInstanceProvider widgetInstanceProvider,
+        IWidgetsStateStorage stateStorage,
         IMvvmService mvvmService,
         ILogger<WidgetsContainerViewModel> logger)
         : this()
@@ -213,6 +215,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         _settingsStorage = settingsStorage;
         _widgetsFactory = widgetsFactory;
         _widgetInstanceProvider = widgetInstanceProvider;
+        _stateStorage = stateStorage;
         _mvvmService = mvvmService;
         _logger = logger;
         UpdateInfo = updateInfo;
@@ -443,7 +446,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             && viewModel.ResultValue != null)
         {
             var widgetInfo = viewModel.ResultValue;
-            var instance = new WidgetInstance(widgetInfo);
+            var instance = new WidgetInstance(widgetInfo, _stateStorage);
             instance.MainSettings.SpaceId = SelectedSpace.Id;
             try
             {

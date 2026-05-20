@@ -9,12 +9,12 @@ namespace Dashik.Sdk.Widgets;
 /// </summary>
 public class WidgetInfo
 {
-    private readonly WidgetInfoAttribute _infoAttribute;
+    private readonly WidgetInfoAttribute _infoAttributeAttribute;
 
     /// <summary>
     /// Widget type identifier.
     /// </summary>
-    public string Id => _infoAttribute.Id;
+    public string Id => _infoAttributeAttribute.Id;
 
     /// <summary>
     /// Widget type. Should inherit from <see cref="IWidget" />.
@@ -24,19 +24,19 @@ public class WidgetInfo
     /// <summary>
     /// Widget setting type.
     /// </summary>
-    public Type? SettingsType => _infoAttribute.SettingsType;
+    public Type? SettingsType => _infoAttributeAttribute.SettingsType;
 
     /// <summary>
     /// Widget name. It is used in header.
     /// </summary>
-    public string Name => _infoAttribute.Name;
+    public string Name => _infoAttributeAttribute.Name;
 
     /// <summary>
     /// Widget general description.
     /// </summary>
-    public string Description => _infoAttribute.Description;
+    public string Description => _infoAttributeAttribute.Description;
 
-    public WidgetInfoAttribute Info => _infoAttribute;
+    public WidgetInfoAttribute InfoAttribute => _infoAttributeAttribute;
 
     /// <summary>
     /// Widget icon.
@@ -48,9 +48,9 @@ public class WidgetInfo
     /// </summary>
     public TimeSpan DefaultUpdateInterval { get; protected set; } = TimeSpan.FromMinutes(5);
 
-    public WidgetInfo(WidgetInfoAttribute infoAttribute, Type widgetType)
+    public WidgetInfo(WidgetInfoAttribute infoAttributeAttribute, Type widgetType)
     {
-        _infoAttribute = infoAttribute;
+        _infoAttributeAttribute = infoAttributeAttribute;
         WidgetType = widgetType;
     }
 
@@ -61,7 +61,7 @@ public class WidgetInfo
         {
             throw new InvalidOperationException($"Widget type must have '{nameof(WidgetInfoAttribute)}' attribute.");
         }
-        _infoAttribute = infoAttribute;
+        _infoAttributeAttribute = infoAttribute;
         WidgetType = widgetType;
     }
 

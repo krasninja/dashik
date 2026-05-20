@@ -20,6 +20,7 @@ public sealed class AddWidgetViewModel : ViewModelBase
     private readonly IWidgetsProvider _widgetsProvider;
     private readonly IServiceProvider _serviceProvider;
     private readonly IWidgetsFactory _widgetsFactory;
+    private readonly IWidgetsStateStorage _stateStorage;
 
     private static readonly WidgetMainSettings _defaultPreviewSettings = new()
     {
@@ -124,10 +125,12 @@ public sealed class AddWidgetViewModel : ViewModelBase
     public AddWidgetViewModel(
         IWidgetsProvider widgetsProvider,
         IWidgetsFactory widgetsFactory,
+        IWidgetsStateStorage stateStorage,
         IServiceProvider serviceProvider)
     {
         _widgetsProvider = widgetsProvider;
         _widgetsFactory = widgetsFactory;
+        _stateStorage = stateStorage;
         _serviceProvider = serviceProvider;
 
         AddWidgetCommand = ReactiveCommand.Create<WidgetNode>(_ => { });
@@ -173,10 +176,10 @@ public sealed class AddWidgetViewModel : ViewModelBase
         var widgets = _widgetsProvider.GetAll();
         foreach (var widgetInfo in widgets)
         {
-            var categoryModel = Categories.FirstOrDefault(c => c.Info.Category == widgetInfo.Info.Category);
+            var categoryModel = Categories.FirstOrDefault(c => c.Info.Category == widgetInfo.InfoAttribute.Category);
             if (categoryModel == null)
             {
-                var category = categories.FirstOrDefault(c => c.Category == widgetInfo.Info.Category);
+                var category = categories.FirstOrDefault(c => c.Category == widgetInfo.InfoAttribute.Category);
                 if (category == null)
                 {
                     continue;
@@ -203,7 +206,7 @@ public sealed class AddWidgetViewModel : ViewModelBase
                     );
                     var widgetPreviewViewModel = _serviceProvider.GetRequiredService<WidgetViewModel>();
                     widgetPreviewViewModel.Widget = (IWidget)widgetPreview;
-                    widgetPreviewViewModel.WidgetInstance = new WidgetInstance(widgetInfo);
+                    widgetPreviewViewModel.WidgetInstance = new WidgetInstance(widgetInfo, _stateStorage);
                     widgetPreviewViewModel.ReadOnly = true;
 
                     widgetPreview.SetPreview(previewConfiguration);

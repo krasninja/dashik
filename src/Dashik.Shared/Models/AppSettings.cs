@@ -9,6 +9,8 @@ public class AppSettings
 
     public string InstancesDirectory { get; set; } = "instances";
 
+    public string InstanceStateDirectory { get; set; } = "instances-state";
+
     public List<string> LocalPackagesDirectories { get; set; } = [];
 
     /// <summary>

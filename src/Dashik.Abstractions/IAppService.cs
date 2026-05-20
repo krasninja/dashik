@@ -18,6 +18,12 @@ public interface IAppService
     string GetInstancesDirectory();
 
     /// <summary>
+    /// Get widgets state directory.
+    /// </summary>
+    /// <returns>State directory.</returns>
+    string GetStateDirectory();
+
+    /// <summary>
     /// Get application directories with NuGet packages. The first directory is the default one.
     /// </summary>
     /// <returns>Packages directories.</returns>

@@ -11,4 +11,10 @@ public sealed class StubWidgetContext : IWidgetContext
 
     /// <inheritdoc />
     public HttpClient CreateHttpClient() => new();
+
+    /// <inheritdoc />
+    public Task SetStateAsync(object state, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+    /// <inheritdoc />
+    public Task<object?> GetStateAsync(Type stateType, CancellationToken cancellationToken = default) => Task.FromResult<object?>(null);
 }

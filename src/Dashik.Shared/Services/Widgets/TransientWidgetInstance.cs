@@ -20,12 +20,12 @@ internal sealed class TransientWidgetInstance : WidgetInstance
     public bool RequiresSetup { get; set; }
 
     /// <inheritdoc />
-    public TransientWidgetInstance(string id, WidgetInfo widgetInfo) : base(id, widgetInfo)
+    public TransientWidgetInstance(string id, WidgetInfo widgetInfo) : base(id, widgetInfo, StubWidgetStateStorage.Instance)
     {
     }
 
     /// <inheritdoc />
-    public TransientWidgetInstance(WidgetInfo widgetInfo) : base(widgetInfo)
+    public TransientWidgetInstance(WidgetInfo widgetInfo) : base(widgetInfo, StubWidgetStateStorage.Instance)
     {
     }
 }

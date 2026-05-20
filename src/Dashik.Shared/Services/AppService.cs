@@ -26,6 +26,9 @@ public sealed class AppService : IAppService
     public string GetInstancesDirectory() => Path.Combine(_dataDirectory, _appSettings.InstancesDirectory);
 
     /// <inheritdoc />
+    public string GetStateDirectory() => Path.Combine(_dataDirectory, _appSettings.InstanceStateDirectory);
+
+    /// <inheritdoc />
     public string[] GetPackagesDirectories()
     {
         string[] pluginsDirs =
