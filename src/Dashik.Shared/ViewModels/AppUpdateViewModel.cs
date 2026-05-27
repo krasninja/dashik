@@ -76,7 +76,6 @@ public class AppUpdateViewModel : ReactiveObject
         var remoteVersion = await _updateService.CheckUpdatesAsync(cancellationToken);
         if (string.IsNullOrEmpty(remoteVersion))
         {
-            _logger.LogWarning("Cannot get remote app version.");
             return;
         }
 

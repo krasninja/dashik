@@ -120,6 +120,7 @@
                                     <MenuItem Header="Logs" Command="{Binding OpenLogsCommand}" />
                                     <MenuItem Header="Website" Command="{Binding OpenWebsiteCommand}" />
                                     <MenuItem Header="Fonts" Command="{Binding OpenFontsCommand}" />
+                                    <MenuItem Header="Check Updates" Command="{Binding CheckUpdatesCommand}" />
                                     <Separator />
                                     <MenuItem Header="About" Command="{Binding OpenAboutCommand}" />
                                 </MenuItem>
