@@ -1,33 +1,45 @@
+using System.Runtime.Serialization;
 using Avalonia.Collections;
+using Newtonsoft.Json;
 using Dashik.Abstractions;
 using Dashik.Shared.Infrastructure.UI;
 using Dashik.Shared.Models;
 
 namespace Dashik.Shared.ViewModels.Settings;
 
+[DataContract]
 public class AppSettingsViewModel : ViewModelBase
 {
     private readonly ISystemUtils? _systemUtils;
 
+    [DataMember]
     public AvaloniaList<PackageFeedModel> PackagesFeeds { get; set; } = [];
 
+    [DataMember]
     public string InstancesDirectory { get; set; } = string.Empty;
 
+    [DataMember]
     public AvaloniaList<string> LocalPackagesDirectories { get; set; } = [];
 
+    [DataMember]
     public AvaloniaList<SpaceModel> Spaces { get; set; } = [];
 
+    [DataMember]
     public bool OriginalLaunchOnSystemStartup { get; set; }
 
+    [DataMember]
     public bool LaunchOnSystemStartup { get; set; }
 
+    [DataMember]
     public bool IsTopmost { get; set; }
 
+    [DataMember]
     public bool ShowSystemTrayIcon { get; set; }
 
     /// <summary>
     /// Ctor for deserialization.
     /// </summary>
+    [JsonConstructor]
     private AppSettingsViewModel()
     {
     }
