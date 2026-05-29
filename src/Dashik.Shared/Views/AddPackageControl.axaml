@@ -37,42 +37,44 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <ListBox ItemsSource="{Binding Packages}"
-                     SelectedItem="{Binding $parent[UserControl].((viewModels:AddPackageViewModel)DataContext).SelectedPackageNode}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                <Image Source="{Binding PackageGroup.Current.IconFileImage^}" Width="24" Height="24" />
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    Padding="10,0,0,0"
-                                    Text="{Binding Title}" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" IsVisible="{Binding 'PackageGroup.Installed'}" Orientation="Horizontal">
-                                <PathIcon
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right"
-                                    Data="{StaticResource FontAwesomeSolidCheck}"
-                                    Foreground="LightGreen"
-                                    ToolTip.Tip="Installed"
-                                    IsVisible="{Binding '!PackageGroup.HasUpdate'}" />
-                                <PathIcon
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right"
-                                    Data="{StaticResource FontAwesomeSolidCircleArrowUp}"
-                                    Foreground="Green"
-                                    ToolTip.Tip="Upgrade available"
-                                    IsVisible="{Binding PackageGroup.HasUpdate}" />
-                            </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <ScrollViewer>
+                <ListBox ItemsSource="{Binding Packages}"
+                         SelectedItem="{Binding $parent[UserControl].((viewModels:AddPackageViewModel)DataContext).SelectedPackageNode}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                    <Image Source="{Binding PackageGroup.Current.IconFileImage^}" Width="24" Height="24" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Padding="10,0,0,0"
+                                        Text="{Binding Title}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" IsVisible="{Binding 'PackageGroup.Installed'}" Orientation="Horizontal">
+                                    <PathIcon
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Right"
+                                        Data="{StaticResource FontAwesomeSolidCheck}"
+                                        Foreground="LightGreen"
+                                        ToolTip.Tip="Installed"
+                                        IsVisible="{Binding '!PackageGroup.HasUpdate'}" />
+                                    <PathIcon
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Right"
+                                        Data="{StaticResource FontAwesomeSolidCircleArrowUp}"
+                                        Foreground="Green"
+                                        ToolTip.Tip="Upgrade available"
+                                        IsVisible="{Binding PackageGroup.HasUpdate}" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
 
             <Grid Grid.Column="1" IsVisible="{Binding SelectedPackageNode, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <Grid.RowDefinitions>

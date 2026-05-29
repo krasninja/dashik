@@ -11,8 +11,7 @@ namespace Dashik.QueryCat.AssemblyLoader;
 /// <summary>
 /// Plugins loader that loads .NET assemblies.
 /// </summary>
-public class
-DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
+public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
 {
     private const string DllExtension = ".dll";
     private const string NuGetExtensions = ".nupkg";

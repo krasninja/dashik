@@ -40,56 +40,58 @@
             <Label HorizontalAlignment="Center">There are no additional feeds. Click "Add" to create a new one!</Label>
         </Panel>
 
-        <ItemsControl Grid.Row="2" ItemsSource="{Binding Feeds}" VerticalAlignment="Top">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderThickness="2" BorderBrush="LightGray" Margin="5" Padding="5">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="80" />
-                            </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="2">
+            <ItemsControl ItemsSource="{Binding Feeds}" VerticalAlignment="Top">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderThickness="2" BorderBrush="LightGray" Margin="5" Padding="5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="80" />
+                                </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0" Orientation="Vertical">
-                                <DockPanel LastChildFill="True">
-                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="Name" Width="100" />
-                                    <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" Text="{Binding Name}" IsReadOnly="{Binding !InEditMode}" Margin="3" />
-                                </DockPanel>
-                                <DockPanel LastChildFill="True">
-                                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="URL" Width="100" />
-                                    <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" Text="{Binding Uri}" IsReadOnly="{Binding !InEditMode}" Margin="3" />
-                                </DockPanel>
-                            </StackPanel>
+                                <StackPanel Grid.Column="0" Orientation="Vertical">
+                                    <DockPanel LastChildFill="True">
+                                        <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="Name" Width="100" />
+                                        <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" Text="{Binding Name}" IsReadOnly="{Binding !InEditMode}" Margin="3" />
+                                    </DockPanel>
+                                    <DockPanel LastChildFill="True">
+                                        <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="URL" Width="100" />
+                                        <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" Text="{Binding Uri}" IsReadOnly="{Binding !InEditMode}" Margin="3" />
+                                    </DockPanel>
+                                </StackPanel>
 
-                            <StackPanel Grid.Column="1" Orientation="Vertical">
-                                <Button
-                                    Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).ApplyFeedCommand}"
-                                    CommandParameter="{Binding}"
-                                    IsVisible="{Binding InEditMode}"
-                                    HorizontalAlignment="Center"
-                                    HorizontalContentAlignment="Center"
-                                    Width="70"
-                                    Content="Apply" />
-                                <Button
-                                    Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).EditFeedCommand}"
-                                    CommandParameter="{Binding}"
-                                    IsVisible="{Binding !InEditMode}"
-                                    HorizontalAlignment="Center"
-                                    HorizontalContentAlignment="Center"
-                                    Width="70"
-                                    Content="Edit" />
-                                <Button
-                                    Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).RemoveFeedCommand}"
-                                    CommandParameter="{Binding}"
-                                    HorizontalAlignment="Center"
-                                    HorizontalContentAlignment="Center"
-                                    Width="70"
-                                    Content="Remove" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+                                <StackPanel Grid.Column="1" Orientation="Vertical">
+                                    <Button
+                                        Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).ApplyFeedCommand}"
+                                        CommandParameter="{Binding}"
+                                        IsVisible="{Binding InEditMode}"
+                                        HorizontalAlignment="Center"
+                                        HorizontalContentAlignment="Center"
+                                        Width="70"
+                                        Content="Apply" />
+                                    <Button
+                                        Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).EditFeedCommand}"
+                                        CommandParameter="{Binding}"
+                                        IsVisible="{Binding !InEditMode}"
+                                        HorizontalAlignment="Center"
+                                        HorizontalContentAlignment="Center"
+                                        Width="70"
+                                        Content="Edit" />
+                                    <Button
+                                        Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).RemoveFeedCommand}"
+                                        CommandParameter="{Binding}"
+                                        HorizontalAlignment="Center"
+                                        HorizontalContentAlignment="Center"
+                                        Width="70"
+                                        Content="Remove" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>
