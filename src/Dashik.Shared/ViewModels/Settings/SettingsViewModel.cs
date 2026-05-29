@@ -90,13 +90,18 @@ public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDia
     }
 
     /// <inheritdoc />
-    public override Task LoadAsync(CancellationToken cancellationToken = default)
+    public override async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         if (Sections.Count > 0)
         {
             SelectedSection = Sections[0];
         }
-        return base.LoadAsync(cancellationToken);
+
+        foreach (var section in Sections)
+        {
+            await section.LoadAsync(cancellationToken);
+        }
+        await base.LoadAsync(cancellationToken);
     }
 
     private void Cancel()

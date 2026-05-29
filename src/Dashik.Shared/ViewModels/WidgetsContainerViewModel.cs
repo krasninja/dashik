@@ -406,11 +406,10 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     private async Task OpenSettingsWindow(CancellationToken cancellationToken)
     {
-        var appSettingsViewModel = new AppSettingsViewModel(_appSettings)
-        {
-            IsTopmost = Topmost,
-            ShowSystemTrayIcon = ShowSystemTrayIcon,
-        };
+        var appSettingsViewModel = _mvvmService.CreateViewModel<AppSettingsViewModel>();
+        appSettingsViewModel.IsTopmost = Topmost;
+        appSettingsViewModel.ShowSystemTrayIcon = ShowSystemTrayIcon;
+        await appSettingsViewModel.LoadAsync(cancellationToken);
         var viewModel = _mvvmService.CreateViewModel<SettingsViewModel>(appSettingsViewModel);
 
         viewModel.AddSection(
@@ -423,14 +422,15 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
         if (await _mvvmService.OpenAsync(viewModel, cancellationToken) == DialogResult.OK)
         {
-            var newSettings = (AppSettingsViewModel)viewModel.Settings;
-            var newAppSettings = newSettings.ToAppSettings();
+            var newAppSettingsViewModel = (AppSettingsViewModel)viewModel.Settings;
+            var newAppSettings = newAppSettingsViewModel.ToAppSettings();
             using var cloner = new AppCloner();
             cloner.CloneTo(newAppSettings, _appSettings);
             await _settingsStorage.SaveAsync(_appSettings, cancellationToken);
+            await newAppSettingsViewModel.SetApplicationStartupAsync(cancellationToken);
             await LoadInternalAsync(cancellationToken);
-            Topmost = newSettings.IsTopmost;
-            ShowSystemTrayIcon = newSettings.ShowSystemTrayIcon;
+            Topmost = newAppSettingsViewModel.IsTopmost;
+            ShowSystemTrayIcon = newAppSettingsViewModel.ShowSystemTrayIcon;
         }
     }
 

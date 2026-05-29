@@ -47,6 +47,22 @@ internal sealed class AppServicesSetup(Container container, AppArguments appArgu
             var thread = container.GetRequiredService<IExecutionThread>();
             return thread.PluginsManager.PluginsLoader;
         });
+        container.RegisterSingleton<ISystemUtils>(() =>
+        {
+            if (OperatingSystem.IsLinux())
+            {
+                return new LinuxSystemUtils();
+            }
+            if (OperatingSystem.IsWindows())
+            {
+                return new WindowsSystemUtils();
+            }
+            if (OperatingSystem.IsMacOS())
+            {
+                return new MacSystemUtils();
+            }
+            return new StubSystemUtils();
+        });
     }
 
     private IExecutionThread CreateExecutionThread(IAppService appService)
