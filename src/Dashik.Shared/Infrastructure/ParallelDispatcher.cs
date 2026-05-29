@@ -24,17 +24,17 @@ internal sealed class ParallelDispatcher : IDisposable
     }
 
     /// <summary>
+    /// Unhandled exceptions' handler.
+    /// </summary>
+    public Action<Exception> UnhandledExceptionHandler { get; set; } = _ => { };
+
+    /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="maxDegreeOfParallelism">Max degree of parallelism.</param>
-    /// <param name="start">Start immediately.</param>
-    public ParallelDispatcher(int maxDegreeOfParallelism, bool start = false)
+    public ParallelDispatcher(int maxDegreeOfParallelism)
     {
-        _maxDegreeOfParallelism = maxDegreeOfParallelism;
-        if (start)
-        {
-            Start();
-        }
+        this._maxDegreeOfParallelism = maxDegreeOfParallelism;
     }
 
     /// <summary>
@@ -70,11 +70,21 @@ internal sealed class ParallelDispatcher : IDisposable
             return;
         }
 
-        while (_isStarted
-            && Interlocked.Read(ref _runningCount) < _maxDegreeOfParallelism
-            && _executionQueue.TryDequeue(out var item))
+        while (_isStarted)
         {
-            Interlocked.Increment(ref _runningCount);
+            // Atomically reserve a slot before dequeuing.
+            var count = Interlocked.Increment(ref _runningCount);
+            if (count > _maxDegreeOfParallelism)
+            {
+                Interlocked.Decrement(ref _runningCount);
+                break;
+            }
+
+            if (!_executionQueue.TryDequeue(out var item))
+            {
+                Interlocked.Decrement(ref _runningCount);
+                break;
+            }
 
             var cancellationToken = _cancellationTokenSource.Token;
             var currentItem = item; // Local copy to avoid captured variable warning.
@@ -95,6 +105,7 @@ internal sealed class ParallelDispatcher : IDisposable
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"{nameof(ParallelDispatcher)}: Unhandled exception: {ex}");
+                    UnhandledExceptionHandler.Invoke(ex);
                 }
                 finally
                 {
