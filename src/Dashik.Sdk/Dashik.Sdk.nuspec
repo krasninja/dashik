@@ -17,7 +17,7 @@
     <repository type="git" url="https://github.com/krasninja/dashik" commit="$CommitHash$" />
     <dependencies>
       <group targetFramework="net10.0">
-        <dependency id="Avalonia" version="[12.0.3, )" />
+        <dependency id="Avalonia" version="[12.0.4, )" />
         <dependency id="ReactiveUI.Avalonia" version="[12.0.1, )" />
         <dependency id="Xaml.Behaviors.Interactions" version="[12.0.0, )" />
         <dependency id="Xaml.Behaviors.Interactivity" version="[12.0.0, )" />
