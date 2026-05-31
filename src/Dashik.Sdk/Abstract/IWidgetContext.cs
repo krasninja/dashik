@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace Dashik.Sdk.Abstract;
 
 /// <summary>
@@ -31,4 +33,14 @@ public interface IWidgetContext
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>State object.</returns>
     Task<object?> GetStateAsync(Type stateType, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Send message to another widget. Allows to have communication between widgets.
+    /// </summary>
+    /// <param name="toWidgetId">Target widget identifier.</param>
+    /// <param name="messageId">Command or query name.</param>
+    /// <param name="payload">Message payload.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Response from widget.</returns>
+    Task<JsonObject?> SendMessageAsync(string toWidgetId, string messageId, JsonObject payload, CancellationToken cancellationToken = default);
 }

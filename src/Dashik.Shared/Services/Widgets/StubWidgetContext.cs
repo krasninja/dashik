@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Dashik.Sdk.Abstract;
 
 namespace Dashik.Shared.Services.Widgets;
@@ -17,4 +18,8 @@ public sealed class StubWidgetContext : IWidgetContext
 
     /// <inheritdoc />
     public Task<object?> GetStateAsync(Type stateType, CancellationToken cancellationToken = default) => Task.FromResult<object?>(null);
+
+    /// <inheritdoc />
+    public Task<JsonObject?> SendMessageAsync(string toWidgetId, string messageId, JsonObject payload, CancellationToken cancellationToken = default)
+        => Task.FromResult((JsonObject?)null);
 }

@@ -5,6 +5,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
+using System.Text.Json.Nodes;
 using Avalonia;
 using Avalonia.Collections;
 using ReactiveUI;
@@ -55,6 +56,12 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     /// Widgets collection.
     /// </summary>
     public IEnumerable<WidgetViewModel> Widgets => Spaces.SelectMany(s => s.Widgets);
+
+    private IEnumerable<WidgetViewModel> ActiveWidgets => Spaces
+        .SelectMany(s => s.Widgets)
+        .Where(w => w.WidgetInstance != null
+                    && w.WidgetInstance is not TransientWidgetInstance
+                    && !w.WidgetInstance.MainSettings.Disabled);
 
     public WindowState WindowState
     {
@@ -248,12 +255,9 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         try
         {
             _updating = true;
-            foreach (var widget in Widgets)
+            foreach (var widget in ActiveWidgets)
             {
-                if (widget.WidgetInstance == null
-                    || widget.WidgetInstance is TransientWidgetInstance
-                    || widget.WidgetInstance.MainSettings.Disabled
-                    || widget.Pending)
+                if (widget.WidgetInstance == null || widget.Pending)
                 {
                     continue;
                 }
@@ -449,6 +453,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         {
             var widgetInfo = viewModel.ResultValue;
             var instance = new WidgetInstance(widgetInfo, _stateStorage);
+            instance.OnMessageSend = ProcessMessageAsync;
             instance.MainSettings.SpaceId = SelectedSpace.Id;
             try
             {
@@ -517,6 +522,28 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         _logger.LogTrace($"App state loaded in {stopwatch.ElapsedMilliseconds} ms.");
     }
 
+    private async Task<JsonObject?> ProcessMessageAsync(WidgetMessage message, CancellationToken cancellationToken)
+    {
+        foreach (var widget in ActiveWidgets)
+        {
+            if (widget.Widget is not IWidgetBus widgetBus)
+            {
+                continue;
+            }
+
+            if (message.WidgetId == widget.WidgetId || message.WidgetId == "*"
+                || string.IsNullOrEmpty(message.WidgetId))
+            {
+                var response = await widgetBus.ReceiveMessageAsync(message.WidgetId, message.MessageId, message.Payload, cancellationToken);
+                if (response != null)
+                {
+                    return response;
+                }
+            }
+        }
+        return null;
+    }
+
     private async Task LoadInternalAsync(CancellationToken cancellationToken = default)
     {
         Loading = true;
@@ -561,6 +588,10 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
             var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
             vm.Widget = widget;
             vm.WidgetInstance = instance;
+            if (vm.WidgetInstance is WidgetInstance widgetInstance)
+            {
+                widgetInstance.OnMessageSend = ProcessMessageAsync;
+            }
             PrepareWidgetViewModel(vm);
             await vm.LoadAsync(cancellationToken);
             vms.Add(vm);
@@ -595,7 +626,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     private void LoadSystemTrayMenuItems()
     {
         WidgetMenuItems.Clear();
-        foreach (var widgetViewModel in Widgets)
+        foreach (var widgetViewModel in ActiveWidgets)
         {
             if (widgetViewModel.Widget != null && widgetViewModel.Widget is IWidgetTrayMenu widgetTrayMenu)
             {

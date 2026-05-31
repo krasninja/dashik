@@ -29,11 +29,14 @@ public class WidgetInstance : IWidgetInstance, IDisposable
     /// <inheritdoc />
     public bool PreviewMode => false;
 
+    internal Func<WidgetMessage, CancellationToken, Task<JsonObject?>> OnMessageSend { get; set; }
+
     public WidgetInstance(string id, WidgetInfo info, IWidgetsStateStorage stateStorage)
     {
         Id = id;
         Info = info;
         MainSettings.UpdateInterval = Info.DefaultUpdateInterval;
+        OnMessageSend = (_, _) => Task.FromResult((JsonObject?)null);
 
         _stateStorage = stateStorage;
     }
@@ -82,6 +85,16 @@ public class WidgetInstance : IWidgetInstance, IDisposable
     public Task<object?> GetStateAsync(Type stateType, CancellationToken cancellationToken = default)
     {
         return _stateStorage.GetStateAsync(stateType, GetStateId(), cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<JsonObject?> SendMessageAsync(string toWidgetId, string messageId, JsonObject payload, CancellationToken cancellationToken = default)
+    {
+        var result = await OnMessageSend.Invoke(
+            new WidgetMessage(toWidgetId, messageId, payload),
+            cancellationToken
+        );
+        return result;
     }
 
     private string GetStateId() => $"{Info.InfoAttribute.Id}-{Id}";

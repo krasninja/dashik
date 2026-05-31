@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Dashik.Sdk.Abstract;
 
 namespace Dashik.Shared.Services.Widgets;
@@ -25,5 +26,11 @@ public sealed class PreviewWidgetContext : IWidgetContext
     public Task<object?> GetStateAsync(Type stateType, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_state);
+    }
+
+    /// <inheritdoc />
+    public Task<JsonObject?> SendMessageAsync(string toWidgetId, string messageId, JsonObject payload, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult((JsonObject?)null);
     }
 }
