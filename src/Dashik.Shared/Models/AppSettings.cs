@@ -23,4 +23,9 @@ public class AppSettings
     /// </summary>
     /// <returns>Instance of <see cref="SpaceModel" />.</returns>
     public SpaceModel? GetDefaultSpace() => Spaces.Find(s => s.Default);
+
+    /// <summary>
+    /// Minimize app on startup.
+    /// </summary>
+    public bool StartMinimized { get; set; }
 }

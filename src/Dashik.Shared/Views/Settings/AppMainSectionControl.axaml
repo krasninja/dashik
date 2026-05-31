@@ -13,6 +13,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <CheckBox
@@ -22,11 +23,16 @@
 
         <CheckBox
             Grid.Row="1"
+            IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).StartMinimized}"
+            Content="Minimize window at application startup" />
+
+        <CheckBox
+            Grid.Row="2"
             IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).IsTopmost}"
             Content="Is topmost" />
 
         <CheckBox
-            Grid.Row="2"
+            Grid.Row="3"
             IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).ShowSystemTrayIcon}"
             Content="Show system tray icon" />
     </Grid>

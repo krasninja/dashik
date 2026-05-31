@@ -36,6 +36,9 @@ public class AppSettingsViewModel : ViewModelBase
     [DataMember]
     public bool ShowSystemTrayIcon { get; set; }
 
+    [DataMember]
+    public bool StartMinimized { get; set; }
+
     /// <summary>
     /// Ctor for deserialization.
     /// </summary>
@@ -53,6 +56,7 @@ public class AppSettingsViewModel : ViewModelBase
         InstancesDirectory = appSettings.InstancesDirectory;
         LocalPackagesDirectories = new AvaloniaList<string>(appSettings.LocalPackagesDirectories);
         Spaces = new AvaloniaList<SpaceModel>(appSettings.Spaces);
+        StartMinimized = appSettings.StartMinimized;
     }
 
     public AppSettings ToAppSettings()
@@ -62,7 +66,8 @@ public class AppSettingsViewModel : ViewModelBase
             PackagesFeeds = PackagesFeeds.ToList(),
             InstancesDirectory = InstancesDirectory,
             LocalPackagesDirectories = LocalPackagesDirectories.ToList(),
-            Spaces = Spaces.ToList()
+            Spaces = Spaces.ToList(),
+            StartMinimized = StartMinimized,
         };
     }
 

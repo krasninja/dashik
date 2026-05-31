@@ -46,6 +46,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     private readonly IDisposable _widgetsSaveObservable;
     private bool _updating;
 
+    internal AppSettings ApplicationSettings => _appSettings;
+
     /// <inheritdoc />
     public event EventHandler? CloseRequest;
 

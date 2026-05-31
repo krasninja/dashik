@@ -70,6 +70,11 @@ public partial class WidgetsContainerWindow : ReactiveWindow<WidgetsContainerVie
             return;
         }
 
+        if (ViewModel.ApplicationSettings.StartMinimized)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
         await ViewModel.LoadAsync(CancellationToken.None);
         ViewModel.WhenAnyValue(p => p.WindowPosition)
             .Subscribe(pos =>
