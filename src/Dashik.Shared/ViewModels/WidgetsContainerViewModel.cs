@@ -448,6 +448,11 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         }
 
         var viewModel = _mvvmService.CreateViewModel<WidgetsManagementViewModel>();
+        viewModel.AddPackageViewModel.PackagesLoaded
+            .SubscribeAsync(async _ =>
+            {
+                await LoadInternalAsync(cancellationToken);
+            });
         if (await _mvvmService.OpenAsync(viewModel, cancellationToken) == DialogResult.OK
             && viewModel.ResultValue != null)
         {

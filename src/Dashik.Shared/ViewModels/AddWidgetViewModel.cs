@@ -173,6 +173,9 @@ public sealed class AddWidgetViewModel : ViewModelBase
     /// <inheritdoc />
     public override async Task LoadAsync(CancellationToken cancellationToken = default)
     {
+        Categories.Clear();
+        SelectedWidgetNode = null;
+
         var categories = _widgetsProvider.GetCategories().ToArray();
 
         var widgets = _widgetsProvider.GetAll();
