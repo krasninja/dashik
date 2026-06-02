@@ -59,8 +59,6 @@ public class AppUpdateViewModel : ReactiveObject
 
     public async Task UpdateAsync(CancellationToken cancellationToken)
     {
-        await _updateService.UpdateAsync(cancellationToken);
-
         foreach (var widgetPackageGroup in WidgetPackages)
         {
             if (!widgetPackageGroup.HasUpdate || widgetPackageGroup.Remote == null)
@@ -69,6 +67,8 @@ public class AppUpdateViewModel : ReactiveObject
             }
             await _packagesInstaller.InstallAsync(_appService.GetMainPackageDirectory(), widgetPackageGroup.Remote, cancellationToken);
         }
+
+        await _updateService.UpdateAsync(cancellationToken);
     }
 
     public async Task CheckAppUpdatesAsync(CancellationToken cancellationToken)

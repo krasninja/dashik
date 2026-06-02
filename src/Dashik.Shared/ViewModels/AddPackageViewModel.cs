@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using ReactiveUI;
 using Microsoft.Extensions.Logging;
+using QueryCat.Backend.Core.Plugins;
 using Dashik.Abstractions;
 using Dashik.Sdk.Models;
 using Dashik.Shared.Infrastructure.UI;
@@ -17,6 +19,7 @@ public sealed class AddPackageViewModel : ViewModelBase
     private readonly IAppService _appService;
     private readonly IMvvmService _mvvmService;
     private readonly PackagesInstaller _packagesInstaller;
+    private readonly IPluginsLoader _pluginsLoader;
     private readonly Func<IPackagesStorage[]> _widgetsStoragesFactory;
     private readonly ILogger<AddPackageViewModel> _logger;
 
@@ -52,16 +55,20 @@ public sealed class AddPackageViewModel : ViewModelBase
 
     public ReactiveCommand<PackageNode, Unit> RemovePackageCommand { get; internal set; }
 
+    public Subject<Unit> PackagesLoaded { get; } = new();
+
     public AddPackageViewModel(
         IAppService appService,
         IMvvmService mvvmService,
         PackagesInstaller packagesInstaller,
+        IPluginsLoader pluginsLoader,
         Func<IPackagesStorage[]> widgetsStoragesFactory,
         ILogger<AddPackageViewModel> logger)
     {
         _appService = appService;
         _mvvmService = mvvmService;
         _packagesInstaller = packagesInstaller;
+        _pluginsLoader = pluginsLoader;
         _widgetsStoragesFactory = widgetsStoragesFactory;
         _logger = logger;
 
@@ -78,6 +85,12 @@ public sealed class AddPackageViewModel : ViewModelBase
         var package = await _packagesInstaller.InstallAsync(_appService.GetMainPackageDirectory(),
             node.PackageGroup.Remote, cancellationToken);
         node.PackageGroup.Local = package;
+
+        var loadedCount = await _pluginsLoader.LoadAsync(new PluginsLoadingOptions
+        {
+            SkipDuplicates = true,
+        }, cancellationToken);
+        PackagesLoaded.OnNext(Unit.Default);
     }
 
     private async Task RemovePackage(PackageNode node, CancellationToken cancellationToken)

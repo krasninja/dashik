@@ -148,6 +148,11 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
 
         foreach (var pluginFile in GetPluginFiles(options))
         {
+            if (_loadedAssemblies.ContainsKey(GetPluginNameFromFile(pluginFile)))
+            {
+                continue;
+            }
+
             _logger.LogDebug("Load plugin file '{PluginFile}'.", pluginFile);
             var strategies = GetLoadStrategies(pluginFile);
             foreach (var strategy in strategies)
@@ -189,6 +194,32 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
                 await taskObject;
             }
         }
+    }
+
+    private static string GetPluginNameFromFile(string fileName)
+    {
+        fileName = Path.GetFileNameWithoutExtension(fileName);
+        // Example: Dashik.Widgets.Cpu.0.1.0
+        var dotIndex = LastNIndexOn(fileName, '.', 3);
+        if (dotIndex > -1)
+        {
+            fileName = fileName.Substring(0, dotIndex);
+        }
+        return fileName;
+    }
+
+    private static int LastNIndexOn(string target, char ch, int n)
+    {
+        var index = target.Length;
+        for (var i = 0; i < n; i++)
+        {
+            index = target.LastIndexOf(ch, index - 1);
+            if (index == -1)
+            {
+                return -1;
+            }
+        }
+        return index;
     }
 
     private async Task<Assembly?> LoadWithStrategyAsync(

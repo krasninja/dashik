@@ -2,6 +2,7 @@ using System.Reactive.Linq;
 using Dashik.Sdk.Mvvm;
 using Dashik.Shared.Infrastructure.UI;
 using Dashik.Sdk.Widgets;
+using Dashik.Shared.Utils;
 
 namespace Dashik.Shared.ViewModels;
 
@@ -48,6 +49,14 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
         AddWidgetViewModel.AddWidgetRequested
             .Do(AddWidget)
             .Subscribe();
+
+        AddPackageViewModel.PackagesLoaded
+            .SubscribeAsync(async _ =>
+            {
+                // Reload widgets after packages are loaded.
+                await AddWidgetViewModel.LoadAsync()
+                    .ConfigureAwait(false);
+            });
     }
 
     private void AddWidget(WidgetInfo? widgetInfo)
