@@ -101,7 +101,14 @@ internal sealed class ApplicationRootCommand : RootCommand
                 })
                 .LogToTrace();
             var args = parseResult.Tokens.Select(t => t.Value).ToArray();
-            avaloniaApp.StartWithClassicDesktopLifetime(args);
+            try
+            {
+                avaloniaApp.StartWithClassicDesktopLifetime(args);
+            }
+            catch (Exception e)
+            {
+                ErrorsHandler.ProcessException(e);
+            }
         });
     }
 }

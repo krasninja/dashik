@@ -12,8 +12,6 @@ namespace Dashik.Desktop;
 /// </summary>
 internal sealed class Program
 {
-    private static readonly Lock _objLock = new();
-
     /// <summary>
     /// Entry point.
     /// </summary>
@@ -22,65 +20,26 @@ internal sealed class Program
     [STAThread]
     public static async Task<int> Main(string[] args)
     {
-        var rootCommand = new ApplicationRootCommand();
-        int returnCode;
-        try
+        AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
         {
-            returnCode = await rootCommand.Parse(args).InvokeAsync();
-        }
-        catch (Exception e)
+            var exception = e.ExceptionObject as Exception;
+            if (exception != null)
+            {
+                ErrorsHandler.ProcessException(exception);
+            }
+        };
+
+        TaskScheduler.UnobservedTaskException += (s, e) =>
         {
-            returnCode = ProcessException(e);
+            var returnCode = ErrorsHandler.ProcessException(e.Exception);
             if (returnCode > 0)
             {
-                Console.Error.WriteLine(e);
+                e.SetObserved();
             }
-        }
+        };
+
+        var rootCommand = new ApplicationRootCommand();
+        var returnCode = await rootCommand.Parse(args).InvokeAsync();
         return returnCode;
-    }
-
-    private static int ProcessException(Exception exception)
-    {
-        var logger = Application.LoggerFactory.CreateLogger(nameof(Program));
-        lock (_objLock)
-        {
-            if (exception is AggregateException aggregateException)
-            {
-                exception = aggregateException.InnerExceptions[0];
-            }
-
-            if (exception is SyntaxException syntaxException)
-            {
-                logger.LogError(syntaxException.GetErrorLine());
-                logger.LogError(new string(' ', syntaxException.Position) + '^');
-                logger.LogError("{Line}:{Position}: {Message}", syntaxException.Line, syntaxException.Position,
-                    syntaxException.Message);
-                return 4;
-            }
-            else if (exception is QueryCatException domainException)
-            {
-                logger.LogError(domainException.Message);
-                return 2;
-            }
-            else if (exception is FormatException formatException)
-            {
-                logger.LogError(formatException.Message);
-                return 3;
-            }
-            else if (exception is DashikException dashikException)
-            {
-                logger.LogError(dashikException.Message);
-                return 2;
-            }
-            else if (exception is OperationCanceledException || exception is TaskCanceledException)
-            {
-                return 0;
-            }
-            else
-            {
-                logger.LogCritical(logger.IsEnabled(LogLevel.Debug) ? exception : null, exception.Message);
-                return 1;
-            }
-        }
     }
 }

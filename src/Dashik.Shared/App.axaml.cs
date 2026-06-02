@@ -51,6 +51,12 @@ public sealed partial class App : Application, IDisposable
     /// <inheritdoc />
     public override void OnFrameworkInitializationCompleted()
     {
+        // UI thread exceptions.
+        Dispatcher.UIThread.UnhandledException += (s, e) =>
+        {
+            e.Handled = true;
+        };
+
         AsyncUtils.RunSync(async ct =>
         {
             await Root.InitializeAsync(ct);
