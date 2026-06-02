@@ -14,7 +14,7 @@
         WindowState="Normal"
         WindowStartupLocation="CenterOwner"
         x:DataType="viewModels:WidgetsManagementViewModel">
-    <TabControl>
+    <TabControl x:Name="MainTab">
         <TabItem Header="Widgets">
             <controls:AddWidgetControl DataContext="{Binding AddWidgetViewModel}" />
         </TabItem>

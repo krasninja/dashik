@@ -98,6 +98,8 @@ public sealed class AddWidgetViewModel : ViewModelBase
 
     public ObservableCollection<WidgetCategoryNode> Categories { get; } = new();
 
+    public int WidgetsCount => Categories.SelectMany(c => c.Widgets).Count();
+
     public WidgetNode? SelectedWidgetNode
     {
         get;
