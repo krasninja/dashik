@@ -39,7 +39,7 @@ internal sealed class AppServicesSetup(Container container, AppArguments appArgu
         container.RegisterSingleton(() =>
         {
             var appService = container.GetRequiredService<IAppService>();
-            return CreateExecutionThread(appService);
+            return CreateExecutionThread(appService, appArguments.DebugMode);
         });
         container.Register<IWidgetsStateStorage, FileWidgetsStateStorage>();
         container.Register(() =>
@@ -65,10 +65,16 @@ internal sealed class AppServicesSetup(Container container, AppArguments appArgu
         });
     }
 
-    private IExecutionThread CreateExecutionThread(IAppService appService)
+    private IExecutionThread CreateExecutionThread(IAppService appService, bool debugMode = false)
     {
         return new ExecutionThreadBootstrapper()
-            .WithPluginsLoader((thread) => new DashikPluginsLoader(thread, container, appService.GetPackagesDirectories()))
+            .WithPluginsLoader(thread =>
+            {
+                return new DashikPluginsLoader(thread, container, appService.GetPackagesDirectories())
+                {
+                    PreferDllLoad = debugMode,
+                };
+            })
             .Create();
     }
 

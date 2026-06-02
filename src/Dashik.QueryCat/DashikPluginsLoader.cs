@@ -11,10 +11,16 @@ namespace Dashik.QueryCat;
 public class DashikPluginsLoader : DotNetAssemblyPluginsLoader
 {
     private const string PluginLoadMethodName = "LoadWidget";
+    private const string DllExtension = ".dll";
 
     private readonly IExecutionThread _thread;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger _logger;
+
+    /// <summary>
+    /// Prefer libraries loading for debug.
+    /// </summary>
+    public bool PreferDllLoad { get; set; }
 
     public DashikPluginsLoader(IExecutionThread thread, IServiceProvider serviceProvider, params string[] directories)
         : base(thread.FunctionsManager, thread, directories)
@@ -48,5 +54,17 @@ public class DashikPluginsLoader : DotNetAssemblyPluginsLoader
         }
 
         await base.OnPluginLoadedAsync(assembly, registrationClassType, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public override bool IsCorrectPluginFile(string file)
+    {
+        var fileName = Path.GetFileName(file);
+        var extension = Path.GetExtension(fileName);
+        if (PreferDllLoad && !extension.Equals(DllExtension, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+        return base.IsCorrectPluginFile(file);
     }
 }
