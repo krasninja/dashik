@@ -129,7 +129,7 @@
                                         </Grid.RowDefinitions>
 
                                         <Label Grid.Column="0" Grid.Row="0">Summary:</Label>
-                                        <Label Grid.Column="1" Grid.Row="0" Content="{Binding PackageGroup.Current.Summary}" />
+                                        <TextBlock Grid.Column="1" Grid.Row="0" TextWrapping="Wrap" Text="{Binding PackageGroup.Current.Summary}" />
 
                                         <Label Grid.Column="0" Grid.Row="1">Authors:</Label>
                                         <Label Grid.Column="1" Grid.Row="1" Content="{Binding PackageGroup.Current.Authors}" />
@@ -138,13 +138,13 @@
                                         <Label Grid.Column="1" Grid.Row="2" Content="{Binding PackageGroup.Installed}" />
 
                                         <Label Grid.Column="0" Grid.Row="3">Local URI:</Label>
-                                        <Label Grid.Column="1" Grid.Row="3" Content="{Binding PackageGroup.Local.NugetPackageFile}" />
+                                        <TextBlock Grid.Column="1" Grid.Row="3" TextWrapping="Wrap" Text="{Binding PackageGroup.Local.NugetPackageFile}" />
 
                                         <Label Grid.Column="0" Grid.Row="4">Local Version:</Label>
                                         <Label Grid.Column="1" Grid.Row="4" Content="{Binding PackageGroup.Local.Version}" />
 
                                         <Label Grid.Column="0" Grid.Row="5">Remote URI:</Label>
-                                        <Label Grid.Column="1" Grid.Row="5" Content="{Binding PackageGroup.Remote.RemoteFileUri}" />
+                                        <TextBlock Grid.Column="1" Grid.Row="5" TextWrapping="Wrap" Text="{Binding PackageGroup.Remote.RemoteFileUri}" />
 
                                         <Label Grid.Column="0" Grid.Row="6">Remote Version:</Label>
                                         <Label Grid.Column="1" Grid.Row="6" Content="{Binding PackageGroup.Remote.Version}" />

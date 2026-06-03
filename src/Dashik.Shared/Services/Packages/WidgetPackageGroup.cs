@@ -20,6 +20,7 @@ public sealed class WidgetPackageGroup : ReactiveObject
             this.RaisePropertyChanged(nameof(Current));
             this.RaisePropertyChanged(nameof(UpToDate));
             this.RaisePropertyChanged(nameof(Installed));
+            this.RaisePropertyChanged(nameof(HasUpdate));
         }
     }
 
