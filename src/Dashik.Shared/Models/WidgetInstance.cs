@@ -48,18 +48,17 @@ public class WidgetInstance : IWidgetInstance, IDisposable
 
     #region Context
 
-    private HttpClient? _httpClient = new();
+    private HttpClientHandler? _clientHandler;
 
     /// <inheritdoc />
     public HttpClient CreateHttpClient()
     {
-        if (_httpClient == null)
+        if (_clientHandler == null)
         {
-            HttpClientHandler clientHandler;
             if (!string.IsNullOrEmpty(MainSettings.WebProxy))
             {
                 var proxy = new System.Net.WebProxy(MainSettings.WebProxy);
-                clientHandler = new HttpClientHandler
+                _clientHandler = new HttpClientHandler
                 {
                     Proxy = proxy,
                     UseProxy = true,
@@ -67,12 +66,13 @@ public class WidgetInstance : IWidgetInstance, IDisposable
             }
             else
             {
-                clientHandler = new HttpClientHandler();
+                _clientHandler = new HttpClientHandler();
             }
-            _httpClient = new(clientHandler);
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", Application.GetProductFullName());
         }
-        return _httpClient;
+
+        var client = new HttpClient(_clientHandler, disposeHandler: false);
+        client.DefaultRequestHeaders.Add("User-Agent", Application.GetProductFullName());
+        return client;
     }
 
     /// <inheritdoc />
@@ -107,7 +107,7 @@ public class WidgetInstance : IWidgetInstance, IDisposable
     {
         if (disposing)
         {
-            _httpClient?.Dispose();
+            _clientHandler?.Dispose();
         }
     }
 
