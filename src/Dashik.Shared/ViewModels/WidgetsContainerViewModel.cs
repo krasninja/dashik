@@ -2,6 +2,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
@@ -33,6 +34,8 @@ namespace Dashik.Shared.ViewModels;
 
 public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewModel, IDisposable
 {
+    private const string MainWebsite = @"https://github.com/krasninja/dashik";
+
     private readonly AppSettings _appSettings;
     private readonly SettingsStorage _settingsStorage;
     private readonly IWidgetsFactory _widgetsFactory;
@@ -45,7 +48,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     private readonly IDisposable _widgetsUpdateTimerObservable;
     private readonly IDisposable _saveUiObservable;
     private readonly IDisposable _widgetsSaveObservable;
-    private bool _updating;
+    private readonly CompositeDisposable _disposables = new();
+    private volatile bool _updating;
 
     internal AppSettings ApplicationSettings => _appSettings;
 
@@ -167,7 +171,12 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
             var posX = Array.IndexOf(_order, x.WidgetId);
             var posY = Array.IndexOf(_order, y.WidgetId);
-            return posX > posY ? 0 : -1;
+
+            if (posX < posY)
+            {
+                return -1;
+            }
+            return posX > posY ? 1 : 0;
         }
     }
 
@@ -374,12 +383,14 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     private async Task OpenWebsite(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var mainWindow = _mvvmService.GetMainWindow();
         if (mainWindow == null)
         {
             return;
         }
-        await mainWindow.Launcher.LaunchUriAsync(new Uri(@"https://github.com/krasninja/dashik"));
+        await mainWindow.Launcher.LaunchUriAsync(new Uri(MainWebsite));
     }
 
     private async Task CheckUpdates(CancellationToken cancellationToken)
@@ -406,8 +417,9 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     private void Fit()
     {
+        const int margin = 8;
         var columnsCount = (int)(WindowWidth / WidgetViewModel.DefaultWidgetWidth);
-        WindowWidth = columnsCount * WidgetViewModel.DefaultWidgetWidth + 16;
+        WindowWidth = columnsCount * WidgetViewModel.DefaultWidgetWidth + margin * 2;
     }
 
     private async Task OpenSettingsWindow(CancellationToken cancellationToken)
@@ -524,7 +536,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         await base.LoadAsync(cancellationToken);
 
         stopwatch.Stop();
-        _logger.LogTrace($"App state loaded in {stopwatch.ElapsedMilliseconds} ms.");
+        _logger.LogTrace("App state loaded in {ElapsedMilliseconds} ms.", stopwatch.ElapsedMilliseconds);
     }
 
     private async Task<JsonObject?> ProcessMessageAsync(WidgetMessage message, CancellationToken cancellationToken)
@@ -586,20 +598,34 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         var vms = new List<WidgetViewModel>(capacity: instances.Count);
         foreach (var instance in instances)
         {
-            var widget = await _widgetsFactory.CreateAsync(
-                instance.Info.WidgetType,
-                new WidgetInitInfo(instance, instance.MainSettings, instance.WidgetSettings),
-                cancellationToken);
-            var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
-            vm.Widget = widget;
-            vm.WidgetInstance = instance;
-            if (vm.WidgetInstance is WidgetInstance widgetInstance)
+            try
             {
-                widgetInstance.OnMessageSend = ProcessMessageAsync;
+                var widget = await _widgetsFactory.CreateAsync(
+                    instance.Info.WidgetType,
+                    new WidgetInitInfo(instance, instance.MainSettings, instance.WidgetSettings),
+                    cancellationToken);
+                var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
+                vm.Widget = widget;
+                vm.WidgetInstance = instance;
+                if (vm.WidgetInstance is WidgetInstance widgetInstance)
+                {
+                    widgetInstance.OnMessageSend = ProcessMessageAsync;
+                }
+                PrepareWidgetViewModel(vm);
+                await vm.LoadAsync(cancellationToken);
+                vms.Add(vm);
             }
-            PrepareWidgetViewModel(vm);
-            await vm.LoadAsync(cancellationToken);
-            vms.Add(vm);
+            catch (Exception e)
+            {
+                var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
+                vm.WidgetInstance = instance;
+                vm.Widget = new StubWidget
+                {
+                    Header = instance.Info.Id,
+                    Text = e.Message
+                };
+                _logger.LogError(e, "Failed to create widget {Id}", instance.Info.Id);
+            }
         }
         return vms;
     }
@@ -662,16 +688,21 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
 
     private void PrepareWidgetViewModel(WidgetViewModel widgetViewModel)
     {
-        widgetViewModel.RemoveWidgetRequested
+        var subscription = widgetViewModel.RemoveWidgetRequested
             .SelectMany(widgetId => Observable.FromAsync(ct => RemoveWidgetAsync(widgetId, ct)))
             .Subscribe();
-        widgetViewModel.SaveWidgetRequested
+        _disposables.Add(subscription);
+
+        subscription = widgetViewModel.SaveWidgetRequested
             .Subscribe(widgetId => _widgetSave.OnNext(widgetId));
-        widgetViewModel.ReorderWidgetRequested
+        _disposables.Add(subscription);
+
+        subscription = widgetViewModel.ReorderWidgetRequested
             .Subscribe(_ =>
             {
                 ArrangeWidgetsBySpaces(Widgets);
             });
+        _disposables.Add(subscription);
     }
 
     public async Task SaveAsync(CancellationToken cancellationToken = default)
@@ -700,5 +731,6 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         _widgetsSaveObservable.Dispose();
         _saveUiObservable.Dispose();
         _dispatcher.Dispose();
+        _disposables.Dispose();
     }
 }

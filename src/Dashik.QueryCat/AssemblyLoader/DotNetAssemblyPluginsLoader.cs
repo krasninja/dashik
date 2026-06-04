@@ -374,7 +374,14 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
     {
         foreach (var pluginAssembly in _loadedAssemblies)
         {
-            await RegisterFromAssemblyAsync(pluginAssembly.Value, cancellationToken);
+            try
+            {
+                await RegisterFromAssemblyAsync(pluginAssembly.Value, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to register '{Assembly}': {Error}.", pluginAssembly.Key, e.Message);
+            }
         }
     }
 
