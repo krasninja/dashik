@@ -2,12 +2,13 @@ using System.Text;
 using ReactiveUI;
 using Microsoft.Extensions.Logging;
 using Dashik.Abstractions;
+using Dashik.Shared.Infrastructure.UI;
 using Dashik.Shared.Infrastructure.Updates;
 using Dashik.Shared.Services.Packages;
 
 namespace Dashik.Shared.ViewModels;
 
-public class AppUpdateViewModel : ReactiveObject
+public class AppUpdateViewModel : ViewModelBase
 {
     private readonly IAppUpdateService _updateService;
     private readonly IPackagesInstaller _packagesInstaller;
@@ -24,7 +25,7 @@ public class AppUpdateViewModel : ReactiveObject
 
     public Version? RemoteVersion
     {
-        get => field;
+        get;
         set
         {
             this.RaiseAndSetIfChanged(ref field, value);
@@ -34,14 +35,14 @@ public class AppUpdateViewModel : ReactiveObject
 
     public IReadOnlyList<WidgetPackageGroup> WidgetPackages
     {
-        get => field;
+        get;
         set
         {
             this.RaiseAndSetIfChanged(ref field, value);
             this.RaisePropertyChanged(nameof(HasNewVersion));
         }
     }
-    = [];
+        = [];
 
     public AppUpdateViewModel(
         IAppUpdateService updateService,

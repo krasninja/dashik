@@ -470,35 +470,13 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         {
             var widgetInfo = viewModel.ResultValue;
             var instance = new WidgetInstance(widgetInfo, _stateStorage);
-            instance.OnMessageSend = ProcessMessageAsync;
-            instance.MainSettings.SpaceId = SelectedSpace.Id;
-            try
+            var widgetViewModel = await CreateAndPrepareWidgetViewModelAsync(instance, cancellationToken);
+            if (widgetViewModel.WidgetInstance != null)
             {
-                var widget = await _widgetsFactory.CreateAsync(
-                    widgetInfo.WidgetType,
-                    new WidgetInitInfo(instance, instance.MainSettings, instance.WidgetSettings),
-                    cancellationToken
-                );
-                var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
-                vm.Widget = widget;
-                vm.WidgetInstance = instance;
-                await PrepareWidgetViewModelAsync(vm, cancellationToken);
-                SelectedSpace.Widgets.Add(vm);
-                await _widgetInstanceProvider.SaveAsync(instance, cancellationToken);
+                widgetViewModel.WidgetInstance.MainSettings.SpaceId = SelectedSpace.Id;
             }
-            catch (Exception e)
-            {
-                var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
-                var stubWidget = new StubWidget
-                {
-                    Header = widgetInfo.Id,
-                    Text = e.Message,
-                };
-                vm.Widget = stubWidget;
-                vm.WidgetInstance = instance;
-                await PrepareWidgetViewModelAsync(vm, cancellationToken);
-                SelectedSpace.Widgets.Add(vm);
-            }
+            SelectedSpace.Widgets.Add(widgetViewModel);
+            await _widgetInstanceProvider.SaveAsync(instance, cancellationToken);
         }
         await SaveUiState(RxSchedulers.MainThreadScheduler, cancellationToken);
     }
@@ -598,34 +576,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         var vms = new List<WidgetViewModel>(capacity: instances.Count);
         foreach (var instance in instances)
         {
-            try
-            {
-                var widget = await _widgetsFactory.CreateAsync(
-                    instance.Info.WidgetType,
-                    new WidgetInitInfo(instance, instance.MainSettings, instance.WidgetSettings),
-                    cancellationToken);
-                var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
-                vm.Widget = widget;
-                vm.WidgetInstance = instance;
-                if (vm.WidgetInstance is WidgetInstance widgetInstance)
-                {
-                    widgetInstance.OnMessageSend = ProcessMessageAsync;
-                }
-                await PrepareWidgetViewModelAsync(vm, cancellationToken);
-                await vm.LoadAsync(cancellationToken);
-                vms.Add(vm);
-            }
-            catch (Exception e)
-            {
-                var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
-                vm.WidgetInstance = instance;
-                vm.Widget = new StubWidget
-                {
-                    Header = instance.Info.Id,
-                    Text = e.Message
-                };
-                _logger.LogError(e, "Failed to create widget {Id}", instance.Info.Id);
-            }
+            var vm = await CreateAndPrepareWidgetViewModelAsync(instance, cancellationToken);
+            vms.Add(vm);
         }
         return vms;
     }
@@ -686,8 +638,43 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         }
     }
 
-    private async Task PrepareWidgetViewModelAsync(WidgetViewModel widgetViewModel, CancellationToken cancellationToken)
+    private async Task<WidgetViewModel> CreateAndPrepareWidgetViewModelAsync(IWidgetInstance instance, CancellationToken cancellationToken)
     {
+        if (SelectedSpace == null)
+        {
+            throw new InvalidOperationException("No selected space.");
+        }
+
+        if (instance is WidgetInstance widgetInstance)
+        {
+            widgetInstance.OnMessageSend = ProcessMessageAsync;
+        }
+        WidgetViewModel widgetViewModel;
+        try
+        {
+            var widget = await _widgetsFactory.CreateAsync(
+                instance.Info.WidgetType,
+                new WidgetInitInfo(instance, instance.MainSettings, instance.WidgetSettings),
+                cancellationToken
+            );
+            widgetViewModel = _mvvmService.CreateViewModel<WidgetViewModel>();
+            widgetViewModel.Widget = widget;
+            widgetViewModel.WidgetInstance = instance;
+        }
+        catch (Exception e)
+        {
+            widgetViewModel = _mvvmService.CreateViewModel<WidgetViewModel>();
+            var stubWidget = new StubWidget
+            {
+                Header = instance.Info.Id,
+                Text = e.Message,
+            };
+            widgetViewModel.Widget = stubWidget;
+            widgetViewModel.WidgetInstance = instance;
+            SelectedSpace.Widgets.Add(widgetViewModel);
+            _logger.LogError(e, "Failed to create widget {Id}", instance.Info.Id);
+        }
+
         var subscription = widgetViewModel.RemoveWidgetRequested
             .SelectMany(widgetId => Observable.FromAsync(ct => RemoveWidgetAsync(widgetId, ct)))
             .Subscribe();
@@ -705,6 +692,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         _disposables.Add(subscription);
 
         await widgetViewModel.InitializeAsync(cancellationToken);
+        await widgetViewModel.LoadAsync(cancellationToken);
+        return widgetViewModel;
     }
 
     public async Task SaveAsync(CancellationToken cancellationToken = default)
