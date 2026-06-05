@@ -153,7 +153,7 @@
                 </StackPanel>
             </Grid>
             <ScrollViewer Grid.Row="1" IsVisible="{Binding !WidgetInstance.MainSettings.Hidden}">
-                <ContentPresenter Content="{Binding Widget.Control}" />
+                <ContentPresenter Content="{Binding WidgetControl}" />
             </ScrollViewer>
         </Grid>
     </Border>

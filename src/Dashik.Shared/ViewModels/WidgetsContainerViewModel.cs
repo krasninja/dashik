@@ -482,7 +482,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
                 var vm = _mvvmService.CreateViewModel<WidgetViewModel>();
                 vm.Widget = widget;
                 vm.WidgetInstance = instance;
-                PrepareWidgetViewModel(vm);
+                await PrepareWidgetViewModelAsync(vm, cancellationToken);
                 SelectedSpace.Widgets.Add(vm);
                 await _widgetInstanceProvider.SaveAsync(instance, cancellationToken);
             }
@@ -496,7 +496,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
                 };
                 vm.Widget = stubWidget;
                 vm.WidgetInstance = instance;
-                PrepareWidgetViewModel(vm);
+                await PrepareWidgetViewModelAsync(vm, cancellationToken);
                 SelectedSpace.Widgets.Add(vm);
             }
         }
@@ -611,7 +611,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
                 {
                     widgetInstance.OnMessageSend = ProcessMessageAsync;
                 }
-                PrepareWidgetViewModel(vm);
+                await PrepareWidgetViewModelAsync(vm, cancellationToken);
                 await vm.LoadAsync(cancellationToken);
                 vms.Add(vm);
             }
@@ -686,7 +686,7 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
         }
     }
 
-    private void PrepareWidgetViewModel(WidgetViewModel widgetViewModel)
+    private async Task PrepareWidgetViewModelAsync(WidgetViewModel widgetViewModel, CancellationToken cancellationToken)
     {
         var subscription = widgetViewModel.RemoveWidgetRequested
             .SelectMany(widgetId => Observable.FromAsync(ct => RemoveWidgetAsync(widgetId, ct)))
@@ -703,6 +703,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
                 ArrangeWidgetsBySpaces(Widgets);
             });
         _disposables.Add(subscription);
+
+        await widgetViewModel.InitializeAsync(cancellationToken);
     }
 
     public async Task SaveAsync(CancellationToken cancellationToken = default)

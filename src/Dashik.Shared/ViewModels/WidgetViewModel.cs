@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -7,7 +8,9 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using ReactiveUI;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Dashik.Abstractions;
+using Dashik.Sdk;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Widgets;
 using Dashik.Shared.Infrastructure.UI;
@@ -16,6 +19,7 @@ using Dashik.Shared.ViewModels.Settings;
 using Dashik.Shared.Views.Settings;
 using Dashik.Sdk.Models;
 using Dashik.Sdk.Mvvm;
+using Dashik.Shared.Services.Widgets;
 
 namespace Dashik.Shared.ViewModels;
 
@@ -24,6 +28,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
     public const double DefaultWidgetWidth = 250;
 
     private readonly IMvvmService _mvvmService;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger _logger;
 
     public sealed class WidgetAllSettings(WidgetMainSettings mainSettings, object? settings)
@@ -59,6 +64,30 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
     }
 
     public string WidgetId => WidgetInstance?.Id ?? string.Empty;
+
+    public Control? WidgetControl => !RequireConfiguration ? Widget?.Control : ErrorWidget?.Control;
+
+    private StubWidget? ErrorWidget
+    {
+        get;
+        set
+        {
+            this.RaisePropertyChanging(nameof(WidgetControl));
+            this.RaiseAndSetIfChanged(ref field, value);
+            this.RaisePropertyChanged(nameof(WidgetControl));
+        }
+    }
+
+    public bool RequireConfiguration
+    {
+        get;
+        private set
+        {
+            this.RaisePropertyChanging(nameof(WidgetControl));
+            this.RaiseAndSetIfChanged(ref field, value);
+            this.RaisePropertyChanged(nameof(WidgetControl));
+        }
+    }
 
     public string Title
     {
@@ -134,9 +163,13 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
     public IObservable<Unit> ReorderWidgetRequested => _reorderWidgetRequested;
 
-    public WidgetViewModel(IMvvmService mvvmService, ILogger<WidgetViewModel> logger)
+    public WidgetViewModel(
+        IMvvmService mvvmService,
+        IServiceProvider serviceProvider,
+        ILogger<WidgetViewModel> logger)
     {
         _mvvmService = mvvmService;
+        _serviceProvider = serviceProvider;
         _logger = logger;
 
         RemoveWidgetCommand = ReactiveCommand.Create<WidgetViewModel>(_ => { });
@@ -204,6 +237,8 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             await vm.Widget.InitializeAsync(
                 new WidgetInitInfo(vm.WidgetInstance, vm.WidgetInstance.MainSettings, vm.WidgetInstance.WidgetSettings),
                 cancellationToken);
+            Initialized = false;
+            await InitializeAsync(cancellationToken);
             await UpdateWidgetAsync(force: true, cancellationToken);
             await LoadAsync(cancellationToken);
 
@@ -257,6 +292,85 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             WidgetInstance.WidgetSettings = JsonSerializer.SerializeToNode(widgetSettings.Settings)?.AsObject()
                                             ?? new JsonObject();
         }
+    }
+
+    public async Task InitializeAsync(CancellationToken cancellationToken)
+    {
+        if (Widget == null || WidgetInstance == null || Initialized)
+        {
+            return;
+        }
+
+        var initInfo = new WidgetInitInfo(WidgetInstance, WidgetInstance.MainSettings, WidgetInstance.WidgetSettings);
+
+        // Validate settings.
+        if (Widget is IWidgetSettings widgetSettings && !initInfo.Context.PreviewMode)
+        {
+            try
+            {
+                RequireConfiguration = false;
+                var settings = initInfo.GetSettings(widgetSettings.SettingsType);
+                ValidateObject(settings);
+            }
+            catch (WidgetNotConfiguredException e)
+            {
+                RequireConfiguration = true;
+                ErrorWidget = await CreateErrorWidgetAsync(initInfo, e, cancellationToken);
+            }
+        }
+
+        if (RequireConfiguration)
+        {
+            return;
+        }
+
+        // Initialize.
+        try
+        {
+            await Widget.InitializeAsync(initInfo, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            ErrorWidget = await CreateErrorWidgetAsync(initInfo, e, cancellationToken);
+        }
+
+        Initialized = true;
+    }
+
+    private static void ValidateObject(object obj)
+    {
+        var context = new ValidationContext(obj);
+        var results = new List<ValidationResult>();
+
+        var isValid = Validator.TryValidateObject(obj, context, results, true);
+        if (!isValid && results.Count > 0)
+        {
+            var error = "Need to setup the widget: " + results[0].ErrorMessage;
+            if (!string.IsNullOrEmpty(error))
+            {
+                throw new WidgetNotConfiguredException(error);
+            }
+        }
+    }
+
+    private async Task<StubWidget> CreateErrorWidgetAsync(WidgetInitInfo initInfo, Exception e, CancellationToken cancellationToken)
+    {
+        var widget = (StubWidget)ActivatorUtilities.CreateInstance(_serviceProvider, typeof(StubWidget));
+        await widget.InitializeAsync(
+            new WidgetInitInfo(
+                new TransientWidgetInstance(new WidgetInfo(widget.GetType()))
+                {
+                    Message = e.Message,
+                    Error = true,
+                    RequiresSetup = e is WidgetNotConfiguredException,
+                },
+                initInfo.MainSettings,
+                initInfo.Settings
+            ),
+            cancellationToken
+        );
+
+        return widget;
     }
 
     /// <summary>
