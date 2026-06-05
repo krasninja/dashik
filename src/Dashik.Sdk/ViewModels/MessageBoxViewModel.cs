@@ -247,7 +247,7 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
 
     public MessageBoxViewModel SetAbortRetryIgnoreMode()
     {
-        ShowOkButton = true;
+        ShowOkButton = false;
         ShowCancelButton = false;
         ShowYesButton = false;
         ShowNoButton = false;

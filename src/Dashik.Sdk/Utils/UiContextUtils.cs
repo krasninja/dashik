@@ -67,8 +67,7 @@ public static class UiContextUtils
         /// <inheritdoc />
         public void OnCompleted(Action continuation)
         {
-            _dispatcher.
-            Invoke(continuation);
+            _dispatcher.Invoke(continuation);
         }
     }
 }

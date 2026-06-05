@@ -128,8 +128,7 @@ public sealed class LocalWidgetInstanceProvider : IWidgetInstanceProvider
             [WidgetSettingsPropertyName] = instance.WidgetSettings.DeepClone(),
         };
         await JsonSerializer.SerializeAsync(settingsFileStream, jsonObject, _jsonSerializerOptions, cancellationToken: cancellationToken);
-        settingsFileStream.Close();
-    }
+     }
 
     /// <inheritdoc />
     public Task RemoveAsync(IWidgetInstance instance, CancellationToken cancellationToken = default)

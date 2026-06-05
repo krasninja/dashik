@@ -34,7 +34,7 @@ public static class ImageUtils
     }
 
     /// <summary>
-    /// Load form web URL.
+    /// Load from web URL.
     /// </summary>
     /// <param name="url">URL.</param>
     /// <returns>Instance of <see cref="Bitmap" />.</returns>
@@ -47,6 +47,10 @@ public static class ImageUtils
             return new Bitmap(await response.Content.ReadAsStreamAsync());
         }
         catch (HttpRequestException)
+        {
+            return null;
+        }
+        catch (TaskCanceledException)
         {
             return null;
         }

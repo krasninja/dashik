@@ -36,6 +36,9 @@ public class WidgetInfo
     /// </summary>
     public string Description => _infoAttributeAttribute.Description;
 
+    /// <summary>
+    /// Instance of <see cref="WidgetInfoAttribute" />.
+    /// </summary>
     public WidgetInfoAttribute InfoAttribute => _infoAttributeAttribute;
 
     /// <summary>

@@ -62,7 +62,7 @@ public sealed class PackagesInstaller : IPackagesInstaller
     {
         Directory.CreateDirectory(path);
 
-        var stream = await _httpClient.GetStreamAsync(package.RemoteFileUri, cancellationToken);
+        await using var stream = await _httpClient.GetStreamAsync(package.RemoteFileUri, cancellationToken);
         var filePath = Path.Combine(path, package.FileName);
         await using var fileStream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write);
         await stream.CopyToAsync(fileStream, cancellationToken);

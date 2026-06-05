@@ -51,6 +51,7 @@ public sealed class WidgetInitInfo
     /// <returns>Instance of setting.</returns>
     public object GetSettings(Type type)
     {
+        ArgumentNullException.ThrowIfNull(type);
         try
         {
             return Settings.Deserialize(type) ?? Activator.CreateInstance(type)!;

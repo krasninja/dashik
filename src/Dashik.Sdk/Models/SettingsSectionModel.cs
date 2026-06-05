@@ -2,6 +2,9 @@ using ReactiveUI;
 
 namespace Dashik.Sdk.Models;
 
+/// <summary>
+/// Settings section.
+/// </summary>
 public class SettingsSectionModel : ReactiveObject
 {
     public object? Settings

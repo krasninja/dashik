@@ -346,10 +346,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         if (!isValid && results.Count > 0)
         {
             var error = "Need to setup the widget: " + results[0].ErrorMessage;
-            if (!string.IsNullOrEmpty(error))
-            {
-                throw new WidgetNotConfiguredException(error);
-            }
+            throw new WidgetNotConfiguredException(error);
         }
     }
 
@@ -404,7 +401,6 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             Updating = true;
             LastException = null;
             await widgetUpdate.UpdateAsync(cancellationToken);
-            LastUpdatedUtc = DateTime.UtcNow;
         }
         catch (Exception ex)
         {

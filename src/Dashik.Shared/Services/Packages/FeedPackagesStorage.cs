@@ -22,7 +22,7 @@ public class FeedPackagesStorage : IPackagesStorage
     public async Task<IReadOnlyList<WidgetPackage>> GetAsync(CancellationToken cancellationToken = default)
     {
         // ReSharper disable once ShortLivedHttpClient
-        var httpClient = new HttpClient();
+        using var httpClient = new HttpClient();
         var uri = Uri.EndsWith('/') ? Uri : $"{Uri}/";
         var packages = await httpClient.GetFromJsonAsync<List<WidgetPackage>>(uri + "index.json", cancellationToken);
         if (packages == null)

@@ -31,7 +31,7 @@ public static class Application
     /// </summary>
     public const string ProductName = "Dashik";
 
-        /// <summary>
+    /// <summary>
     /// Get short version without hash (for example, 0.7.0-alpha.16).
     /// </summary>
     /// <returns>Short version.</returns>
@@ -53,7 +53,7 @@ public static class Application
     /// <summary>
     /// Full product name with version.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Product full name.</returns>
     public static string GetProductFullName() => $"{ProductName} {GetVersion()}";
 
     /// <summary>

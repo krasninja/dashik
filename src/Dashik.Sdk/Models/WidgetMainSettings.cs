@@ -13,7 +13,12 @@ public class WidgetMainSettings : ReactiveObject
     /// Widget update interval.
     /// </summary>
     [DataMember]
-    public TimeSpan UpdateInterval { get; set; } = TimeSpan.FromMinutes(5);
+    public TimeSpan UpdateInterval
+    {
+        get => field;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    }
+    = TimeSpan.FromMinutes(5);
 
     /// <summary>
     /// Widget title. If empty, the default title will be used.
