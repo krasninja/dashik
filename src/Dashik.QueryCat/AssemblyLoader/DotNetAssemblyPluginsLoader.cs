@@ -184,7 +184,7 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
         return loadedCount;
     }
 
-    private async Task CallOnLoadAsync(CancellationToken cancellationToken = default)
+    public async Task CallOnLoadAsync(CancellationToken cancellationToken = default)
     {
         while (_loadMethodsQueue.TryDequeue(out var loadMethod))
         {
