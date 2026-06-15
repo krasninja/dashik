@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using ReactiveUI;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Dashik.Abstractions;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Models;
@@ -19,6 +20,7 @@ public sealed class AddWidgetViewModel : ViewModelBase
 {
     private readonly IWidgetsProvider _widgetsProvider;
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger _logger;
     private readonly IWidgetsFactory _widgetsFactory;
     private readonly IWidgetsStateStorage _stateStorage;
 
@@ -128,12 +130,14 @@ public sealed class AddWidgetViewModel : ViewModelBase
         IWidgetsProvider widgetsProvider,
         IWidgetsFactory widgetsFactory,
         IWidgetsStateStorage stateStorage,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        ILogger<AddWidgetViewModel> logger)
     {
         _widgetsProvider = widgetsProvider;
         _widgetsFactory = widgetsFactory;
         _stateStorage = stateStorage;
         _serviceProvider = serviceProvider;
+        _logger = logger;
 
         AddWidgetCommand = ReactiveCommand.Create<WidgetNode>(_ => { });
         NextPreviewCommand = ReactiveCommand.Create(() =>
@@ -196,26 +200,14 @@ public sealed class AddWidgetViewModel : ViewModelBase
             var previewViewModels = new List<WidgetNodePreviewInfo>();
             if (widgetInfo.WidgetType.IsAssignableTo(typeof(IWidgetPreview)))
             {
-                var widgetPreview = (IWidgetPreview)await _widgetsFactory.CreateAsync(
-                    widgetInfo.WidgetType,
-                    new WidgetInitInfo(PreviewWidgetContext.Instance, _defaultPreviewSettings, new JsonObject()),
-                    cancellationToken
-                );
-                var previewConfigurations = widgetPreview.GetPreviewConfigurations();
-                foreach (var previewConfiguration in previewConfigurations)
+                try
                 {
-                    widgetPreview = (IWidgetPreview)await _widgetsFactory.CreateAsync(
-                        widgetInfo.WidgetType,
-                        new WidgetInitInfo(PreviewWidgetContext.Instance, _defaultPreviewSettings, new JsonObject()),
-                        cancellationToken
-                    );
-                    var widgetPreviewViewModel = _serviceProvider.GetRequiredService<WidgetViewModel>();
-                    widgetPreviewViewModel.Widget = (IWidget)widgetPreview;
-                    widgetPreviewViewModel.WidgetInstance = new WidgetInstance(widgetInfo, _stateStorage);
-                    widgetPreviewViewModel.ReadOnly = true;
-
-                    widgetPreview.SetPreview(previewConfiguration);
-                    previewViewModels.Add(new WidgetNodePreviewInfo(widgetPreviewViewModel, previewConfiguration));
+                    var preview = await CreateWidgetPreviewAsync(widgetInfo, cancellationToken);
+                    previewViewModels.AddRange(preview);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "Failed to create preview for widget {WidgetId}", widgetInfo.Id);
                 }
             }
 
@@ -225,5 +217,34 @@ public sealed class AddWidgetViewModel : ViewModelBase
         SelectedWidgetNode = Categories.SelectMany(c => c.Widgets).FirstOrDefault();
 
         await base.LoadAsync(cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<WidgetNodePreviewInfo>> CreateWidgetPreviewAsync(WidgetInfo widgetInfo, CancellationToken cancellationToken)
+    {
+        var widgetPreview = (IWidgetPreview)await _widgetsFactory.CreateAsync(
+            widgetInfo.WidgetType,
+            new WidgetInitInfo(PreviewWidgetContext.Instance, _defaultPreviewSettings, new JsonObject()),
+            cancellationToken
+        );
+        var previewConfigurations = widgetPreview.GetPreviewConfigurations();
+
+        var previewViewModels = new List<WidgetNodePreviewInfo>(capacity: previewConfigurations.Count);
+        foreach (var previewConfiguration in previewConfigurations)
+        {
+            widgetPreview = (IWidgetPreview)await _widgetsFactory.CreateAsync(
+                widgetInfo.WidgetType,
+                new WidgetInitInfo(PreviewWidgetContext.Instance, _defaultPreviewSettings, new JsonObject()),
+                cancellationToken
+            );
+            var widgetPreviewViewModel = _serviceProvider.GetRequiredService<WidgetViewModel>();
+            widgetPreviewViewModel.Widget = (IWidget)widgetPreview;
+            widgetPreviewViewModel.WidgetInstance = new WidgetInstance(widgetInfo, _stateStorage);
+            widgetPreviewViewModel.ReadOnly = true;
+
+            widgetPreview.SetPreview(previewConfiguration);
+            previewViewModels.Add(new WidgetNodePreviewInfo(widgetPreviewViewModel, previewConfiguration));
+        }
+
+        return previewViewModels;
     }
 }
