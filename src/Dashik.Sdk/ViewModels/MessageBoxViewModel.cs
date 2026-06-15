@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reactive;
 using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -42,6 +44,8 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
     public DialogResult Result { get; private set; } = DialogResult.OK;
 
     public ReactiveCommand<DialogResult, Unit> ActionSelectCommand { get; }
+
+    public ReactiveCommand<Unit, Unit> CopyCommand { get; }
 
     public IImage? Icon
     {
@@ -139,6 +143,8 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
     public MessageBoxViewModel(string message, string? caption = null)
     {
         ActionSelectCommand = ReactiveCommand.Create<DialogResult>(SetValueAndClose);
+        CopyCommand = ReactiveCommand.CreateFromTask(CopyText);
+
         Caption = caption ?? Caption;
 
         Message = message;
@@ -161,6 +167,28 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         using var context = bitmap.CreateDrawingContext();
         context.DrawGeometry(brush, null, geometry);
         return bitmap;
+    }
+
+    private async Task CopyText()
+    {
+        var text = Message;
+        if (string.IsNullOrEmpty(text))
+        {
+            return;
+        }
+        var clipboard = (Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow?.Clipboard;
+        if (clipboard == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await clipboard.SetTextAsync(text);
+        }
+        catch (Exception e)
+        {
+        }
     }
 
     private void SetValueAndClose(DialogResult value)
