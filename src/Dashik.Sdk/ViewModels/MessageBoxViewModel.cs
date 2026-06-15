@@ -186,8 +186,9 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         {
             await clipboard.SetTextAsync(text);
         }
-        catch (Exception e)
+        catch (Exception)
         {
+            // Ignore because it might produce unexpected exceptions.
         }
     }
 
