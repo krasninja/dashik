@@ -20,7 +20,7 @@ public sealed class PackagesInstaller : IPackagesInstaller
         var widgetEntries = new List<LocalWidgetPackage>();
         foreach (var file in Directory.GetFiles(dir, NupkgExtensionPattern, SearchOption.TopDirectoryOnly))
         {
-            await using FileStream inputStream = new FileStream(file, FileMode.Open);
+            await using FileStream inputStream = new FileStream(file, FileMode.Open, FileAccess.Read);
             using PackageArchiveReader reader = new PackageArchiveReader(inputStream);
             var nuspec = await reader.GetNuspecReaderAsync(cancellationToken);
             var fileName = nuspec.GetId() + "." + nuspec.GetVersion() + NupkgExtensionPattern;
