@@ -9,6 +9,8 @@ namespace Dashik.Sdk.Views;
 
 public partial class MessageBoxWindow : ReactiveWindow<MessageBoxViewModel>
 {
+    private const int TopBottomPaddings = 80;
+
     public MessageBoxWindow()
     {
         InitializeComponent();
@@ -24,6 +26,11 @@ public partial class MessageBoxWindow : ReactiveWindow<MessageBoxViewModel>
                 disposables.Dispose();
                 this.Close();
             };
+            ViewModel.WhenAnyValue(p => p.Message)
+                .Subscribe(message =>
+                {
+                    Height = MessageTextBlock.Height + TopBottomPaddings;
+                });
         });
 
         this.AttachedToVisualTree += (s, e) =>
