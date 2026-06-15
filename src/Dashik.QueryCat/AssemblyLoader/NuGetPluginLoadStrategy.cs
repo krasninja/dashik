@@ -37,6 +37,7 @@ internal sealed class NuGetPluginLoadStrategy : IPluginLoadStrategy
     public async Task<Stream> GetFileAsync(string file, CancellationToken cancellationToken = default)
     {
         var zip = await ZipFile.OpenReadAsync(_file, cancellationToken);
+        file = FixFilePath(file);
         var entry = zip.GetEntry(file);
         return entry == null
             ? Stream.Null
@@ -47,11 +48,17 @@ internal sealed class NuGetPluginLoadStrategy : IPluginLoadStrategy
     public async Task<long> GetFileSizeAsync(string file, CancellationToken cancellationToken = default)
     {
         await using var zip = await ZipFile.OpenReadAsync(_file, cancellationToken);
+        file = FixFilePath(file);
         var entry = zip.GetEntry(file);
         if (entry == null)
         {
             return 0;
         }
         return entry.Length;
+    }
+
+    private static string FixFilePath(string file)
+    {
+        return file.Replace('\\', '/');
     }
 }
