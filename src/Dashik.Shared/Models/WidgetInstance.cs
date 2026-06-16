@@ -71,7 +71,10 @@ public class WidgetInstance : IWidgetInstance, IDisposable
         }
 
         var client = new HttpClient(_clientHandler, disposeHandler: false);
-        client.DefaultRequestHeaders.Add("User-Agent", Application.GetProductFullName());
+        client.DefaultRequestHeaders.Add(
+            "User-Agent",
+            $"{Application.ProductName}/{Application.GetVersion()} ({Application.GetPlatform()} {Application.GetArchitecture()})"
+        );
         return client;
     }
 
@@ -119,4 +122,7 @@ public class WidgetInstance : IWidgetInstance, IDisposable
     }
 
     #endregion
+
+    /// <inheritdoc />
+    public override string ToString() => $"{Info.Name}: {Id}";
 }
