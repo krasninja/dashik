@@ -55,7 +55,9 @@ internal sealed class VelopackAppUpdateService : IAppUpdateService
         }
 
         // Download new version.
+        _logger.LogInformation("Start downloading updates for version {Version}.", newVersion.TargetFullRelease.Version);
         await UpdateManager.DownloadUpdatesAsync(newVersion, cancelToken: cancellationToken);
+        _logger.LogInformation("Finish downloading updates for version {Version}.", newVersion.TargetFullRelease.Version);
 
         // Install new version and restart application.
         UpdateManager.ApplyUpdatesAndRestart(newVersion);

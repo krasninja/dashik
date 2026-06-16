@@ -319,14 +319,10 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             }
         }
 
-        if (RequireConfiguration)
-        {
-            return;
-        }
-
         // Initialize.
         try
         {
+            initInfo.IncompleteConfiguration = RequireConfiguration;
             await Widget.InitializeAsync(initInfo, cancellationToken);
         }
         catch (Exception e)

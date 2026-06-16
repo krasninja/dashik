@@ -26,6 +26,11 @@ public sealed class WidgetInitInfo
     public JsonObject Settings { get; }
 
     /// <summary>
+    /// <c>True</c> if settings object didn't pass validation, <c>false</c> otherwise.
+    /// </summary>
+    public bool IncompleteConfiguration { get; internal set; }
+
+    /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="context">Widget context.</param>
