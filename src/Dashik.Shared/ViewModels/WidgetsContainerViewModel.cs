@@ -186,6 +186,8 @@ public sealed class WidgetsContainerViewModel : ViewModelBase, ICloseableViewMod
     {
         Spaces = [];
 
+        _dispatcher.WaitPendingTasksOnDispose = false;
+
         _saveUiObservable = this
             .WhenAnyValue(
                 p => p.WindowState,

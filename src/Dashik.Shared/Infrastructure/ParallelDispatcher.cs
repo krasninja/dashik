@@ -16,6 +16,11 @@ internal sealed class ParallelDispatcher : IDisposable
     private long _runningCount;
     private bool _disposed;
 
+    /// <summary>
+    /// Wait for all tasks on dispatcher dispose.
+    /// </summary>
+    public bool WaitPendingTasksOnDispose { get; set; } = true;
+
     private sealed class ExecutionItem(Func<object?, CancellationToken, Task> action, object? state = null)
     {
         public Func<object?, CancellationToken, Task> Action { get; } = action;
@@ -179,12 +184,17 @@ internal sealed class ParallelDispatcher : IDisposable
         _disposed = true;
         Stop();
 
-        Task[] tasksToWait;
-        lock (_runningTasksLock)
+        if (WaitPendingTasksOnDispose)
         {
-            tasksToWait = _runningTasks.ToArray();
+            Task[] tasksToWait;
+            lock (_runningTasksLock)
+            {
+                tasksToWait = _runningTasks.ToArray();
+            }
+            Task.WaitAll(tasksToWait, 30_000);
         }
-        Task.WaitAll(tasksToWait);
+
+        _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
     }
 }

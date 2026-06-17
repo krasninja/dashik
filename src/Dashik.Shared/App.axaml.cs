@@ -76,7 +76,16 @@ public sealed partial class App : Application, IDisposable
             };
             desktop.Exit += (_, _) =>
             {
-                (desktop.MainWindow?.DataContext as IDisposable)?.Dispose();
+                var mainWindow = desktop.MainWindow;
+                if (mainWindow == null)
+                {
+                    return;
+                }
+                mainWindow.Hide();
+                Dispatcher.CurrentDispatcher.Invoke(() =>
+                {
+                    (mainWindow.DataContext as IDisposable)?.Dispose();
+                });
             };
         }
 
