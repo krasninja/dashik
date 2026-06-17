@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Reflection;
+using System.Text;
 using Avalonia.Media;
 using Dashik.Sdk.Widgets;
 
@@ -21,7 +22,7 @@ public sealed class WidgetCategoryInfo
     public WidgetCategoryInfo(WidgetCategory category, IImage icon)
     {
         this.Category = category;
-        this.Name = category.ToString();
+        this.Name = FormatName(category.ToString());
         this.Description = GetDescription(category);
         this.Icon = icon;
     }
@@ -36,5 +37,19 @@ public sealed class WidgetCategoryInfo
         var field = value.GetType().GetField(value.ToString());
         var attr = field?.GetCustomAttribute<DescriptionAttribute>();
         return attr?.Description ?? value.ToString();
+    }
+
+    private static string FormatName(string target)
+    {
+        var sb = new StringBuilder(capacity: target.Length + 10);
+        foreach (var c in target)
+        {
+            if (char.IsUpper(c))
+            {
+                sb.Append(' ');
+            }
+            sb.Append(c);
+        }
+        return sb.ToString();
     }
 }
