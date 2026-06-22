@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using DynamicData.Binding;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
@@ -101,5 +102,10 @@ public partial class WidgetsContainerWindow : ReactiveWindow<WidgetsContainerVie
             return;
         }
         ViewModel.WindowPosition = Position;
+    }
+
+    private void InputElement_OnTapped(object? sender, TappedEventArgs e)
+    {
+        Focus();
     }
 }
