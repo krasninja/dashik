@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Media;
 using Dashik.Sdk.ViewModels;
 using Dashik.Sdk.Views;
 using Dashik.Shared.Infrastructure.UI;
@@ -18,14 +19,17 @@ public sealed class ViewLocator : IDataTemplate
         return data switch
         {
             WidgetsContainerViewModel vm => new WidgetsContainerWindow { DataContext = vm },
+            WidgetsBarViewModel vm => new WidgetsBarWindow { DataContext = vm },
             WidgetsManagementViewModel vm => new WidgetsManagementWindow { DataContext = vm },
             SettingsViewModel vm => new SettingsWindow { DataContext = vm },
             LogsViewModel vm => new LogsWindow { DataContext = vm },
             TextWindowViewModel vm => new TextWindow { DataContext = vm },
             MessageBoxViewModel vm => new MessageBoxWindow { DataContext = vm },
+            MainViewModel vm => new MainWindow { DataContext = vm },
             _ => new TextBlock
             {
-                Text = $"View not found for {data?.GetType().Name}",
+                Text = $"View not found for {data?.GetType().Name}.",
+                Foreground = Brushes.Red,
             }
         };
     }

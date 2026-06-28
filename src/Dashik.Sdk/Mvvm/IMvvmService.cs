@@ -42,9 +42,11 @@ public interface IMvvmService
     /// Create a new instance of view model and open it.
     /// </summary>
     /// <param name="viewModel">View model.</param>
+    /// <param name="ownerViewModel">Owner view model.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Awaitable task.</returns>
     Task<DialogResult> OpenAsync<TDialogResult>(
         IDialogViewModel<TDialogResult> viewModel,
+        object? ownerViewModel = null,
         CancellationToken cancellationToken = default);
 }

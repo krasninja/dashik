@@ -36,6 +36,12 @@ public interface IAppService
     string GetMainPackageDirectory();
 
     /// <summary>
+    /// Get directory to store windows settings.
+    /// </summary>
+    /// <returns>Windows directory.</returns>
+    string GetWindowsDirectory();
+
+    /// <summary>
     /// Get feeds.
     /// </summary>
     /// <returns>Feeds.</returns>

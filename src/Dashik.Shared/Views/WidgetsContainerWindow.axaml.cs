@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using DynamicData.Binding;
-using Microsoft.Extensions.Logging;
 using ReactiveUI;
 using ReactiveUI.Avalonia;
 using Dashik.Shared.ViewModels;
@@ -11,8 +10,6 @@ namespace Dashik.Shared.Views;
 
 public partial class WidgetsContainerWindow : ReactiveWindow<WidgetsContainerViewModel>
 {
-    private readonly ILogger _logger = global::QueryCat.Backend.Core.Application.LoggerFactory.CreateLogger(nameof(WidgetsContainerWindow));
-
     public WidgetsContainerWindow()
     {
         InitializeComponent();
@@ -41,26 +38,6 @@ public partial class WidgetsContainerWindow : ReactiveWindow<WidgetsContainerVie
                 ViewModel.WindowScreen = screen != null && !string.IsNullOrEmpty(screen.DisplayName)
                     ? screen.DisplayName : string.Empty;
             });
-    }
-
-    /// <inheritdoc />
-    protected override async void OnClosing(WindowClosingEventArgs e)
-    {
-        if (ViewModel == null)
-        {
-            return;
-        }
-
-        try
-        {
-            await ViewModel.SaveAsync();
-        }
-        catch (Exception exception)
-        {
-            _logger.LogDebug(exception, exception.Message);
-        }
-
-        base.OnClosing(e);
     }
 
     /// <inheritdoc />

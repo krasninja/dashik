@@ -1,5 +1,5 @@
-using System.Collections.Specialized;
 using System.Reflection;
+using SimpleInjector;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -10,7 +10,6 @@ using QueryCat.Backend.Core.Utils;
 using QueryCat.Backend.Parser;
 using Dashik.Shared.Infrastructure.Setup;
 using Dashik.Shared.ViewModels;
-using Dashik.Shared.Views;
 using Dashik.Sdk.Mvvm;
 using Dashik.Sdk.ViewModels;
 
@@ -23,9 +22,9 @@ public sealed partial class App : Application, IDisposable
 {
     internal AppRoot Root { get; }
 
-    private WidgetsContainerViewModel? ViewModel => (WidgetsContainerViewModel?)DataContext;
+    public Container Container => Root.Container;
 
-    private int _totalWidgetMenuItems;
+    private MainViewModel? ViewModel => (MainViewModel?)DataContext;
 
     public App() : this(new AppRoot(new AppArguments()))
     {
@@ -51,6 +50,8 @@ public sealed partial class App : Application, IDisposable
     /// <inheritdoc />
     public override void OnFrameworkInitializationCompleted()
     {
+        base.OnFrameworkInitializationCompleted();
+
         // UI thread exceptions.
         Dispatcher.UIThread.UnhandledException += (s, e) =>
         {
@@ -59,102 +60,36 @@ public sealed partial class App : Application, IDisposable
 
         AsyncUtils.RunSync(async ct =>
         {
-            await Root.InitializeAsync(ct);
+            await OnFrameworkInitializationCompleteInternalAsync(ct);
         });
+    }
+
+    private async Task OnFrameworkInitializationCompleteInternalAsync(CancellationToken cancellationToken = default)
+    {
+        await Root.InitializeAsync(cancellationToken);
+
+        var mainWindowViewModel = Container.GetInstance<MainViewModel>();
+        mainWindowViewModel.WidgetsCollectionViewModel.WidgetFilter = Root.AppArguments.WidgetsFilter.ToArray();
+        await mainWindowViewModel.LoadAsync(cancellationToken);
+
+        // Create fake main window but do not assign it to the app.
+        // There might be several windows opened and they are managed thru this fake MainWindow.
+        DataContext = mainWindowViewModel;
 
         if ((Root.AppArguments.Mode == AppArguments.RunMode.Client
              || Root.AppArguments.Mode == AppArguments.RunMode.Normal)
             && ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var containerViewModel = Root.Container.GetInstance<WidgetsContainerViewModel>();
-            containerViewModel.WidgetFilter = Root.AppArguments.WidgetsFilter.ToArray();
-            containerViewModel.WidgetMenuItems.CollectionChanged += WidgetMenuItemsOnCollectionChanged;
-            DataContext = containerViewModel;
-            desktop.MainWindow = new WidgetsContainerWindow
-            {
-                DataContext = containerViewModel,
-            };
+            desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             desktop.Exit += (_, _) =>
             {
-                var mainWindow = desktop.MainWindow;
-                if (mainWindow == null)
+                if (ViewModel == null)
                 {
                     return;
                 }
-                mainWindow.Hide();
-                Dispatcher.CurrentDispatcher.Invoke(() =>
-                {
-                    (mainWindow.DataContext as IDisposable)?.Dispose();
-                });
+                ViewModel.Hide();
+                ViewModel.Dispose();
             };
-        }
-
-        base.OnFrameworkInitializationCompleted();
-    }
-
-    private void WidgetMenuItemsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (Current == null)
-        {
-            return;
-        }
-
-        var appTrayIcon = TrayIcon.GetIcons(Current)?.FirstOrDefault();
-        if (appTrayIcon == null || appTrayIcon.Menu == null)
-        {
-            return;
-        }
-
-        // For reference: https://github.com/AvaloniaUI/Avalonia/issues/8076.
-
-        // Remove old items.
-        foreach (var oldItem in e.OldItems ?? Array.Empty<string>())
-        {
-            var itemToRemove = appTrayIcon.Menu.Items.FirstOrDefault(i => i == oldItem);
-            if (itemToRemove != null)
-            {
-                if (appTrayIcon.Menu.Items.Remove(itemToRemove))
-                {
-                    _totalWidgetMenuItems--;
-                }
-            }
-        }
-
-        // Add new items.
-        var firstSeparatorBeforeWidgetItems = appTrayIcon.Menu.Items.OfType<NativeMenuItemSeparator>()
-            .FirstOrDefault();
-        if (firstSeparatorBeforeWidgetItems != null)
-        {
-            var indexOfFirstSeparatorBeforeWidgetItems = appTrayIcon.Menu.Items.IndexOf(firstSeparatorBeforeWidgetItems);
-            if (indexOfFirstSeparatorBeforeWidgetItems > -1)
-            {
-                foreach (var newItem in e.NewItems ?? Array.Empty<NativeMenuItem>())
-                {
-                    appTrayIcon.Menu.Items.Insert(
-                        _totalWidgetMenuItems + indexOfFirstSeparatorBeforeWidgetItems + 1,
-                        (NativeMenuItem)newItem);
-                    _totalWidgetMenuItems++;
-                }
-
-                // Add separator after all widget menu items.
-                if (_totalWidgetMenuItems + indexOfFirstSeparatorBeforeWidgetItems + 1 < appTrayIcon.Menu.Items.Count
-                    && appTrayIcon.Menu.Items[_totalWidgetMenuItems + indexOfFirstSeparatorBeforeWidgetItems + 1] is not NativeMenuItemSeparator)
-                {
-                    appTrayIcon.Menu.Items.Insert(
-                        _totalWidgetMenuItems + indexOfFirstSeparatorBeforeWidgetItems + 1,
-                        new NativeMenuItemSeparator());
-                }
-            }
-        }
-
-        // Clean up NativeMenuItemSeparator.
-        for (var i = 0; i < appTrayIcon.Menu.Items.Count - 1; i++)
-        {
-            if (appTrayIcon.Menu.Items[i] is NativeMenuItemSeparator
-                && appTrayIcon.Menu.Items[i + 1] is NativeMenuItemSeparator)
-            {
-                appTrayIcon.Menu.Items.RemoveAt(i);
-            }
         }
     }
 
@@ -186,7 +121,7 @@ public sealed partial class App : Application, IDisposable
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             var messageBoxVm = new MessageBoxViewModel(message, "Error").SetErrorMode();
-            var mvvmService = Root.Container.GetRequiredService<IMvvmService>();
+            var mvvmService = Container.GetRequiredService<IMvvmService>();
             await mvvmService.OpenAsync(messageBoxVm);
         });
     }
@@ -206,8 +141,7 @@ public sealed partial class App : Application, IDisposable
     public void Dispose()
     {
         Dispatcher.UIThread.UnhandledException -= UIThreadOnUnhandledException;
-        var containerViewModel = Root.Container.GetInstance<WidgetsContainerViewModel>();
-        containerViewModel.WidgetMenuItems.CollectionChanged -= WidgetMenuItemsOnCollectionChanged;
+        ViewModel?.Dispose();
         Root.Dispose();
     }
 }

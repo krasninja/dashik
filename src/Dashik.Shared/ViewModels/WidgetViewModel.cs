@@ -229,7 +229,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         var viewModel = _mvvmService.CreateViewModel<SettingsViewModel>(settingsModel);
         AddSettingsSection(viewModel, vm.Widget);
 
-        if (await _mvvmService.OpenAsync(viewModel, cancellationToken) == DialogResult.OK)
+        if (await _mvvmService.OpenAsync(viewModel, this, cancellationToken) == DialogResult.OK)
         {
             CopySettings((WidgetAllSettings)viewModel.Settings);
             UpdateTitle();

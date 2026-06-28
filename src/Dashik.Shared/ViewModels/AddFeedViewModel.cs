@@ -93,7 +93,7 @@ public sealed class AddFeedViewModel : ViewModelBase
     {
         var messageBoxVm = new MessageBoxViewModel("Are you sure you want to remove the feed?", Resources.Messages.Remove)
             .SetYesNoMode();
-        if (await _mvvmService.OpenAsync(messageBoxVm, cancellationToken) == DialogResult.Yes)
+        if (await _mvvmService.OpenAsync(messageBoxVm, this, cancellationToken) == DialogResult.Yes)
         {
             if (Feeds.Remove(feed))
             {

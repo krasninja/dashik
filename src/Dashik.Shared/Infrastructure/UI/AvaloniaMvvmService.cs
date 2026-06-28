@@ -101,7 +101,10 @@ public sealed class AvaloniaMvvmService : IMvvmService
     }
 
     /// <inheritdoc />
-    public async Task<DialogResult> OpenAsync<TDialogResult>(IDialogViewModel<TDialogResult> viewModel, CancellationToken cancellationToken = default)
+    public async Task<DialogResult> OpenAsync<TDialogResult>(
+        IDialogViewModel<TDialogResult> viewModel,
+        object? ownerViewModel = null,
+        CancellationToken cancellationToken = default)
     {
         var control = _dataTemplate.Build(viewModel) as Window;
         if (control == null)
@@ -109,6 +112,18 @@ public sealed class AvaloniaMvvmService : IMvvmService
             throw new InvalidOperationException($"The data template '{viewModel.GetType().FullName}' was not found.");
         }
         var mainWindow = GetMainWindow();
+        if (mainWindow == null)
+        {
+            foreach (var window in GetAllWindows())
+            {
+                if (window.DataContext == ownerViewModel)
+                {
+                    mainWindow = window;
+                    break;
+                }
+                mainWindow = window;
+            }
+        }
 
         try
         {
@@ -136,5 +151,16 @@ public sealed class AvaloniaMvvmService : IMvvmService
         }
 
         return viewModel.Result;
+    }
+
+    private IEnumerable<Window> GetAllWindows()
+    {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            foreach (var window in desktop.Windows)
+            {
+                yield return window;
+            }
+        }
     }
 }

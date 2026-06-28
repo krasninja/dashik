@@ -13,7 +13,6 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <CheckBox
@@ -28,11 +27,6 @@
 
         <CheckBox
             Grid.Row="2"
-            IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).IsTopmost}"
-            Content="Is topmost" />
-
-        <CheckBox
-            Grid.Row="3"
             IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).ShowSystemTrayIcon}"
             Content="Show system tray icon" />
     </Grid>

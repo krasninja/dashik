@@ -102,7 +102,7 @@ public sealed class AddPackageViewModel : ViewModelBase
 
         var messageBoxVm = new MessageBoxViewModel("Are you sure you want to remove the package?", Resources.Messages.Remove)
             .SetYesNoMode();
-        if (await _mvvmService.OpenAsync(messageBoxVm, cancellationToken) == DialogResult.Yes)
+        if (await _mvvmService.OpenAsync(messageBoxVm, this, cancellationToken) == DialogResult.Yes)
         {
             var removed = await _packagesInstaller.RemoveAsync(node.PackageGroup.Local, cancellationToken);
             if (removed)

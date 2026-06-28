@@ -4,7 +4,7 @@
              xmlns:viewModels="clr-namespace:Dashik.Shared.ViewModels"
              x:Class="Dashik.Shared.App"
              RequestedThemeVariant="Default"
-             x:DataType="viewModels:WidgetsContainerViewModel">
+             x:DataType="viewModels:MainViewModel">
     <Application.DataTemplates>
         <desktop:ViewLocator />
     </Application.DataTemplates>
@@ -27,7 +27,7 @@
                 ToolTipText="Dashik">
                 <TrayIcon.Menu>
                     <NativeMenu>
-                        <NativeMenuItem Header="Add Widget" Command="{Binding AddWidgetCommand}" />
+                        <NativeMenuItem Header="Add Widget" Command="{Binding WidgetsCollectionViewModel.AddWidgetCommand}" />
                         <NativeMenuItemSeparator />
                         <NativeMenuItem Header="Quit" Command="{Binding CloseApplicationCommand}" />
                     </NativeMenu>

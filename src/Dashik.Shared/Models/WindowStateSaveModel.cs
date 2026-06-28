@@ -3,7 +3,7 @@ namespace Dashik.Shared.Models;
 /// <summary>
 /// Save windows request.
 /// </summary>
-public class MainWindowStateSaveModel
+public class WindowStateSaveModel
 {
     public double WindowHeight { get; set; } = 750;
 
@@ -16,8 +16,6 @@ public class MainWindowStateSaveModel
     public string WindowScreen { get; set; } = string.Empty;
 
     public bool Topmost { get; set; }
-
-    public bool ShowSystemTrayIcon { get; set; }
 
     public string ActiveSpace { get; set; } = string.Empty;
 

@@ -7,6 +7,7 @@ namespace Dashik.Shared.Services;
 public sealed class AppService : IAppService
 {
     internal const string WidgetsDirectory = "widgets";
+    internal const string WindowsDirectory = "windows";
 
     private readonly AppSettings _appSettings;
     private readonly string _dataDirectory;
@@ -41,6 +42,9 @@ public sealed class AppService : IAppService
 
     /// <inheritdoc />
     public string GetMainPackageDirectory() => Path.Combine(GetDataDirectory(), WidgetsDirectory);
+
+    /// <inheritdoc />
+    public string GetWindowsDirectory() => Path.Combine(GetDataDirectory(), WindowsDirectory);
 
     /// <inheritdoc />
     public PackageFeed[] GetFeeds()

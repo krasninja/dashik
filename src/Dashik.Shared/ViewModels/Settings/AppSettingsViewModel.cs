@@ -31,9 +31,6 @@ public class AppSettingsViewModel : ViewModelBase
     public bool LaunchOnSystemStartup { get; set; }
 
     [DataMember]
-    public bool IsTopmost { get; set; }
-
-    [DataMember]
     public bool ShowSystemTrayIcon { get; set; }
 
     [DataMember]
@@ -57,6 +54,7 @@ public class AppSettingsViewModel : ViewModelBase
         LocalPackagesDirectories = new AvaloniaList<string>(appSettings.LocalPackagesDirectories);
         Spaces = new AvaloniaList<SpaceModel>(appSettings.Spaces);
         StartMinimized = appSettings.StartMinimized;
+        ShowSystemTrayIcon = appSettings.ShowSystemTrayIcon;
     }
 
     public AppSettings ToAppSettings()
@@ -68,6 +66,7 @@ public class AppSettingsViewModel : ViewModelBase
             LocalPackagesDirectories = LocalPackagesDirectories.ToList(),
             Spaces = Spaces.ToList(),
             StartMinimized = StartMinimized,
+            ShowSystemTrayIcon = ShowSystemTrayIcon,
         };
     }
 
