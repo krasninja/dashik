@@ -28,14 +28,20 @@ internal sealed class StubWidget : ReactiveObject, IWidget
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
-        = "ERROR";
+    = "ERROR";
 
+    /// <summary>
+    /// Stub text.
+    /// </summary>
     public string Text
     {
         get => _viewModel.Text;
         set { _viewModel.Text = value; }
     }
 
+    /// <summary>
+    /// Do we render the widget because of error?
+    /// </summary>
     public bool Error
     {
         get => _viewModel.Error;
@@ -43,10 +49,6 @@ internal sealed class StubWidget : ReactiveObject, IWidget
     }
 
     private readonly StubWidgetViewModel _viewModel = new();
-    private readonly StackPanel _rootPanel;
-
-    /// <inheritdoc />
-    public Control Control => _rootPanel;
 
     private sealed class StubWidgetViewModel : ViewModelBase
     {
@@ -73,12 +75,19 @@ internal sealed class StubWidget : ReactiveObject, IWidget
                 TextColor = value ? Brushes.Red : Brushes.Black;
             }
         }
+
+        public bool RequiresSetup
+        {
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
+        }
     }
 
     /// <inheritdoc />
     public Control? CreateControl(WidgetControlTarget target, Size targetSize)
     {
         var rootPanel = new StackPanel();
+
         var textBlock = new TextBlock
         {
             HorizontalAlignment = HorizontalAlignment.Center,
@@ -86,24 +95,41 @@ internal sealed class StubWidget : ReactiveObject, IWidget
             TextWrapping = TextWrapping.WrapWithOverflow,
             Padding = new Thickness(2),
         };
-
         var textBinding = new Binding
         {
-            Source = textBlock,
             Path = nameof(StubWidgetViewModel.Text),
             Mode = BindingMode.TwoWay,
         };
         textBlock.Bind(TextBlock.TextProperty, textBinding);
-
         var textColorBinding = new Binding
         {
-            Source = textBlock,
             Path = nameof(StubWidgetViewModel.TextColor),
             Mode = BindingMode.TwoWay,
         };
         textBlock.Bind(TextBlock.ForegroundProperty, textColorBinding);
 
+        var requiresSetupButton = new Button
+        {
+            Content = "Setup",
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+        requiresSetupButton.Click += (obj, _) =>
+        {
+            if (obj is StyledElement control && control.DataContext is WidgetViewModel widgetViewModel)
+            {
+                widgetViewModel.OpenWidgetSettingsCommand.Execute(widgetViewModel)
+                    .Subscribe();
+            }
+        };
+        var requiresSetupButtonBinding = new Binding
+        {
+            Path = nameof(StubWidgetViewModel.RequiresSetup),
+            Mode = BindingMode.TwoWay,
+        };
+        requiresSetupButton.Bind(Visual.IsVisibleProperty, requiresSetupButtonBinding);
+
         rootPanel.Children.Add(textBlock);
+        rootPanel.Children.Add(requiresSetupButton);
         rootPanel.DataContext = _viewModel;
         return rootPanel;
     }
@@ -123,23 +149,7 @@ internal sealed class StubWidget : ReactiveObject, IWidget
             }
             Error = transientInstance.Error;
 
-            if (transientInstance.RequiresSetup)
-            {
-                var button = new Button
-                {
-                    Content = "Setup",
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                };
-                button.Click += (_, _) =>
-                {
-                    if (Control.DataContext is WidgetViewModel widgetViewModel)
-                    {
-                        widgetViewModel.OpenWidgetSettingsCommand.Execute(widgetViewModel)
-                            .Subscribe();
-                    }
-                };
-                _rootPanel.Children.Add(button);
-            }
+            _viewModel.RequiresSetup = transientInstance.RequiresSetup;
         }
         return Task.CompletedTask;
     }

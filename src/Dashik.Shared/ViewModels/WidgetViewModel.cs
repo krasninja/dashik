@@ -31,6 +31,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
     private readonly IMvvmService _mvvmService;
     private readonly IServiceProvider _serviceProvider;
     private Control? _control;
+    private Control? _errorControl;
     private readonly ILogger _logger;
 
     public sealed class WidgetAllSettings(WidgetMainSettings mainSettings, object? settings)
@@ -70,7 +71,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
     public string WidgetId => WidgetInstance?.Id ?? string.Empty;
 
-    public Control? WidgetControl => !RequireConfiguration ? _control : ErrorWidget?.Control;
+    public Control? WidgetControl => !RequireConfiguration ? _control : _errorControl;
 
     private StubWidget? ErrorWidget
     {
@@ -79,6 +80,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         {
             this.RaisePropertyChanging(nameof(WidgetControl));
             this.RaiseAndSetIfChanged(ref field, value);
+            _errorControl = value?.CreateControl(WidgetControlTarget.Panel, Size.Infinity);
             this.RaisePropertyChanged(nameof(WidgetControl));
         }
     }
