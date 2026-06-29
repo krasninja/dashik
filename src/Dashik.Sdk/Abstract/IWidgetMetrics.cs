@@ -9,7 +9,7 @@ namespace Dashik.Sdk.Abstract;
 public interface IWidgetMetrics
 {
     /// <summary>
-    /// Values of metrics. Key is the id of the metric provided by <see cref="GetMetrics" /> method.
+    /// Values of metrics. Key is the id of the metric provided by <see cref="GetAvailableMetrics" /> method.
     /// The id can be customized by optional argument with "--" suffix (metric_id--argument),
     /// for example "ping--www.google.com". The value is the result of the metric query.
     /// The dictionary of metric values will be updated with <see cref="IWidgetUpdate" /> interface.
@@ -20,5 +20,5 @@ public interface IWidgetMetrics
     /// Get available metrics provided by widget.
     /// </summary>
     /// <returns>Collection of metrics.</returns>
-    IReadOnlyCollection<WidgetMetric> GetMetrics();
+    IReadOnlyCollection<WidgetMetric> GetAvailableMetrics();
 }

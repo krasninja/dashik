@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Models;
 using Dashik.Sdk.Widgets;
@@ -22,7 +23,7 @@ public sealed class MotdWidget : IWidget, IWidgetSettings, IWidgetPreview, IWidg
     /// <inheritdoc />
     public Control Control { get; }
 
-    private MotdWidgetViewModel ViewModel => (MotdWidgetViewModel)Control.DataContext!;
+    private MotdWidgetViewModel ViewModel { get; } = new();
 
     /// <inheritdoc />
     public object Settings { get; set; } = new MotdWidgetSettings();
@@ -35,8 +36,21 @@ public sealed class MotdWidget : IWidget, IWidgetSettings, IWidgetPreview, IWidg
         _context = context;
         Control = new MotdWidgetControl
         {
-            DataContext = new MotdWidgetViewModel(),
+            DataContext = ViewModel,
         };
+    }
+
+    /// <inheritdoc />
+    public Control? CreateControl(WidgetControlTarget target, Size targetSize)
+    {
+        if (target == WidgetControlTarget.Panel)
+        {
+            return new MotdWidgetControl
+            {
+                DataContext = ViewModel,
+            };
+        }
+        return null;
     }
 
     /// <inheritdoc />

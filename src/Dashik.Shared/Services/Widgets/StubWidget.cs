@@ -1,10 +1,12 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Layout;
 using Avalonia.Media;
 using ReactiveUI;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Widgets;
+using Dashik.Shared.Infrastructure.UI;
 using Dashik.Shared.ViewModels;
 
 namespace Dashik.Shared.Services.Widgets;
@@ -30,41 +32,80 @@ internal sealed class StubWidget : ReactiveObject, IWidget
 
     public string Text
     {
-        get => _textBlock.Text ?? string.Empty;
-        set => _textBlock.Text = value;
+        get => _viewModel.Text;
+        set { _viewModel.Text = value; }
     }
 
     public bool Error
     {
-        get;
-        set
-        {
-            if (this.RaiseAndSetIfChanged(ref field, value))
-            {
-                _textBlock.Foreground = value ? Brushes.Red : Brushes.Black;
-            }
-        }
+        get => _viewModel.Error;
+        set { _viewModel.Error = value; }
     }
 
-    private readonly TextBlock _textBlock;
+    private readonly StubWidgetViewModel _viewModel = new();
     private readonly StackPanel _rootPanel;
 
     /// <inheritdoc />
     public Control Control => _rootPanel;
 
-    public StubWidget()
+    private sealed class StubWidgetViewModel : ViewModelBase
     {
-        _rootPanel = new StackPanel();
-        _textBlock = new TextBlock
+        public string Text
         {
-            Foreground = Brushes.Black,
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
+        }
+        = string.Empty;
+
+        public IBrush TextColor
+        {
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
+        }
+        = Brushes.Black;
+
+        public bool Error
+        {
+            get;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref field, value);
+                TextColor = value ? Brushes.Red : Brushes.Black;
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public Control? CreateControl(WidgetControlTarget target, Size targetSize)
+    {
+        var rootPanel = new StackPanel();
+        var textBlock = new TextBlock
+        {
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Text = "Error",
             TextWrapping = TextWrapping.WrapWithOverflow,
             Padding = new Thickness(2),
         };
-        _rootPanel.Children.Add(_textBlock);
+
+        var textBinding = new Binding
+        {
+            Source = textBlock,
+            Path = nameof(StubWidgetViewModel.Text),
+            Mode = BindingMode.TwoWay,
+        };
+        textBlock.Bind(TextBlock.TextProperty, textBinding);
+
+        var textColorBinding = new Binding
+        {
+            Source = textBlock,
+            Path = nameof(StubWidgetViewModel.TextColor),
+            Mode = BindingMode.TwoWay,
+        };
+        textBlock.Bind(TextBlock.ForegroundProperty, textColorBinding);
+
+        rootPanel.Children.Add(textBlock);
+        rootPanel.DataContext = _viewModel;
+        return rootPanel;
     }
 
     /// <inheritdoc />

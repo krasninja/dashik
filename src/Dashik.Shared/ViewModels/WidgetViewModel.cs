@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using ReactiveUI;
@@ -29,6 +30,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
     private readonly IMvvmService _mvvmService;
     private readonly IServiceProvider _serviceProvider;
+    private Control? _control;
     private readonly ILogger _logger;
 
     public sealed class WidgetAllSettings(WidgetMainSettings mainSettings, object? settings)
@@ -58,14 +60,17 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         get;
         set
         {
+            this.RaisePropertyChanging(nameof(WidgetControl));
             this.RaiseAndSetIfChanged(ref field, value);
             UpdateTitle();
+            UpdateControl();
+            this.RaisePropertyChanged(nameof(WidgetControl));
         }
     }
 
     public string WidgetId => WidgetInstance?.Id ?? string.Empty;
 
-    public Control? WidgetControl => !RequireConfiguration ? Widget?.Control : ErrorWidget?.Control;
+    public Control? WidgetControl => !RequireConfiguration ? _control : ErrorWidget?.Control;
 
     private StubWidget? ErrorWidget
     {
@@ -447,11 +452,33 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         Title = "Widget";
     }
 
+    private void UpdateControl()
+    {
+        if (Widget == null)
+        {
+            return;
+        }
+        ReleaseControl();
+        _control = Widget.CreateControl(WidgetControlTarget.Panel, Size.Infinity);
+    }
+
+    private void ReleaseControl()
+    {
+        if (_control == null)
+        {
+            return;
+        }
+        (_control.DataContext as IDisposable)?.Dispose();
+        (_control as IDisposable)?.Dispose();
+        _control = null;
+    }
+
     /// <inheritdoc />
     public void Dispose()
     {
         _saveWidgetRequested.Dispose();
         _reorderWidgetRequested.Dispose();
+        ReleaseControl();
     }
 
     /// <inheritdoc />

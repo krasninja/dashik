@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Dashik.Sdk.Widgets;
 
@@ -15,9 +16,12 @@ public interface IWidget
     string Header { get; }
 
     /// <summary>
-    /// Widget Avalonia control content.
+    /// Create the control associated with the widget.
     /// </summary>
-    Control Control { get; }
+    /// <param name="target">The target where the control will be placed.</param>
+    /// <param name="targetSize">The size of the target.</param>
+    /// <returns>Instance of <see cref="Control" />.</returns>
+    Control? CreateControl(WidgetControlTarget target, Size targetSize);
 
     /// <summary>
     /// Initialize the widget.
