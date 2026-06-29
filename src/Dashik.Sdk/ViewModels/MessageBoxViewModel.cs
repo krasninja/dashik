@@ -11,6 +11,9 @@ using Dashik.Sdk.Mvvm;
 
 namespace Dashik.Sdk.ViewModels;
 
+/// <summary>
+/// View model for message box.
+/// </summary>
 public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogViewModel<DialogResult>
 {
     private static readonly IImage _infoIcon;
@@ -43,10 +46,19 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
     /// <inheritdoc />
     public DialogResult Result { get; private set; } = DialogResult.OK;
 
+    /// <summary>
+    /// Message box action selected.
+    /// </summary>
     public ReactiveCommand<DialogResult, Unit> ActionSelectCommand { get; }
 
+    /// <summary>
+    /// Copy message box text command.
+    /// </summary>
     public ReactiveCommand<Unit, Unit> CopyCommand { get; }
 
+    /// <summary>
+    /// Message box icon.
+    /// </summary>
     public IImage? Icon
     {
         get;
@@ -140,6 +152,11 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         _errorIcon = GetIconResource(resourceInclude, "FontAwesomeRegularCircleXMark", Brushes.Red);
     }
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="message">Message box text.</param>
+    /// <param name="caption">Message box title.</param>
     public MessageBoxViewModel(string message, string? caption = null)
     {
         ActionSelectCommand = ReactiveCommand.Create<DialogResult>(SetValueAndClose);
@@ -199,6 +216,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         CloseRequest?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>
+    /// Show only "OK" button.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetOkMode()
     {
         ShowOkButton = true;
@@ -214,6 +235,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "OK" and "Cancel" buttons.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetOkCancelMode()
     {
         ShowOkButton = true;
@@ -229,6 +254,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "OK" button and error icon.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetErrorMode()
     {
         ShowOkButton = true;
@@ -244,6 +273,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "Yes" and "No" buttons.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetYesNoMode()
     {
         ShowOkButton = false;
@@ -259,6 +292,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "Yes", "No" and "Cancel" buttons.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetYesNoCancelMode()
     {
         ShowOkButton = false;
@@ -274,6 +311,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "Abort", "Retry" and "Ignore" buttons.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetAbortRetryIgnoreMode()
     {
         ShowOkButton = false;

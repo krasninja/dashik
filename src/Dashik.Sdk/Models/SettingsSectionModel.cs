@@ -7,6 +7,9 @@ namespace Dashik.Sdk.Models;
 /// </summary>
 public class SettingsSectionModel : ReactiveObject
 {
+    /// <summary>
+    /// Settings object.
+    /// </summary>
     public object? Settings
     {
         get => field;

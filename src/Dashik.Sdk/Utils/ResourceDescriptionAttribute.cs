@@ -12,6 +12,11 @@ public sealed class ResourceDescriptionAttribute : DescriptionAttribute
 {
     private readonly ResourceManager _resourceManager;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="resourceType">Resource type.</param>
+    /// <param name="resourceKey">Resource key.</param>
     public ResourceDescriptionAttribute(Type resourceType, string resourceKey)
     {
         _resourceManager = new ResourceManager(resourceType);

@@ -33,6 +33,14 @@ public class WidgetMetric
     /// </summary>
     public Color Color { get; }
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="id">Metric identifier.</param>
+    /// <param name="type">Metric data type.</param>
+    /// <param name="name">Metric name.</param>
+    /// <param name="description">Metric description.</param>
+    /// <param name="color">Custom metric color.</param>
     public WidgetMetric(string id, DataType type, string name, string? description = null, Color? color = null)
     {
         Id = id;

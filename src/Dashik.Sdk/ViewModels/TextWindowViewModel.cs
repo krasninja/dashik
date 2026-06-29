@@ -4,8 +4,14 @@ using Dashik.Sdk.Mvvm;
 
 namespace Dashik.Sdk.ViewModels;
 
+/// <summary>
+/// View model for text window.
+/// </summary>
 public class TextWindowViewModel : ReactiveObject, ICloseableViewModel
 {
+    /// <summary>
+    /// Window text.
+    /// </summary>
     public string Text
     {
         get => field;

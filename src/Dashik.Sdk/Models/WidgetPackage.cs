@@ -78,10 +78,17 @@ public class WidgetPackage : ReactiveObject
     /// </summary>
     public long FileSize { get; set; }
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
     public WidgetPackage()
     {
     }
 
+    /// <summary>
+    /// Clone constructor.
+    /// </summary>
+    /// <param name="package">Package to clone.</param>
     public WidgetPackage(WidgetPackage package)
     {
         this.Id = package.Id;
