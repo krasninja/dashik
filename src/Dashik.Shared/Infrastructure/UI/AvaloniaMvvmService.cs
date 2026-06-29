@@ -57,6 +57,10 @@ public sealed class AvaloniaMvvmService : IMvvmService
         };
         if (mainWindow == null)
         {
+            mainWindow = GetAllWindows().FirstOrDefault();
+        }
+        if (mainWindow == null)
+        {
             return null;
         }
         // We cannot create dialog for non-visible window,
@@ -159,7 +163,10 @@ public sealed class AvaloniaMvvmService : IMvvmService
         {
             foreach (var window in desktop.Windows)
             {
-                yield return window;
+                if (window.IsVisible)
+                {
+                    yield return window;
+                }
             }
         }
     }
