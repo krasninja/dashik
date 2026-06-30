@@ -23,6 +23,7 @@ using Dashik.Host.Services.Widgets;
 using Dashik.Host.Utils;
 using Dashik.Host.ViewModels.Settings;
 using Dashik.Host.Views.Settings;
+using Dashik.Sdk.Utils;
 
 namespace Dashik.Host.ViewModels;
 
@@ -129,8 +130,14 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
 
         AddWidgetCommand = ReactiveCommand.CreateFromTask<SpaceViewModel>(AddWidgetWindow);
         OpenSettingsCommand = ReactiveCommand.CreateFromTask(OpenSettingsWindow);
-        UpdateCommand = ReactiveCommand.CreateFromTask(UpdateInfo.UpdateAsync);
-        CheckUpdatesCommand = ReactiveCommand.CreateFromTask(CheckUpdatesAsync);
+        UpdateCommand = ReactiveCommand.CreateFromTask(
+            UpdateInfo.UpdateAsync,
+            UpdateInfo.WhenAnyValue(x => x.Updating).Select(updating => !updating)
+        );
+        CheckUpdatesCommand = ReactiveCommand.CreateFromTask(
+            CheckUpdatesAsync,
+            UpdateInfo.WhenAnyValue(x => x.Updating).Select(updating => !updating)
+        );
     }
 
     /// <inheritdoc />
@@ -139,14 +146,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         _disposables.Add(
             Observable
                 .Timer(TimeSpan.FromSeconds(5))
-                .SubscribeAsync(async (_, ct) =>
-                {
-                    await CheckUpdatesAsync(ct);
-                    if (_appSettings.AutoUpdate && UpdateInfo.HasNewVersion)
-                    {
-                        await UpdateInfo.UpdateAsync(ct);
-                    }
-                })
+                .SubscribeAsync(async (_, ct) => { await CheckUpdatesAsync(ct); })
         );
         await LoadInternalAsync(cancellationToken: cancellationToken);
         await base.LoadAsync(cancellationToken);
@@ -324,6 +324,11 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         {
             await UpdateInfo.CheckAppUpdatesAsync(cancellationToken);
             await UpdateInfo.CheckPackagesUpdatesAsync(cancellationToken);
+
+            if (_appSettings.AutoUpdate && UpdateInfo.HasNewVersion)
+            {
+                await UpdateAppAsync(cancellationToken);
+            }
         }
         catch (Exception e)
         {
@@ -331,7 +336,18 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public async Task SaveAsync(CancellationToken cancellationToken = default)
+    private async Task UpdateAppAsync(CancellationToken cancellationToken)
+    {
+        await UiContextUtils.SwitchToUi();
+        var confirmViewModel = new MessageBoxViewModel("The application has a new version available. Do you want to update now?", "Update Available")
+            .SetYesNoMode();
+        if (await _mvvmService.OpenAsync(confirmViewModel, this, cancellationToken) == DialogResult.Yes)
+        {
+            await UpdateInfo.UpdateAsync(cancellationToken);
+        }
+    }
+
+    public async Task SaveAllAsync(CancellationToken cancellationToken = default)
     {
         foreach (var widget in Widgets)
         {

@@ -44,6 +44,12 @@ public class AppUpdateViewModel : ViewModelBase
     }
         = [];
 
+    public bool Updating
+    {
+        get;
+        private set => this.RaiseAndSetIfChanged(ref field, value);
+    }
+
     public AppUpdateViewModel(
         IAppUpdateService updateService,
         IPackagesInstaller packagesInstaller,
@@ -60,16 +66,29 @@ public class AppUpdateViewModel : ViewModelBase
 
     public async Task UpdateAsync(CancellationToken cancellationToken)
     {
-        foreach (var widgetPackageGroup in WidgetPackages)
+        if (Updating)
         {
-            if (!widgetPackageGroup.HasUpdate || widgetPackageGroup.Remote == null)
-            {
-                continue;
-            }
-            await _packagesInstaller.InstallAsync(_appService.GetMainPackageDirectory(), widgetPackageGroup.Remote, cancellationToken);
+            return;
         }
+        Updating = true;
 
-        await _updateService.UpdateAsync(cancellationToken);
+        try
+        {
+            foreach (var widgetPackageGroup in WidgetPackages)
+            {
+                if (!widgetPackageGroup.HasUpdate || widgetPackageGroup.Remote == null)
+                {
+                    continue;
+                }
+                await _packagesInstaller.InstallAsync(_appService.GetMainPackageDirectory(), widgetPackageGroup.Remote, cancellationToken);
+            }
+
+            await _updateService.UpdateAsync(cancellationToken);
+        }
+        finally
+        {
+            Updating = false;
+        }
     }
 
     public async Task CheckAppUpdatesAsync(CancellationToken cancellationToken)
