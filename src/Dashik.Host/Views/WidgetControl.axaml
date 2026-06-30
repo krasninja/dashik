@@ -92,7 +92,7 @@
                         Background="Transparent"
                         ToolTip.Tip="Expand"
                         Command="{Binding WidgetViewModel.ExpandWidgetCommand}"
-                        CommandParameter="{Binding}"
+                        CommandParameter="{Binding WidgetViewModel}"
                         IsVisible="{Binding WidgetViewModel.WidgetInstance.MainSettings.Hidden}">
                         <Button.Content>
                             <PathIcon Data="{StaticResource FontAwesomeSolidChevronDown}" />
@@ -102,7 +102,7 @@
                         Background="Transparent"
                         ToolTip.Tip="Collapse"
                         Command="{Binding WidgetViewModel.CollapseWidgetCommand}"
-                        CommandParameter="{Binding}"
+                        CommandParameter="{Binding WidgetViewModel}"
                         IsVisible="{Binding !WidgetViewModel.WidgetInstance.MainSettings.Hidden}">
                         <Button.Content>
                             <PathIcon Data="{StaticResource FontAwesomeSolidChevronUp}" />
