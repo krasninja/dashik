@@ -55,12 +55,15 @@ public sealed class AddWidgetViewModel : ViewModelBase
     {
         public WidgetViewModel WidgetViewModel { get; }
 
+        public WidgetControlViewModel WidgetControlViewModel { get; }
+
         public WidgetPreview PreviewConfiguration { get; }
 
         public WidgetNodePreviewInfo(WidgetViewModel widgetViewModel, WidgetPreview previewConfiguration)
         {
             WidgetViewModel = widgetViewModel;
             PreviewConfiguration = previewConfiguration;
+            WidgetControlViewModel = new WidgetControlViewModel(widgetViewModel);
         }
     }
 

@@ -121,7 +121,7 @@
                                                 <DataTemplate DataType="{x:Type viewModels:AddWidgetViewModel+WidgetNodePreviewInfo}">
                                                     <StackPanel>
                                                         <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="1" Padding="5" Margin="5" Height="250">
-                                                            <views:WidgetControl DataContext="{Binding WidgetViewModel}" />
+                                                            <views:WidgetControl DataContext="{Binding WidgetControlViewModel}" />
                                                         </Border>
                                                         <TextBlock
                                                             FontSize="18"

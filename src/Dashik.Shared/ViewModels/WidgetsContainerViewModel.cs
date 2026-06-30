@@ -15,10 +15,8 @@ using Dashik.Shared.Utils;
 
 namespace Dashik.Shared.ViewModels;
 
-public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseableViewModel, IDisposable
+public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseableViewModel
 {
-    private const string MainWebsite = @"https://github.com/krasninja/dashik";
-
     private readonly AppSettings _appSettings;
     private readonly SettingsStorage _settingsStorage;
     private readonly IMvvmService _mvvmService;
@@ -113,7 +111,7 @@ public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseable
                 {
                     return;
                 }
-                vm.SpacesUpdate.Subscribe(_ =>
+                vm.SpaceCollectionUpdate.Subscribe(_ =>
                 {
                     SetSpace(SelectedSpace?.Id);
                 });
@@ -279,8 +277,9 @@ public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseable
     }
 
     /// <inheritdoc />
-    public void Dispose()
+    protected override void Dispose(bool disposing)
     {
         _disposables.Dispose();
+        base.Dispose(disposing);
     }
 }

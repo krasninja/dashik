@@ -198,7 +198,7 @@
         </Panel>
 
         <ScrollViewer Grid.Row="2" Focusable="True" Tapped="InputElement_OnTapped">
-            <ItemsControl ItemsSource="{Binding SelectedSpace.Widgets}">
+            <ItemsControl ItemsSource="{Binding Widgets}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <controls:WidgetsPanel HorizontalAlignment="Stretch" />

@@ -47,10 +47,6 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
 
     public AppUpdateViewModel UpdateInfo { get; }
 
-    private Subject<string> WidgetSave { get; } = new();
-
-    public Subject<Unit> SpacesUpdate { get; } = new();
-
     public string[] WidgetFilter { get; set; } = [];
 
     internal IEnumerable<WidgetViewModel> ActiveWidgets => Spaces
@@ -77,6 +73,12 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     public ReactiveCommand<Unit, Unit> UpdateCommand { get; }
 
     public ReactiveCommand<Unit, Unit> CheckUpdatesCommand { get; }
+
+    public Subject<SpaceViewModel> WidgetsCollectionUpdate { get; } = new();
+
+    public Subject<string> WidgetSave { get; } = new();
+
+    public Subject<Unit> SpaceCollectionUpdate { get; } = new();
 
 #pragma warning disable CS8618
     internal WidgetsCollectionViewModel()
@@ -282,6 +284,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
                 widgetViewModel.WidgetInstance.MainSettings.SpaceId = spaceViewModel.Id;
             }
             spaceViewModel.Widgets.Add(widgetViewModel);
+            WidgetsCollectionUpdate.OnNext(spaceViewModel);
             await _widgetInstanceProvider.SaveAsync(instance, cancellationToken);
         }
     }
@@ -393,6 +396,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         {
             space.Widgets.Remove(widgetViewModel);
             await _widgetInstanceProvider.RemoveAsync(widgetViewModel.WidgetInstance, cancellationToken);
+            WidgetsCollectionUpdate.OnNext(space);
         }
     }
 
@@ -420,7 +424,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
             await newAppSettingsViewModel.SetApplicationStartupAsync(cancellationToken);
             await LoadInternalAsync(cancellationToken);
             CurrentApplication.ShowSystemTrayIcon = newAppSettingsViewModel.ShowSystemTrayIcon;
-            SpacesUpdate.OnNext(Unit.Default);
+            SpaceCollectionUpdate.OnNext(Unit.Default);
         }
     }
 

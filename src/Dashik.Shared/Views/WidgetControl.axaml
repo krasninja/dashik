@@ -8,7 +8,7 @@
              d:DesignWidth="800"
              d:DesignHeight="450"
              x:Class="Dashik.Shared.Views.WidgetControl"
-             x:DataType="viewModels:WidgetViewModel">
+             x:DataType="viewModels:WidgetControlViewModel">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -34,7 +34,7 @@
     </UserControl.Styles>
 
     <Border
-        Width="{Binding WidgetWidth}"
+        Width="{Binding WidgetViewModel.WidgetWidth}"
         MaxHeight="400"
         VerticalAlignment="Top"
         BorderThickness="1"
@@ -54,19 +54,19 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Image Source="{Binding WidgetInstance.Info.Icon}" Height="16" />
-                    <Label Content="{Binding Title}" VerticalAlignment="Center" />
+                    <Image Source="{Binding WidgetViewModel.WidgetInstance.Info.Icon}" Height="16" />
+                    <Label Content="{Binding WidgetViewModel.Title}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel
                     Grid.Column="1"
                     Orientation="Horizontal"
                     Classes="headerIcons"
                     Height="24"
-                    IsVisible="{Binding !ReadOnly}"
+                    IsVisible="{Binding !WidgetViewModel.ReadOnly}"
                     HorizontalAlignment="Right">
                     <PathIcon
                         Data="{StaticResource FontAwesomeSolidRotate}"
-                        IsVisible="{Binding Updating}"
+                        IsVisible="{Binding WidgetViewModel.Updating}"
                         ToolTip.Tip="Updating...">
                         <PathIcon.Styles>
                             <Style Selector="PathIcon">
@@ -86,14 +86,14 @@
                     <PathIcon
                         Data="{StaticResource FontAwesomeSolidCircleXmark}"
                         Foreground="Red"
-                        IsVisible="{Binding LastException, Converter={x:Static ObjectConverters.IsNotNull}}"
-                        ToolTip.Tip="{Binding LastException.Message}" />
+                        IsVisible="{Binding WidgetViewModel.LastException, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        ToolTip.Tip="{Binding WidgetViewModel.LastException.Message}" />
                     <Button
                         Background="Transparent"
                         ToolTip.Tip="Expand"
-                        Command="{Binding ExpandWidgetCommand}"
+                        Command="{Binding WidgetViewModel.ExpandWidgetCommand}"
                         CommandParameter="{Binding}"
-                        IsVisible="{Binding WidgetInstance.MainSettings.Hidden}">
+                        IsVisible="{Binding WidgetViewModel.WidgetInstance.MainSettings.Hidden}">
                         <Button.Content>
                             <PathIcon Data="{StaticResource FontAwesomeSolidChevronDown}" />
                         </Button.Content>
@@ -101,9 +101,9 @@
                     <Button
                         Background="Transparent"
                         ToolTip.Tip="Collapse"
-                        Command="{Binding CollapseWidgetCommand}"
+                        Command="{Binding WidgetViewModel.CollapseWidgetCommand}"
                         CommandParameter="{Binding}"
-                        IsVisible="{Binding !WidgetInstance.MainSettings.Hidden}">
+                        IsVisible="{Binding !WidgetViewModel.WidgetInstance.MainSettings.Hidden}">
                         <Button.Content>
                             <PathIcon Data="{StaticResource FontAwesomeSolidChevronUp}" />
                         </Button.Content>
@@ -116,44 +116,44 @@
                             <MenuFlyout>
                                 <Label
                                     Foreground="DarkGray"
-                                    Content="{Binding LastUpdatedUtc, Converter={StaticResource TimeAgoConverter}}" />
+                                    Content="{Binding WidgetViewModel.LastUpdatedUtc, Converter={StaticResource TimeAgoConverter}}" />
                                 <MenuItem
                                     Header="Widget Actions"
-                                    IsVisible="{Binding WidgetMenuItems.Count}"
-                                    ItemsSource="{Binding WidgetMenuItems}" />
+                                    IsVisible="{Binding WidgetViewModel.WidgetMenuItems.Count}"
+                                    ItemsSource="{Binding WidgetViewModel.WidgetMenuItems}" />
                                 <Separator />
                                 <MenuItem
                                     Header="Settings"
-                                    Command="{Binding OpenWidgetSettingsCommand}"
-                                    CommandParameter="{Binding}" />
+                                    Command="{Binding WidgetViewModel.OpenWidgetSettingsCommand}"
+                                    CommandParameter="{Binding WidgetViewModel}" />
                                 <Separator />
                                 <MenuItem
                                     Header="Refresh"
-                                    Command="{Binding UpdateWidgetCommand}"
-                                    CommandParameter="{Binding}"
-                                    IsVisible="{Binding CanUpdate}" />
+                                    Command="{Binding WidgetViewModel.UpdateWidgetCommand}"
+                                    CommandParameter="{Binding WidgetViewModel}"
+                                    IsVisible="{Binding WidgetViewModel.CanUpdate}" />
                                 <MenuItem
                                     Header="Disable"
-                                    IsVisible="{Binding !WidgetInstance.MainSettings.Disabled}"
-                                    Command="{Binding DisableWidgetCommand}"
-                                    CommandParameter="{Binding}" />
+                                    IsVisible="{Binding !WidgetViewModel.WidgetInstance.MainSettings.Disabled}"
+                                    Command="{Binding WidgetViewModel.DisableWidgetCommand}"
+                                    CommandParameter="{Binding WidgetViewModel}" />
                                 <MenuItem
                                     Header="Enable"
-                                    IsVisible="{Binding WidgetInstance.MainSettings.Disabled}"
-                                    Command="{Binding EnableWidgetCommand}"
-                                    CommandParameter="{Binding}" />
+                                    IsVisible="{Binding WidgetViewModel.WidgetInstance.MainSettings.Disabled}"
+                                    Command="{Binding WidgetViewModel.EnableWidgetCommand}"
+                                    CommandParameter="{Binding WidgetViewModel}" />
                                 <MenuItem
                                     Header="Remove"
                                     Foreground="Red"
-                                    Command="{Binding RemoveWidgetCommand}"
-                                    CommandParameter="{Binding}" />
+                                    Command="{Binding WidgetViewModel.RemoveWidgetCommand}"
+                                    CommandParameter="{Binding WidgetViewModel}" />
                             </MenuFlyout>
                         </Button.Flyout>
                     </Button>
                 </StackPanel>
             </Grid>
-            <ScrollViewer Grid.Row="1" IsVisible="{Binding !WidgetInstance.MainSettings.Hidden}">
-                <ContentPresenter Content="{Binding WidgetControl}" />
+            <ScrollViewer Grid.Row="1" IsVisible="{Binding !WidgetViewModel.WidgetInstance.MainSettings.Hidden}">
+                <ContentPresenter Content="{Binding Control}" />
             </ScrollViewer>
         </Grid>
     </Border>

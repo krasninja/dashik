@@ -1,4 +1,4 @@
-using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using Avalonia.Collections;
 using ReactiveUI;
 using Dashik.Sdk.Utils;
@@ -7,23 +7,40 @@ using Dashik.Shared.Models;
 
 namespace Dashik.Shared.ViewModels;
 
-public abstract class WidgetsBaseViewModel : ViewModelBase
+public abstract class WidgetsBaseViewModel : ViewModelBase, IDisposable
 {
+    internal const string MainWebsite = @"https://github.com/krasninja/dashik";
+
+    /// <summary>
+    /// Window identifier.
+    /// </summary>
     public string Id { get; protected set; } = IdGenerator.Generate();
 
     public WidgetsCollectionViewModel? WidgetsViewModel
     {
         get;
-        set => this.RaiseAndSetIfChanged(ref field, value);
+        set
+        {
+            _widgetUpdateSubscription?.Dispose();
+            this.RaiseAndSetIfChanged(ref field, value);
+            if (value != null)
+            {
+                _widgetUpdateSubscription = value.WidgetsCollectionUpdate.Subscribe(_ => { SyncWidgets(); });
+            }
+        }
     }
 
-    public AvaloniaList<WidgetViewModel> Widgets { get; set; } = [];
+    public AvaloniaList<WidgetControlViewModel> Widgets { get; set; } = [];
 
     public SpaceViewModel? SelectedSpace
     {
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
+
+    private readonly CompositeDisposable _disposable = new();
+
+    private IDisposable? _widgetUpdateSubscription;
 
     protected sealed class WidgetsIdComparer : IComparer<WidgetViewModel>
     {
@@ -55,16 +72,41 @@ public abstract class WidgetsBaseViewModel : ViewModelBase
 
     protected WidgetsBaseViewModel()
     {
-        this.WhenAnyValue(p => p.SelectedSpace)
-            .Do(space =>
+        _disposable.Add(
+            this.WhenAnyValue(p => p.SelectedSpace)
+                .Subscribe(_ => { SyncWidgets(); })
+        );
+    }
+
+    private void SyncWidgets()
+    {
+        if (SelectedSpace == null)
+        {
+            return;
+        }
+        if (Widgets.Count < 1 && SelectedSpace.Widgets.Count > 0)
+        {
+            Widgets.AddRange(SelectedSpace.Widgets.Select(w => new WidgetControlViewModel(w)));
+            return;
+        }
+
+        var spaceWidgets = SelectedSpace.Widgets.ToHashSet();
+
+        var toRemove = Widgets.Where(w => !spaceWidgets.Contains(w.WidgetViewModel)).ToList();
+        foreach (var widget in toRemove)
+        {
+            Widgets.Remove(widget);
+            widget.Dispose();
+        }
+
+        var existing = Widgets.Select(w => w.WidgetViewModel).ToHashSet();
+        foreach (var w in SelectedSpace.Widgets)
+        {
+            if (!existing.Contains(w))
             {
-                if (space == null)
-                {
-                    return;
-                }
-                Widgets.Clear();
-                Widgets.AddRange(space.Widgets);
-            });
+                Widgets.Add(new WidgetControlViewModel(w));
+            }
+        }
     }
 
     /// <summary>
@@ -89,5 +131,31 @@ public abstract class WidgetsBaseViewModel : ViewModelBase
     public virtual Task SaveUiStateAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    private void RemoveWidgets()
+    {
+        foreach (var widget in Widgets)
+        {
+            widget.Dispose();
+        }
+        Widgets.Clear();
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _disposable.Dispose();
+            _widgetUpdateSubscription?.Dispose();
+            RemoveWidgets();
+        }
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

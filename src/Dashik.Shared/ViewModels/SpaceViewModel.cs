@@ -28,6 +28,18 @@ public sealed class SpaceViewModel : ReactiveObject
         Widgets = [];
     }
 
+    public bool GetWidgetById(string widgetId)
+    {
+        foreach (var widget in Widgets)
+        {
+            if (widget.WidgetId.Equals(widgetId))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// <inheritdoc />
     public override string ToString() => Name;
 }
