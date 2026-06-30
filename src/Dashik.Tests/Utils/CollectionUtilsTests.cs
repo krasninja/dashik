@@ -1,6 +1,6 @@
 using Xunit;
 using System.Collections.Specialized;
-using Dashik.Shared.Utils;
+using Dashik.Host.Utils;
 
 namespace Dashik.Tests.Utils;
 

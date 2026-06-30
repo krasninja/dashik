@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Velopack;
-using Dashik.Shared.Infrastructure.Updates;
+using Dashik.Host.Infrastructure.Updates;
 
 namespace Dashik.Desktop.Infrastructure.Updates;
 

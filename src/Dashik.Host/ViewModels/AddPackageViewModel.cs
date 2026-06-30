@@ -1,0 +1,142 @@
+using System.Collections.ObjectModel;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using ReactiveUI;
+using Microsoft.Extensions.Logging;
+using QueryCat.Backend.Core.Plugins;
+using Dashik.Abstractions;
+using Dashik.Host.Infrastructure.UI;
+using Dashik.Host.Services.Packages;
+using Dashik.Sdk.Models;
+using Dashik.Sdk.Mvvm;
+using Dashik.Sdk.ViewModels;
+
+namespace Dashik.Host.ViewModels;
+
+public sealed class AddPackageViewModel : ViewModelBase
+{
+    private readonly IAppService _appService;
+    private readonly IMvvmService _mvvmService;
+    private readonly PackagesInstaller _packagesInstaller;
+    private readonly IPluginsLoader _pluginsLoader;
+    private readonly Func<IPackagesStorage[]> _widgetsStoragesFactory;
+    private readonly ILogger<AddPackageViewModel> _logger;
+
+    public sealed class PackageNode
+    {
+        public WidgetPackageGroup PackageGroup { get; }
+
+        public string Id => PackageGroup.Current.Id;
+
+        public string Title => PackageGroup.Current.Name;
+
+        public string Description => PackageGroup.Current.Description;
+
+        public WidgetPackage Current => PackageGroup.Current;
+
+        public PackageNode(WidgetPackageGroup packageGroup)
+        {
+            PackageGroup = packageGroup;
+        }
+    }
+
+    public ObservableCollection<PackageNode> Packages { get; } = new();
+
+    public PackageNode? SelectedPackageNode
+    {
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    }
+
+    public IObservable<string> InstallPackageRequested => InstallPackageCommand.Select(_ => SelectedPackageNode?.Id ?? string.Empty);
+
+    public ReactiveCommand<PackageNode, Unit> InstallPackageCommand { get; internal set; }
+
+    public ReactiveCommand<PackageNode, Unit> RemovePackageCommand { get; internal set; }
+
+    public Subject<Unit> PackagesLoaded { get; } = new();
+
+    public AddPackageViewModel(
+        IAppService appService,
+        IMvvmService mvvmService,
+        PackagesInstaller packagesInstaller,
+        IPluginsLoader pluginsLoader,
+        Func<IPackagesStorage[]> widgetsStoragesFactory,
+        ILogger<AddPackageViewModel> logger)
+    {
+        _appService = appService;
+        _mvvmService = mvvmService;
+        _packagesInstaller = packagesInstaller;
+        _pluginsLoader = pluginsLoader;
+        _widgetsStoragesFactory = widgetsStoragesFactory;
+        _logger = logger;
+
+        InstallPackageCommand = ReactiveCommand.CreateFromTask<PackageNode>(InstallPackage);
+        RemovePackageCommand = ReactiveCommand.CreateFromTask<PackageNode>(RemovePackage);
+    }
+
+    private async Task InstallPackage(PackageNode node, CancellationToken cancellationToken)
+    {
+        if (node.PackageGroup.Remote == null)
+        {
+            return;
+        }
+        var package = await _packagesInstaller.InstallAsync(_appService.GetMainPackageDirectory(),
+            node.PackageGroup.Remote, cancellationToken);
+        node.PackageGroup.Local = package;
+
+        var loadedCount = await _pluginsLoader.LoadAsync(new PluginsLoadingOptions
+        {
+            SkipDuplicates = true,
+        }, cancellationToken);
+        PackagesLoaded.OnNext(Unit.Default);
+    }
+
+    private async Task RemovePackage(PackageNode node, CancellationToken cancellationToken)
+    {
+        if (node.PackageGroup.Local == null)
+        {
+            return;
+        }
+
+        var messageBoxVm = new MessageBoxViewModel("Are you sure you want to remove the package?", Resources.Messages.Remove)
+            .SetYesNoMode();
+        if (await _mvvmService.OpenAsync(messageBoxVm, this, cancellationToken) == DialogResult.Yes)
+        {
+            var removed = await _packagesInstaller.RemoveAsync(node.PackageGroup.Local, cancellationToken);
+            if (removed)
+            {
+                node.PackageGroup.Local = null;
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public override async Task LoadAsync(CancellationToken cancellationToken = default)
+    {
+        var storages = _widgetsStoragesFactory.Invoke();
+
+        try
+        {
+            var remotePackages = await _packagesInstaller.GetRemoteAsync(storages, cancellationToken);
+            var localPackages = await _packagesInstaller.GetLocalAsync(_appService.GetPackagesDirectories(), cancellationToken);
+
+            // Group.
+            var groups = WidgetPackageGroup.Combine(_appService.GetFeeds(), localPackages, remotePackages);
+            foreach (var group in groups)
+            {
+                Packages.Add(new PackageNode(group));
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            var messageBoxVm = new MessageBoxViewModel(e.Message, "Error").SetErrorMode();
+            await _mvvmService.OpenAsync(messageBoxVm, cancellationToken);
+        }
+
+        SelectedPackageNode = Packages.FirstOrDefault();
+        await base.LoadAsync(cancellationToken);
+    }
+}

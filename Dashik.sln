@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashik.QueryCat", "src\Dash
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashik.Widgets.Motd", "src\Dashik.Widgets.Motd\Dashik.Widgets.Motd.csproj", "{22FE1489-7B30-4DEC-B818-44BF4C40DE59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashik.Shared", "src\Dashik.Shared\Dashik.Shared.csproj", "{72FCBE50-24AC-4124-B5C4-8EF40244F9C1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashik.Host", "src\Dashik.Host\Dashik.Host.csproj", "{72FCBE50-24AC-4124-B5C4-8EF40244F9C1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dashik.Abstractions", "src\Dashik.Abstractions\Dashik.Abstractions.csproj", "{8935F9A4-D7BF-4D26-99A4-CA311D356AA5}"
 EndProject

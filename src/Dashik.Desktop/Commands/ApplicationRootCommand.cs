@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ReactiveUI.Avalonia;
 using Velopack;
-using Dashik.Shared;
+using Dashik.Host;
 using Dashik.Desktop.Infrastructure.Updates;
-using Dashik.Shared.Infrastructure.Setup;
-using Dashik.Shared.Infrastructure.Updates;
+using Dashik.Host.Infrastructure.Setup;
+using Dashik.Host.Infrastructure.Updates;
 
 namespace Dashik.Desktop.Commands;
 

@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dashik.Shared\Dashik.Shared.csproj" />
+    <ProjectReference Include="..\Dashik.Host\Dashik.Host.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,47 @@
+using Avalonia.Controls;
+using Avalonia.Media;
+using Dashik.Host.Infrastructure.UI;
+
+namespace Dashik.Host.ViewModels.Settings;
+
+/// <summary>
+/// Settings section.
+/// </summary>
+public class SettingsSectionViewModel : ViewModelBase
+{
+    private readonly Sdk.Models.SettingsSectionModel _controlModel;
+
+    public string Title { get; }
+
+    public IImage? Icon { get; set; }
+
+    public Control Control { get; }
+
+    public Func<object, object?>? SettingsFunc { get; init; }
+
+    /// <inheritdoc />
+    public SettingsSectionViewModel(string title, Control control, Sdk.Models.SettingsSectionModel controlModel)
+    {
+        Title = title;
+        Control = control;
+
+        _controlModel = controlModel;
+    }
+
+    public void SetSettings(object? settings)
+    {
+        _controlModel.SyncSetting();
+
+        if (settings == null)
+        {
+            _controlModel.Settings = null;
+            return;
+        }
+        _controlModel.Settings = SettingsFunc != null ? SettingsFunc.Invoke(settings) : settings;
+
+        if (Control.DataContext == null)
+        {
+            Control.DataContext = _controlModel;
+        }
+    }
+}
