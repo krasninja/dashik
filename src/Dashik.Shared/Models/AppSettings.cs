@@ -38,4 +38,9 @@ public class AppSettings
     /// Show system tray icon.
     /// </summary>
     public bool ShowSystemTrayIcon { get; set; }
+
+    /// <summary>
+    /// Application and widgets auto-update.
+    /// </summary>
+    public bool AutoUpdate { get; set; } = true;
 }

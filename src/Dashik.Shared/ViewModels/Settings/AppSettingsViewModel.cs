@@ -36,6 +36,9 @@ public class AppSettingsViewModel : ViewModelBase
     [DataMember]
     public bool StartMinimized { get; set; }
 
+    [DataMember]
+    public bool AutoUpdate { get; set; }
+
     /// <summary>
     /// Ctor for deserialization.
     /// </summary>
@@ -55,6 +58,7 @@ public class AppSettingsViewModel : ViewModelBase
         Spaces = new AvaloniaList<SpaceModel>(appSettings.Spaces);
         StartMinimized = appSettings.StartMinimized;
         ShowSystemTrayIcon = appSettings.ShowSystemTrayIcon;
+        AutoUpdate = appSettings.AutoUpdate;
     }
 
     public AppSettings ToAppSettings()
@@ -67,6 +71,7 @@ public class AppSettingsViewModel : ViewModelBase
             Spaces = Spaces.ToList(),
             StartMinimized = StartMinimized,
             ShowSystemTrayIcon = ShowSystemTrayIcon,
+            AutoUpdate = AutoUpdate,
         };
     }
 

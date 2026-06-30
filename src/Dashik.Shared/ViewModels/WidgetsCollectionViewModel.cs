@@ -136,10 +136,17 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     /// <inheritdoc />
     public override async Task LoadAsync(CancellationToken cancellationToken = default)
     {
-        _disposables.Add(Observable
-            .Timer(TimeSpan.FromSeconds(10))
-            .Select(_ => Unit.Default)
-            .InvokeCommand(CheckUpdatesCommand)
+        _disposables.Add(
+            Observable
+                .Timer(TimeSpan.FromSeconds(5))
+                .SubscribeAsync(async (_, ct) =>
+                {
+                    await CheckUpdatesAsync(ct);
+                    if (_appSettings.AutoUpdate && UpdateInfo.HasNewVersion)
+                    {
+                        await UpdateInfo.UpdateAsync(ct);
+                    }
+                })
         );
         await LoadInternalAsync(cancellationToken: cancellationToken);
         await base.LoadAsync(cancellationToken);

@@ -13,6 +13,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <CheckBox
@@ -29,5 +30,10 @@
             Grid.Row="2"
             IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).ShowSystemTrayIcon}"
             Content="Show system tray icon" />
+
+        <CheckBox
+            Grid.Row="3"
+            IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).AutoUpdate}"
+            Content="Enable auto-update" />
     </Grid>
 </UserControl>
