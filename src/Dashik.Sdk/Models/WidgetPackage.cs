@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Avalonia.Media.Imaging;
 using ReactiveUI;
 
@@ -71,12 +72,18 @@ public class WidgetPackage : ReactiveObject
     /// <summary>
     /// Icon image.
     /// </summary>
+    [JsonIgnore]
     public virtual Task<Bitmap?> IconFileImage { get; } = Task.FromResult((Bitmap?)null);
 
     /// <summary>
     /// File size.
     /// </summary>
     public long FileSize { get; set; }
+
+    /// <summary>
+    /// Widgets.
+    /// </summary>
+    public List<WidgetMetadata> Widgets { get; } = [];
 
     /// <summary>
     /// Constructor.

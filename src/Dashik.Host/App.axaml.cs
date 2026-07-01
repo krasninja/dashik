@@ -30,7 +30,7 @@ public sealed partial class App : Application, IDisposable
     {
     }
 
-    internal App(AppRoot appRoot)
+    public App(AppRoot appRoot)
     {
         Root = appRoot;
         Dispatcher.UIThread.UnhandledException += UIThreadOnUnhandledException;
@@ -70,7 +70,10 @@ public sealed partial class App : Application, IDisposable
 
         var mainWindowViewModel = Container.GetInstance<MainViewModel>();
         mainWindowViewModel.WidgetsCollectionViewModel.WidgetFilter = Root.AppArguments.WidgetsFilter.ToArray();
-        await mainWindowViewModel.LoadAsync(cancellationToken);
+        if (!Root.AppArguments.HeadlessMode)
+        {
+            await mainWindowViewModel.LoadAsync(cancellationToken);
+        }
 
         // Create fake main window but do not assign it to the app.
         // There might be several windows opened and they are managed thru this fake MainWindow.

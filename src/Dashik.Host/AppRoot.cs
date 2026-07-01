@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using QueryCat.Backend.Core.Plugins;
 using SimpleInjector;
 using Dashik.Host.Infrastructure.Setup;
+using Dashik.Host.Infrastructure.Updates;
 using Dashik.Host.Models;
 
 namespace Dashik.Host;
@@ -11,7 +12,7 @@ namespace Dashik.Host;
 /// <summary>
 /// Application root class.
 /// </summary>
-internal sealed class AppRoot : IDisposable, IAsyncDisposable
+public sealed class AppRoot : IDisposable, IAsyncDisposable
 {
     public AppArguments AppArguments { get; }
 
@@ -32,20 +33,50 @@ internal sealed class AppRoot : IDisposable, IAsyncDisposable
         AppArguments = appArguments;
     }
 
-    public async Task SetupServicesAsync(Action<Container> builder, CancellationToken cancellationToken)
+    /// <summary>
+    /// Set up application services.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Awaitable task.</returns>
+    public async Task SetupServicesAsync(CancellationToken cancellationToken = default)
+        => await SetupServicesAsync(_ => { }, cancellationToken);
+
+    /// <summary>
+    /// Set up application services.
+    /// </summary>
+    /// <param name="builder">Builder for container.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Awaitable task.</returns>
+    public async Task SetupServicesAsync(Action<Container> builder, CancellationToken cancellationToken = default)
     {
         var appSettings = await LoadSettingsAsync(cancellationToken);
 
         new LoggingSetup(Container, AppArguments).Setup();
         new AppServicesSetup(Container, AppArguments, appSettings, GetApplicationDataDirectory()).Setup();
         builder.Invoke(Container);
+        SetupMissedDependencies();
 
-        Container.RegisterInstance(typeof(IServiceProvider), Container);
+        Container.RegisterInstance<IServiceProvider>(Container);
 #if DEBUG
         Container.Verify();
 #endif
 
         _logger = Container.GetInstance<ILogger<AppRoot>>();
+    }
+
+    private void SetupMissedDependencies()
+    {
+        if (!IsRegistered<IAppUpdateService>())
+        {
+            Container.RegisterInstance<IAppUpdateService>(new StubAppUpdateService());
+        }
+    }
+
+    private bool IsRegistered<T>() => IsRegistered(typeof(T));
+
+    private bool IsRegistered(Type type)
+    {
+        return Container.GetRegistration(type) != null;
     }
 
     #region Settings load
@@ -106,7 +137,11 @@ internal sealed class AppRoot : IDisposable, IAsyncDisposable
 
     #endregion
 
-    public async Task InitializeAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Initialize and load logger, widgets and other services.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         var loader = Container.GetInstance<IPluginsLoader>();
 

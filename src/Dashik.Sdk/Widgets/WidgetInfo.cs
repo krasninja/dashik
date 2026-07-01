@@ -51,10 +51,16 @@ public class WidgetInfo
     /// </summary>
     public TimeSpan DefaultUpdateInterval { get; protected set; } = TimeSpan.FromMinutes(5);
 
+    /// <summary>
+    /// Related widget package identifier.
+    /// </summary>
+    public string PackageId { get; private set; }
+
     public WidgetInfo(WidgetInfoAttribute infoAttributeAttribute, Type widgetType)
     {
         _infoAttributeAttribute = infoAttributeAttribute;
         WidgetType = widgetType;
+        PackageId = widgetType.Assembly.GetName().Name ?? string.Empty;
     }
 
     public WidgetInfo(Type widgetType)
@@ -66,6 +72,7 @@ public class WidgetInfo
         }
         _infoAttributeAttribute = infoAttribute;
         WidgetType = widgetType;
+        PackageId = widgetType.Assembly.GetName().Name ?? string.Empty;
     }
 
     /// <inheritdoc />

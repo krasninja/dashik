@@ -4,7 +4,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using ReactiveUI;

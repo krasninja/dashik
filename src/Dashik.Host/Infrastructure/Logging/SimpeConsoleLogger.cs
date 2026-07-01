@@ -12,11 +12,12 @@ internal sealed class SimpleConsoleLogger : ILogger, IDisposable
 {
     private readonly string _name;
     private readonly StreamWriter _streamWriter;
+    private bool _disposed;
 
     public SimpleConsoleLogger(string name)
     {
         _name = name;
-        _streamWriter = new StreamWriter(Stdio.GetConsoleOutput());
+        _streamWriter = new StreamWriter(Stdio.GetConsoleOutput(), leaveOpen: true);
     }
 
     private static string GetLogLevelString(LogLevel logLevel)
@@ -36,6 +37,8 @@ internal sealed class SimpleConsoleLogger : ILogger, IDisposable
     /// <inheritdoc />
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         if (!IsEnabled(logLevel))
         {
             return;
@@ -73,6 +76,12 @@ internal sealed class SimpleConsoleLogger : ILogger, IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+        _disposed = true;
+
         _streamWriter.Dispose();
     }
 }

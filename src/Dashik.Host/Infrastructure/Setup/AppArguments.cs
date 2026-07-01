@@ -32,4 +32,6 @@ public class AppArguments
     public LogLevel MinLogLevel { get; set; } = LogLevel.Information;
 
     public string LogFile { get; set; } = string.Empty;
+
+    public bool HeadlessMode { get; set; }
 }
