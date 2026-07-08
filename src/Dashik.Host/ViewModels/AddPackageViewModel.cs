@@ -72,25 +72,32 @@ public sealed class AddPackageViewModel : ViewModelBase
         _widgetsStoragesFactory = widgetsStoragesFactory;
         _logger = logger;
 
-        InstallPackageCommand = ReactiveCommand.CreateFromTask<PackageNode>(InstallPackage);
+        InstallPackageCommand = ReactiveCommand.CreateFromTask<PackageNode>(InstallPackageAsync);
         RemovePackageCommand = ReactiveCommand.CreateFromTask<PackageNode>(RemovePackage);
     }
 
-    private async Task InstallPackage(PackageNode node, CancellationToken cancellationToken)
+    private async Task InstallPackageAsync(PackageNode node, CancellationToken cancellationToken)
     {
         if (node.PackageGroup.Remote == null)
         {
             return;
         }
-        var package = await _packagesInstaller.InstallAsync(_appService.GetMainPackageDirectory(),
-            node.PackageGroup.Remote, cancellationToken);
+        var package = await InstallPackageAsync(node.PackageGroup.Remote, cancellationToken);
         node.PackageGroup.Local = package;
+    }
+
+    public async Task<LocalWidgetPackage> InstallPackageAsync(RemoteWidgetPackage remoteWidgetPackage, CancellationToken cancellationToken)
+    {
+        var package = await _packagesInstaller.InstallAsync(_appService.GetMainPackageDirectory(),
+            remoteWidgetPackage, cancellationToken);
 
         var loadedCount = await _pluginsLoader.LoadAsync(new PluginsLoadingOptions
         {
             SkipDuplicates = true,
         }, cancellationToken);
         PackagesLoaded.OnNext(Unit.Default);
+
+        return package;
     }
 
     private async Task RemovePackage(PackageNode node, CancellationToken cancellationToken)

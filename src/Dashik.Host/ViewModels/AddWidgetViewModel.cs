@@ -4,11 +4,13 @@ using System.Reactive.Linq;
 using System.Text.Json.Nodes;
 using ReactiveUI;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Dashik.Abstractions;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.Models;
+using Dashik.Host.Services.Packages;
 using Dashik.Host.Services.Widgets;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Models;
@@ -16,10 +18,11 @@ using Dashik.Sdk.Widgets;
 
 namespace Dashik.Host.ViewModels;
 
-public sealed class AddWidgetViewModel : ViewModelBase
+public class AddWidgetViewModel : ViewModelBase
 {
     private readonly IWidgetsProvider _widgetsProvider;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IPackagesStorage[] _packagesStorages;
     private readonly ILogger _logger;
     private readonly IWidgetsFactory _widgetsFactory;
     private readonly IWidgetsStateStorage _stateStorage;
@@ -49,9 +52,28 @@ public sealed class AddWidgetViewModel : ViewModelBase
         {
             Info = info;
         }
+
+        public bool TryAddWidgetNode(WidgetNode widgetNode)
+        {
+            if (Widgets.Any(w => w.Id == widgetNode.Id))
+            {
+                return false;
+            }
+            Widgets.Add(widgetNode);
+            return true;
+        }
     }
 
-    public sealed class WidgetNodePreviewInfo
+    public interface IWidgetNodePreviewInfo
+    {
+        string Name { get; }
+
+        string Description { get; }
+
+        bool IsLocal { get; }
+    }
+
+    public sealed class LocalWidgetNodePreviewInfo : IWidgetNodePreviewInfo
     {
         public WidgetViewModel WidgetViewModel { get; }
 
@@ -59,7 +81,16 @@ public sealed class AddWidgetViewModel : ViewModelBase
 
         public WidgetPreview PreviewConfiguration { get; }
 
-        public WidgetNodePreviewInfo(WidgetViewModel widgetViewModel, WidgetPreview previewConfiguration)
+        /// <inheritdoc />
+        public string Name => PreviewConfiguration.Name;
+
+        /// <inheritdoc />
+        public string Description => PreviewConfiguration.Description;
+
+        /// <inheritdoc />
+        public bool IsLocal => true;
+
+        public LocalWidgetNodePreviewInfo(WidgetViewModel widgetViewModel, WidgetPreview previewConfiguration)
         {
             WidgetViewModel = widgetViewModel;
             PreviewConfiguration = previewConfiguration;
@@ -67,19 +98,39 @@ public sealed class AddWidgetViewModel : ViewModelBase
         }
     }
 
-    public sealed class WidgetNode(WidgetInfo widgetInfo, WidgetNodePreviewInfo[] widgetPreviews) : ReactiveObject
+    public sealed class RemoteWidgetNodePreviewInfo : IWidgetNodePreviewInfo
     {
-        public string Id => WidgetInfo.Id;
+        private readonly RemoteWidgetMetadataPreview _preview;
 
-        public WidgetInfo WidgetInfo { get; } = widgetInfo;
+        public Task<Bitmap?> Image => _preview.PreviewImage;
 
-        public WidgetNodePreviewInfo[] WidgetPreviewViewModels => widgetPreviews;
+        public string Name => _preview.Name;
+
+        public string Description => _preview.Description;
+
+        public bool IsLocal => false;
+
+        public RemoteWidgetNodePreviewInfo(RemoteWidgetMetadataPreview preview)
+        {
+            _preview = preview;
+        }
+    }
+
+    public sealed class WidgetNode : ReactiveObject
+    {
+        public string Id { get; }
+
+        public object[] WidgetPreviewViewModels { get; }
 
         public bool HasPreviewItems => WidgetPreviewViewModels.Length > 0;
 
-        public string Title => WidgetInfo.Name;
+        public string Title { get; }
 
-        public IImage Icon => WidgetInfo.Icon;
+        public string Description { get; }
+
+        private readonly Func<Task<IImage?>> _icon;
+
+        public Task<IImage?> Icon => _icon.Invoke();
 
         public int SelectedPreviewIndex
         {
@@ -90,12 +141,35 @@ public sealed class AddWidgetViewModel : ViewModelBase
             }
         }
 
-        public string Description => WidgetInfo.Description;
-
         public bool Selected
         {
             get;
             set => this.RaiseAndSetIfChanged(ref field, value);
+        }
+
+        public bool IsLocal => RemoteWidgetPackage == null;
+
+        public RemoteWidgetPackage? RemoteWidgetPackage { get; }
+
+        public WidgetNode(WidgetInfo widgetInfo, object[] widgetPreviews)
+        {
+            Id = widgetInfo.Id;
+            Title = widgetInfo.Name;
+            Description = widgetInfo.Description;
+            var icon = widgetInfo.Icon;
+            _icon = () => Task.FromResult(icon)!;
+            WidgetPreviewViewModels = widgetPreviews;
+        }
+
+        public WidgetNode(WidgetMetadata widgetMetadata, RemoteWidgetPackage remoteWidgetPackage, object[] widgetPreviews)
+        {
+            Id = widgetMetadata.Id;
+            Title = widgetMetadata.Name;
+            Description = widgetMetadata.Description;
+            var iconFileImage = widgetMetadata.IconFileImage;
+            _icon = async () => await iconFileImage;
+            WidgetPreviewViewModels = widgetPreviews;
+            RemoteWidgetPackage = remoteWidgetPackage;
         }
     }
 
@@ -121,7 +195,11 @@ public sealed class AddWidgetViewModel : ViewModelBase
         }
     }
 
-    public IObservable<WidgetInfo?> AddWidgetRequested => AddWidgetCommand.Select(_ => SelectedWidgetNode?.WidgetInfo);
+    public bool LoadLocalWidgets { get; set; } = false;
+
+    public bool LoadRemoteWidgets { get; set; } = true;
+
+    public IObservable<WidgetNode?> AddWidgetRequested => AddWidgetCommand.Select(_ => SelectedWidgetNode);
 
     public ReactiveCommand<WidgetNode, Unit> AddWidgetCommand { get; internal set; }
 
@@ -134,12 +212,14 @@ public sealed class AddWidgetViewModel : ViewModelBase
         IWidgetsFactory widgetsFactory,
         IWidgetsStateStorage stateStorage,
         IServiceProvider serviceProvider,
+        IPackagesStorage[] packagesStorages,
         ILogger<AddWidgetViewModel> logger)
     {
         _widgetsProvider = widgetsProvider;
         _widgetsFactory = widgetsFactory;
         _stateStorage = stateStorage;
         _serviceProvider = serviceProvider;
+        _packagesStorages = packagesStorages;
         _logger = logger;
 
         AddWidgetCommand = ReactiveCommand.Create<WidgetNode>(_ => { });
@@ -177,30 +257,57 @@ public sealed class AddWidgetViewModel : ViewModelBase
         });
     }
 
+    private WidgetCategoryNode? GetOrCreateCategoryNode(
+        IEnumerable<WidgetCategoryInfo> allCategories,
+        WidgetCategory category)
+    {
+        var categoryModel = Categories.FirstOrDefault(c => c.Info.Category == category);
+        if (categoryModel == null)
+        {
+            var categoryInfo = allCategories.FirstOrDefault(c => c.Category == category);
+            if (categoryInfo == null)
+            {
+                return null;
+            }
+            categoryModel = new WidgetCategoryNode(categoryInfo);
+            Categories.Add(categoryModel);
+        }
+        return categoryModel;
+    }
+
     /// <inheritdoc />
     public override async Task LoadAsync(CancellationToken cancellationToken = default)
     {
         Categories.Clear();
         SelectedWidgetNode = null;
 
-        var categories = _widgetsProvider.GetCategories().ToArray();
+        if (LoadLocalWidgets)
+        {
+            await LoadLocalWidgetsAsync(cancellationToken);
+        }
+        if (LoadRemoteWidgets)
+        {
+            await LoadRemoteWidgetsAsync(cancellationToken);
+        }
 
+        SelectedWidgetNode = Categories.SelectMany(c => c.Widgets).FirstOrDefault();
+
+        await base.LoadAsync(cancellationToken);
+    }
+
+    private async Task LoadLocalWidgetsAsync(CancellationToken cancellationToken = default)
+    {
+        var categories = _widgetsProvider.GetCategories().ToArray();
         var widgets = _widgetsProvider.GetAll();
         foreach (var widgetInfo in widgets)
         {
-            var categoryModel = Categories.FirstOrDefault(c => c.Info.Category == widgetInfo.InfoAttribute.Category);
+            var categoryModel = GetOrCreateCategoryNode(categories, widgetInfo.InfoAttribute.Category);
             if (categoryModel == null)
             {
-                var category = categories.FirstOrDefault(c => c.Category == widgetInfo.InfoAttribute.Category);
-                if (category == null)
-                {
-                    continue;
-                }
-                categoryModel = new WidgetCategoryNode(category);
-                Categories.Add(categoryModel);
+                continue;
             }
 
-            var previewViewModels = new List<WidgetNodePreviewInfo>();
+            var previewViewModels = new List<LocalWidgetNodePreviewInfo>();
             if (widgetInfo.WidgetType.IsAssignableTo(typeof(IWidgetPreview)))
             {
                 try
@@ -210,19 +317,48 @@ public sealed class AddWidgetViewModel : ViewModelBase
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, "Failed to create preview for widget {WidgetId}", widgetInfo.Id);
+                    _logger.LogWarning(e, "Failed to create preview for widget {WidgetId}.", widgetInfo.Id);
                 }
             }
 
-            categoryModel.Widgets.Add(new WidgetNode(widgetInfo, previewViewModels.ToArray()));
+            categoryModel.TryAddWidgetNode(
+                new WidgetNode(widgetInfo, previewViewModels.Cast<object>().ToArray())
+            );
         }
-
-        SelectedWidgetNode = Categories.SelectMany(c => c.Widgets).FirstOrDefault();
-
-        await base.LoadAsync(cancellationToken);
     }
 
-    private async Task<IReadOnlyList<WidgetNodePreviewInfo>> CreateWidgetPreviewAsync(WidgetInfo widgetInfo, CancellationToken cancellationToken)
+    private async Task LoadRemoteWidgetsAsync(CancellationToken cancellationToken = default)
+    {
+        var categories = _widgetsProvider.GetCategories().ToArray();
+        foreach (var packagesStorage in _packagesStorages)
+        {
+            var remotePackages = await packagesStorage.GetAsync(cancellationToken);
+            foreach (var remotePackage in remotePackages)
+            {
+                foreach (var remotePackageWidget in remotePackage.Widgets)
+                {
+                    var categoryModel = GetOrCreateCategoryNode(categories, remotePackageWidget.Category);
+                    if (categoryModel == null)
+                    {
+                        continue;
+                    }
+                    var remoteModel = new RemoteWidgetMetadata(packagesStorage.Uri, remotePackageWidget);
+                    var previews = remoteModel.PreviewItems
+                        .Select(pi => new RemoteWidgetMetadataPreview(packagesStorage.Uri, pi))
+                        .Select(pr => new RemoteWidgetNodePreviewInfo(pr));
+                    categoryModel.TryAddWidgetNode(
+                        new WidgetNode(
+                            remoteModel,
+                            new RemoteWidgetPackage(packagesStorage.Uri, remotePackage),
+                            previews.Cast<object>().ToArray()
+                        )
+                    );
+                }
+            }
+        }
+    }
+
+    private async Task<IReadOnlyList<LocalWidgetNodePreviewInfo>> CreateWidgetPreviewAsync(WidgetInfo widgetInfo, CancellationToken cancellationToken)
     {
         var widgetPreview = (IWidgetPreview)await _widgetsFactory.CreateAsync(
             widgetInfo.WidgetType,
@@ -231,7 +367,7 @@ public sealed class AddWidgetViewModel : ViewModelBase
         );
         var previewConfigurations = widgetPreview.GetPreviewConfigurations();
 
-        var previewViewModels = new List<WidgetNodePreviewInfo>(capacity: previewConfigurations.Count);
+        var previewViewModels = new List<LocalWidgetNodePreviewInfo>(capacity: previewConfigurations.Count);
         foreach (var previewConfiguration in previewConfigurations)
         {
             widgetPreview = (IWidgetPreview)await _widgetsFactory.CreateAsync(
@@ -245,7 +381,7 @@ public sealed class AddWidgetViewModel : ViewModelBase
             widgetPreviewViewModel.ReadOnly = true;
 
             widgetPreview.SetPreview(previewConfiguration);
-            previewViewModels.Add(new WidgetNodePreviewInfo(widgetPreviewViewModel, previewConfiguration));
+            previewViewModels.Add(new LocalWidgetNodePreviewInfo(widgetPreviewViewModel, previewConfiguration));
         }
 
         return previewViewModels;

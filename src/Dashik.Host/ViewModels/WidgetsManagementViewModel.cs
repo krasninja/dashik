@@ -1,18 +1,23 @@
-using System.Reactive.Linq;
+using ReactiveUI;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Sdk.Mvvm;
-using Dashik.Sdk.Widgets;
 using Dashik.Host.Utils;
 
 namespace Dashik.Host.ViewModels;
 
-public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<WidgetInfo?>
+public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<string?>
 {
     public AddWidgetViewModel AddWidgetViewModel { get; }
 
     public AddPackageViewModel AddPackageViewModel { get; }
 
     public AddFeedViewModel AddFeedViewModel { get; }
+
+    public int SelectedTabIndex
+    {
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    }
 
     #region ICloseableViewModel
 
@@ -24,7 +29,7 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
     #region IDialogViewModel
 
     /// <inheritdoc />
-    public WidgetInfo? ResultValue { get; private set; }
+    public string? ResultValue { get; private set; }
 
     /// <inheritdoc />
     public DialogResult Result { get; private set; } = DialogResult.Cancel;
@@ -47,8 +52,7 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
         AddFeedViewModel = addFeedViewModel;
 
         AddWidgetViewModel.AddWidgetRequested
-            .Do(AddWidget)
-            .Subscribe();
+            .SubscribeAsync(AddWidgetAsync);
 
         AddPackageViewModel.PackagesLoaded
             .SubscribeAsync(async _ =>
@@ -59,14 +63,19 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
             });
     }
 
-    private void AddWidget(WidgetInfo? widgetInfo)
+    private async Task AddWidgetAsync(AddWidgetViewModel.WidgetNode? widgetNode, CancellationToken cancellationToken)
     {
-        if (widgetInfo == null)
+        if (widgetNode == null)
         {
             return;
         }
 
-        ResultValue = widgetInfo;
+        if (!widgetNode.IsLocal && widgetNode.RemoteWidgetPackage != null)
+        {
+            await AddPackageViewModel.InstallPackageAsync(widgetNode.RemoteWidgetPackage, cancellationToken);
+        }
+
+        ResultValue = widgetNode.Id;
         Result = DialogResult.OK;
         CloseRequest?.Invoke(this, EventArgs.Empty);
     }
@@ -74,9 +83,19 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
     /// <inheritdoc />
     public override async Task LoadAsync(CancellationToken cancellationToken = default)
     {
+        Loading = true;
+
         await AddWidgetViewModel.LoadAsync(cancellationToken);
         await AddPackageViewModel.LoadAsync(cancellationToken);
         await AddFeedViewModel.LoadAsync(cancellationToken);
         await base.LoadAsync(cancellationToken);
+
+        // Select "packages" tab if no widgets installed.
+        if (AddWidgetViewModel.WidgetsCount < 1)
+        {
+            SelectedTabIndex = 1;
+        }
+
+        Loading = false;
     }
 }

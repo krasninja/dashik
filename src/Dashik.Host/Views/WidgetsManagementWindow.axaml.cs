@@ -21,12 +21,6 @@ public partial class WidgetsManagementWindow : ReactiveWindow<WidgetsManagementV
                 disposables.Dispose();
                 this.Close();
             };
-
-            // Select "packages" tab if no widgets installed.
-            if (ViewModel.AddWidgetViewModel.WidgetsCount < 1)
-            {
-                MainTab.SelectedIndex = 1;
-            }
         });
     }
 }

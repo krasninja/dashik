@@ -41,7 +41,31 @@ public class WidgetMetadata
     public WidgetCategory Category { get; set; } = WidgetCategory.Misc;
 
     /// <summary>
-    /// Preview images.
+    /// Preview data.
     /// </summary>
-    public List<string> PreviewImages { get; } = [];
+    public List<WidgetMetadataPreview> PreviewItems { get; set; } = [];
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    public WidgetMetadata()
+    {
+    }
+
+    /// <summary>
+    /// Clone constructor.
+    /// </summary>
+    /// <param name="widgetMetadata">Widget to clone.</param>
+    public WidgetMetadata(WidgetMetadata widgetMetadata)
+    {
+        Id = widgetMetadata.Id;
+        Name = widgetMetadata.Name;
+        Description = widgetMetadata.Description;
+        IconFileName = widgetMetadata.IconFileName;
+        Category = widgetMetadata.Category;
+        PreviewItems = new List<WidgetMetadataPreview>(widgetMetadata.PreviewItems);
+    }
+
+    /// <inheritdoc />
+    public override string ToString() => $"{Id}, {Name}";
 }

@@ -17,6 +17,9 @@ internal sealed class RemoteWidgetsProvider : IWidgetsProvider
     }
 
     /// <inheritdoc />
+    public WidgetInfo? GetById(string widgetId) => null;
+
+    /// <inheritdoc />
     public WidgetInfo? GetByTypeId(string widgetTypeId) => null;
 
     /// <inheritdoc />

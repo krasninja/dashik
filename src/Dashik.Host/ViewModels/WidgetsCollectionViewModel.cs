@@ -34,6 +34,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     private readonly IMvvmService _mvvmService;
     private readonly IWidgetsFactory _widgetsFactory;
     private readonly IWidgetInstanceProvider _widgetInstanceProvider;
+    private readonly IWidgetsProvider _widgetsProvider;
     private readonly IWidgetsStateStorage _stateStorage;
     private readonly ILogger _logger;
 
@@ -116,6 +117,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         IMvvmService mvvmService,
         IWidgetsFactory widgetsFactory,
         IWidgetInstanceProvider widgetInstanceProvider,
+        IWidgetsProvider widgetsProvider,
         IWidgetsStateStorage stateStorage,
         ILogger<WidgetsCollectionViewModel> logger) : this()
     {
@@ -125,6 +127,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         _mvvmService = mvvmService;
         _widgetsFactory = widgetsFactory;
         _widgetInstanceProvider = widgetInstanceProvider;
+        _widgetsProvider = widgetsProvider;
         _stateStorage = stateStorage;
         _logger = logger;
 
@@ -274,6 +277,15 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
 
     private async Task AddWidgetWindow(SpaceViewModel spaceViewModel, CancellationToken cancellationToken)
     {
+        try
+        {
+            _mvvmService.CreateViewModel<WidgetsManagementViewModel>();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
         var viewModel = _mvvmService.CreateViewModel<WidgetsManagementViewModel>();
         viewModel.AddPackageViewModel.PackagesLoaded
             .SubscribeAsync(async (_, ct) =>
@@ -283,7 +295,11 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         if (await _mvvmService.OpenAsync(viewModel, this, cancellationToken) == DialogResult.OK
             && viewModel.ResultValue != null)
         {
-            var widgetInfo = viewModel.ResultValue;
+            var widgetInfo = _widgetsProvider.GetById(viewModel.ResultValue);
+            if (widgetInfo == null)
+            {
+                return;
+            }
             var instance = new WidgetInstance(widgetInfo, _stateStorage);
             var widgetViewModel = await CreateAndPrepareWidgetViewModelAsync(instance, cancellationToken);
             if (widgetViewModel.WidgetInstance != null)

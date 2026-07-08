@@ -83,7 +83,7 @@ public class WidgetPackage : ReactiveObject
     /// <summary>
     /// Widgets.
     /// </summary>
-    public List<WidgetMetadata> Widgets { get; } = [];
+    public List<WidgetMetadata> Widgets { get; set; } = [];
 
     /// <summary>
     /// Constructor.
@@ -110,6 +110,7 @@ public class WidgetPackage : ReactiveObject
         this.Owner = package.Owner;
         this.IconFileName = package.IconFileName;
         this.FileSize = package.FileSize;
+        this.Widgets = package.Widgets.Select(w => new WidgetMetadata(w)).ToList();
     }
 
     /// <inheritdoc />

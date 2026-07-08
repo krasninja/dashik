@@ -73,6 +73,10 @@ internal sealed class LocalWidgetsProvider : IWidgetsProvider
     public IEnumerable<WidgetInfo> GetAll() => _widgetsTypes.Values;
 
     /// <inheritdoc />
+    public WidgetInfo? GetById(string widgetId)
+        => _widgetsTypes.Values.FirstOrDefault(w => w.Id == widgetId);
+
+    /// <inheritdoc />
     public WidgetInfo? GetByTypeId(string widgetTypeId) => _widgetsTypes.GetValueOrDefault(widgetTypeId);
 
     /// <inheritdoc />
