@@ -70,6 +70,7 @@
                                         HorizontalAlignment="Center"
                                         HorizontalContentAlignment="Center"
                                         Width="70"
+                                        Margin="5"
                                         Content="Apply" />
                                     <Button
                                         Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).EditFeedCommand}"
@@ -78,6 +79,7 @@
                                         HorizontalAlignment="Center"
                                         HorizontalContentAlignment="Center"
                                         Width="70"
+                                        Margin="5"
                                         Content="Edit" />
                                     <Button
                                         Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).RemoveFeedCommand}"
@@ -85,6 +87,7 @@
                                         HorizontalAlignment="Center"
                                         HorizontalContentAlignment="Center"
                                         Width="70"
+                                        Margin="5"
                                         Content="Remove" />
                                 </StackPanel>
                             </Grid>

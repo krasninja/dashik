@@ -62,11 +62,13 @@
                 Content="No"
                 Command="{Binding ActionSelectCommand}"
                 CommandParameter="{x:Static mvvm:DialogResult.No}"
+                IsCancel="True"
                 IsVisible="{Binding ShowNoButton}" />
             <Button
                 Content="Cancel"
                 Command="{Binding ActionSelectCommand}"
                 CommandParameter="{x:Static mvvm:DialogResult.Cancel}"
+                IsCancel="True"
                 IsVisible="{Binding ShowCancelButton}" />
             <Button
                 Content="Abort"

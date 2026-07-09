@@ -138,13 +138,24 @@
                                         <Label Grid.Column="1" Grid.Row="2" Content="{Binding PackageGroup.Installed}" />
 
                                         <Label Grid.Column="0" Grid.Row="3">Local URI:</Label>
-                                        <TextBlock Grid.Column="1" Grid.Row="3" TextWrapping="Wrap" Text="{Binding PackageGroup.Local.NugetPackageFile}" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Grid.Row="3"
+                                            FontFamily="Adwaita Mono, Consolas, Menlo, Monospace"
+                                            TextWrapping="Wrap"
+                                            Text="{Binding PackageGroup.Local.NugetPackageFile}" />
 
                                         <Label Grid.Column="0" Grid.Row="4">Local Version:</Label>
                                         <Label Grid.Column="1" Grid.Row="4" Content="{Binding PackageGroup.Local.Version}" />
 
                                         <Label Grid.Column="0" Grid.Row="5">Remote URI:</Label>
-                                        <TextBlock Grid.Column="1" Grid.Row="5" TextWrapping="Wrap" Text="{Binding PackageGroup.Remote.RemoteFileUri}" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Grid.Row="5"
+                                            FontFamily="Adwaita Mono, Consolas, Menlo, Monospace"
+                                            VerticalAlignment="Center"
+                                            TextWrapping="Wrap"
+                                            Text="{Binding PackageGroup.Remote.RemoteFileUri}" />
 
                                         <Label Grid.Column="0" Grid.Row="6">Remote Version:</Label>
                                         <Label Grid.Column="1" Grid.Row="6" Content="{Binding PackageGroup.Remote.Version}" />
@@ -164,6 +175,7 @@
                                 Content="Upgrade"
                                 Width="120"
                                 Padding="10"
+                                Margin="5"
                                 HorizontalContentAlignment="Center" />
                             <Button
                                 Command="{Binding RemovePackageCommand}"
@@ -172,6 +184,7 @@
                                 Content="Remove"
                                 Width="120"
                                 Padding="10"
+                                Margin="5"
                                 HorizontalContentAlignment="Center" />
                         </StackPanel>
                         <Button
@@ -181,6 +194,7 @@
                             Content="Install"
                             Width="120"
                             Padding="10"
+                            Margin="5"
                             HorizontalContentAlignment="Center" />
                     </StackPanel>
                 </Grid>

@@ -76,116 +76,119 @@
                 </ItemsControl>
             </ScrollViewer>
 
-            <Grid Grid.Column="1" IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+            <ScrollViewer Grid.Column="1">
+                <Grid IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0">
-                    <ContentControl Content="{Binding SelectedWidgetNode}">
-                        <!-- No selection -->
-                        <ContentControl.Styles>
-                            <Style Selector="ContentControl:empty">
-                                <Setter Property="Content">
-                                    <Template>
-                                        <Label FontSize="18" HorizontalContentAlignment="Center" Content="Select a widget to see details" />
-                                    </Template>
-                                </Setter>
-                            </Style>
-                        </ContentControl.Styles>
-                        <!-- Widget selected -->
-                        <ContentControl.DataTemplates>
-                            <DataTemplate DataType="{x:Type viewModels:AddWidgetViewModel+WidgetNode}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Image Source="{Binding Icon}" Height="24" />
-                                        <Label FontSize="24"
-                                               HorizontalContentAlignment="Center"
-                                               Content="{Binding Title}" />
-                                    </StackPanel>
-                                    <Panel
-                                        IsVisible="{Binding HasPreviewItems}">
-                                        <Carousel
-                                            Name="PreviewCarousel"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            WrapSelection="True"
-                                            IsSwipeEnabled="True"
-                                            ItemsSource="{Binding WidgetPreviewViewModels}"
-                                            SelectedIndex="{Binding SelectedPreviewIndex}">
-                                            <Carousel.PageTransition>
-                                                <CrossFade Duration="0:00:00.300" />
-                                            </Carousel.PageTransition>
-                                            <Carousel.DataTemplates>
-                                                <DataTemplate DataType="{x:Type viewModels:AddWidgetViewModel+LocalWidgetNodePreviewInfo}">
-                                                    <StackPanel>
-                                                        <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="1" Padding="5" Margin="5" Height="250">
-                                                            <views:WidgetControl DataContext="{Binding WidgetControlViewModel}" />
-                                                        </Border>
-                                                        <TextBlock
-                                                            FontSize="18"
-                                                            HorizontalAlignment="Center"
-                                                            FontStyle="Italic"
-                                                            TextWrapping="Wrap"
-                                                            Text="{Binding Name}" />
-                                                        <TextBlock
-                                                            FontSize="16"
-                                                            HorizontalAlignment="Center"
-                                                            FontStyle="Italic"
-                                                            TextWrapping="Wrap"
-                                                            Text="{Binding Description}" />
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                                <DataTemplate DataType="{x:Type viewModels:AddWidgetViewModel+RemoteWidgetNodePreviewInfo}">
-                                                    <StackPanel>
-                                                        <Image Source="{Binding Image^}" MaxHeight="450" MaxWidth="250" Stretch="None" />
-                                                        <TextBlock
-                                                            FontSize="18"
-                                                            HorizontalAlignment="Center"
-                                                            FontStyle="Italic"
-                                                            TextWrapping="Wrap"
-                                                            Text="{Binding Name}" />
-                                                        <TextBlock
-                                                            FontSize="16"
-                                                            HorizontalAlignment="Center"
-                                                            FontStyle="Italic"
-                                                            TextWrapping="Wrap"
-                                                            Text="{Binding Description}" />
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </Carousel.DataTemplates>
-                                        </Carousel>
-                                        <Panel Margin="10">
-                                            <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetViewModel)DataContext).PreviousPreviewCommand}">&lt;</Button>
-                                            <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetViewModel)DataContext).NextPreviewCommand}" HorizontalAlignment="Right">&gt;</Button>
+                    <Grid Grid.Row="0">
+                        <ContentControl Content="{Binding SelectedWidgetNode}">
+                            <!-- No selection -->
+                            <ContentControl.Styles>
+                                <Style Selector="ContentControl:empty">
+                                    <Setter Property="Content">
+                                        <Template>
+                                            <Label FontSize="18" HorizontalContentAlignment="Center" Content="Select a widget to see details" />
+                                        </Template>
+                                    </Setter>
+                                </Style>
+                            </ContentControl.Styles>
+                            <!-- Widget selected -->
+                            <ContentControl.DataTemplates>
+                                <DataTemplate DataType="{x:Type viewModels:AddWidgetViewModel+WidgetNode}">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Image Source="{Binding Icon}" Height="24" />
+                                            <Label FontSize="24"
+                                                   HorizontalContentAlignment="Center"
+                                                   Content="{Binding Title}" />
+                                        </StackPanel>
+                                        <Panel
+                                            IsVisible="{Binding HasPreviewItems}">
+                                            <Carousel
+                                                Name="PreviewCarousel"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                WrapSelection="True"
+                                                IsSwipeEnabled="True"
+                                                ItemsSource="{Binding WidgetPreviewViewModels}"
+                                                SelectedIndex="{Binding SelectedPreviewIndex}">
+                                                <Carousel.PageTransition>
+                                                    <CrossFade Duration="0:00:00.300" />
+                                                </Carousel.PageTransition>
+                                                <Carousel.DataTemplates>
+                                                    <DataTemplate DataType="{x:Type viewModels:AddWidgetViewModel+LocalWidgetNodePreviewInfo}">
+                                                        <StackPanel>
+                                                            <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="1" Padding="5" Margin="5" Height="250">
+                                                                <views:WidgetControl DataContext="{Binding WidgetControlViewModel}" />
+                                                            </Border>
+                                                            <TextBlock
+                                                                FontSize="18"
+                                                                HorizontalAlignment="Center"
+                                                                FontStyle="Italic"
+                                                                TextWrapping="Wrap"
+                                                                Text="{Binding Name}" />
+                                                            <TextBlock
+                                                                FontSize="16"
+                                                                HorizontalAlignment="Center"
+                                                                FontStyle="Italic"
+                                                                TextWrapping="Wrap"
+                                                                Text="{Binding Description}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                    <DataTemplate DataType="{x:Type viewModels:AddWidgetViewModel+RemoteWidgetNodePreviewInfo}">
+                                                        <StackPanel>
+                                                            <Image Source="{Binding Image^}" MaxHeight="450" MaxWidth="250" Stretch="None" />
+                                                            <TextBlock
+                                                                FontSize="18"
+                                                                HorizontalAlignment="Center"
+                                                                FontStyle="Italic"
+                                                                TextWrapping="Wrap"
+                                                                Text="{Binding Name}" />
+                                                            <TextBlock
+                                                                FontSize="16"
+                                                                HorizontalAlignment="Center"
+                                                                FontStyle="Italic"
+                                                                TextWrapping="Wrap"
+                                                                Text="{Binding Description}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </Carousel.DataTemplates>
+                                            </Carousel>
+                                            <Panel Margin="10">
+                                                <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetViewModel)DataContext).PreviousPreviewCommand}">&lt;</Button>
+                                                <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetViewModel)DataContext).NextPreviewCommand}" HorizontalAlignment="Right">&gt;</Button>
+                                            </Panel>
                                         </Panel>
-                                    </Panel>
-                                    <Label
-                                        FontSize="12"
-                                        FontStyle="Italic"
-                                        HorizontalContentAlignment="Center"
-                                        Content="{Binding Id}" />
-                                    <TextBlock
-                                        FontSize="18"
-                                        HorizontalAlignment="Center"
-                                        TextWrapping="Wrap"
-                                        Text="{Binding Description}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ContentControl.DataTemplates>
-                    </ContentControl>
+                                        <Label
+                                            FontSize="12"
+                                            FontStyle="Italic"
+                                            HorizontalContentAlignment="Center"
+                                            Content="{Binding Id}" />
+                                        <TextBlock
+                                            FontSize="18"
+                                            HorizontalAlignment="Center"
+                                            TextWrapping="Wrap"
+                                            Text="{Binding Description}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ContentControl.DataTemplates>
+                        </ContentControl>
+                    </Grid>
+                    <Grid Grid.Row="1" HorizontalAlignment="Center">
+                        <Button
+                            Command="{Binding AddWidgetCommand}"
+                            CommandParameter="{Binding SelectedWidgetNode}"
+                            Content="Add"
+                            Width="120"
+                            Padding="10"
+                            Margin="5"
+                            HorizontalContentAlignment="Center" />
+                    </Grid>
                 </Grid>
-                <Grid Grid.Row="1" HorizontalAlignment="Center">
-                    <Button
-                        Command="{Binding AddWidgetCommand}"
-                        CommandParameter="{Binding SelectedWidgetNode}"
-                        Content="Add"
-                        Width="120"
-                        Padding="10"
-                        HorizontalContentAlignment="Center" />
-                </Grid>
-            </Grid>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </UserControl>
