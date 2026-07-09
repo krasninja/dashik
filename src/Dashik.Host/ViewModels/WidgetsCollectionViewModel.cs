@@ -277,21 +277,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
 
     private async Task AddWidgetWindow(SpaceViewModel spaceViewModel, CancellationToken cancellationToken)
     {
-        try
-        {
-            _mvvmService.CreateViewModel<WidgetsManagementViewModel>();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
         var viewModel = _mvvmService.CreateViewModel<WidgetsManagementViewModel>();
-        viewModel.AddPackageViewModel.PackagesLoaded
-            .SubscribeAsync(async (_, ct) =>
-            {
-                await LoadInternalAsync(ct);
-            });
         if (await _mvvmService.OpenAsync(viewModel, this, cancellationToken) == DialogResult.OK
             && viewModel.ResultValue != null)
         {
@@ -309,6 +295,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
             spaceViewModel.Widgets.Add(widgetViewModel);
             WidgetsCollectionUpdate.OnNext(spaceViewModel);
             await _widgetInstanceProvider.SaveAsync(instance, cancellationToken);
+            await widgetViewModel.UpdateWidgetAsync(cancellationToken: cancellationToken);
         }
     }
 

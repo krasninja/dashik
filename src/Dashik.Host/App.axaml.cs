@@ -58,9 +58,9 @@ public sealed partial class App : Application, IDisposable
             e.Handled = true;
         };
 
-        AsyncUtils.RunSync(async ct =>
+        _ = Dispatcher.InvokeAsync(async () =>
         {
-            await OnFrameworkInitializationCompleteInternalAsync(ct);
+            await OnFrameworkInitializationCompleteInternalAsync();
         });
     }
 

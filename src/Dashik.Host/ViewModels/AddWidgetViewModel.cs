@@ -195,7 +195,7 @@ public class AddWidgetViewModel : ViewModelBase
         }
     }
 
-    public bool LoadLocalWidgets { get; set; } = false;
+    public bool LoadLocalWidgets { get; set; } = true;
 
     public bool LoadRemoteWidgets { get; set; } = true;
 
