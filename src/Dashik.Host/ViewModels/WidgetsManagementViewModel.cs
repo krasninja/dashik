@@ -7,7 +7,7 @@ namespace Dashik.Host.ViewModels;
 
 public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<string[]>
 {
-    public AddWidgetViewModel AddWidgetViewModel { get; }
+    public AddWidgetListViewModel AddWidgetViewModel { get; }
 
     public AddPackageViewModel AddPackageViewModel { get; }
 
@@ -43,7 +43,7 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
     }
 
     public WidgetsManagementViewModel(
-        AddWidgetViewModel addWidgetViewModel,
+        AddWidgetListViewModel addWidgetViewModel,
         AddPackageViewModel addPackageViewModel,
         AddFeedViewModel addFeedViewModel) : this()
     {
@@ -63,7 +63,7 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
             });
     }
 
-    private async Task AddWidgetAsync(AddWidgetViewModel.WidgetNode[] widgetNodes, CancellationToken cancellationToken)
+    private async Task AddWidgetAsync(AddWidgetDetailsViewModel[] widgetNodes, CancellationToken cancellationToken)
     {
         foreach (var package in widgetNodes.Select(wn => wn.RemoteWidgetPackage).Distinct())
         {

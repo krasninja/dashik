@@ -46,14 +46,14 @@ public class AddWidgetViewModel : ViewModelBase
 
         public WidgetCategoryInfo Info { get; }
 
-        public ObservableCollection<WidgetNode> Widgets { get; } = new();
+        public ObservableCollection<AddWidgetDetailsViewModel> Widgets { get; } = new();
 
         public WidgetCategoryNode(WidgetCategoryInfo info)
         {
             Info = info;
         }
 
-        public bool TryAddWidgetNode(WidgetNode widgetNode)
+        public bool TryAddWidgetNode(AddWidgetDetailsViewModel widgetNode)
         {
             if (Widgets.Any(w => w.Id == widgetNode.Id))
             {
@@ -116,70 +116,15 @@ public class AddWidgetViewModel : ViewModelBase
         }
     }
 
-    public sealed class WidgetNode : ReactiveObject
-    {
-        public string Id { get; }
-
-        public object[] WidgetPreviewViewModels { get; }
-
-        public bool HasPreviewItems => WidgetPreviewViewModels.Length > 0;
-
-        public string Title { get; }
-
-        public string Description { get; }
-
-        private readonly Func<Task<IImage?>> _icon;
-
-        public Task<IImage?> Icon => _icon.Invoke();
-
-        public int SelectedPreviewIndex
-        {
-            get;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref field, value);
-            }
-        }
-
-        public bool Selected
-        {
-            get;
-            set => this.RaiseAndSetIfChanged(ref field, value);
-        }
-
-        public bool IsLocal => RemoteWidgetPackage == null;
-
-        public RemoteWidgetPackage? RemoteWidgetPackage { get; }
-
-        public WidgetNode(WidgetInfo widgetInfo, object[] widgetPreviews)
-        {
-            Id = widgetInfo.Id;
-            Title = widgetInfo.Name;
-            Description = widgetInfo.Description;
-            var icon = widgetInfo.Icon;
-            _icon = () => Task.FromResult(icon)!;
-            WidgetPreviewViewModels = widgetPreviews;
-        }
-
-        public WidgetNode(WidgetMetadata widgetMetadata, RemoteWidgetPackage remoteWidgetPackage, object[] widgetPreviews)
-        {
-            Id = widgetMetadata.Id;
-            Title = widgetMetadata.Name;
-            Description = widgetMetadata.Description;
-            var iconFileImage = widgetMetadata.IconFileImage;
-            _icon = async () => await iconFileImage;
-            WidgetPreviewViewModels = widgetPreviews;
-            RemoteWidgetPackage = remoteWidgetPackage;
-        }
-    }
-
     #endregion
 
     public ObservableCollection<WidgetCategoryNode> Categories { get; } = new();
 
     public int WidgetsCount => Categories.SelectMany(c => c.Widgets).Count();
 
-    public WidgetNode? SelectedWidgetNode
+    public IEnumerable<AddWidgetDetailsViewModel> Widgets => Categories.SelectMany(c => c.Widgets);
+
+    public AddWidgetDetailsViewModel? SelectedWidgetNode
     {
         get;
         set
@@ -199,16 +144,12 @@ public class AddWidgetViewModel : ViewModelBase
 
     public bool LoadRemoteWidgets { get; set; } = true;
 
-    public IObservable<WidgetNode[]> AddWidgetRequested
+    public IObservable<AddWidgetDetailsViewModel[]> AddWidgetRequested
         => AddWidgetCommand
             .Where(_ => SelectedWidgetNode != null)
             .Select(_ => new[] { SelectedWidgetNode! });
 
-    public ReactiveCommand<WidgetNode, Unit> AddWidgetCommand { get; internal set; }
-
-    public ReactiveCommand<Unit, Unit> NextPreviewCommand { get; }
-
-    public ReactiveCommand<Unit, Unit> PreviousPreviewCommand { get; }
+    public ReactiveCommand<AddWidgetDetailsViewModel, Unit> AddWidgetCommand { get; internal set; }
 
     public AddWidgetViewModel(
         IWidgetsProvider widgetsProvider,
@@ -225,39 +166,7 @@ public class AddWidgetViewModel : ViewModelBase
         _packagesStorages = packagesStorages;
         _logger = logger;
 
-        AddWidgetCommand = ReactiveCommand.Create<WidgetNode>(_ => { });
-        NextPreviewCommand = ReactiveCommand.Create(() =>
-        {
-            if (SelectedWidgetNode == null)
-            {
-                return;
-            }
-
-            if (SelectedWidgetNode.SelectedPreviewIndex < SelectedWidgetNode.WidgetPreviewViewModels.Length - 1)
-            {
-                SelectedWidgetNode.SelectedPreviewIndex++;
-            }
-            else
-            {
-                SelectedWidgetNode.SelectedPreviewIndex = 0;
-            }
-        });
-        PreviousPreviewCommand = ReactiveCommand.Create(() =>
-        {
-            if (SelectedWidgetNode == null)
-            {
-                return;
-            }
-
-            if (SelectedWidgetNode.SelectedPreviewIndex > 0)
-            {
-                SelectedWidgetNode.SelectedPreviewIndex--;
-            }
-            else
-            {
-                SelectedWidgetNode.SelectedPreviewIndex = SelectedWidgetNode.WidgetPreviewViewModels.Length - 1;
-            }
-        });
+        AddWidgetCommand = ReactiveCommand.Create<AddWidgetDetailsViewModel>(_ => { });
     }
 
     private WidgetCategoryNode? GetOrCreateCategoryNode(
@@ -325,7 +234,7 @@ public class AddWidgetViewModel : ViewModelBase
             }
 
             categoryModel.TryAddWidgetNode(
-                new WidgetNode(widgetInfo, previewViewModels.Cast<object>().ToArray())
+                new AddWidgetDetailsViewModel(widgetInfo, previewViewModels.Cast<object>().ToArray())
             );
         }
     }
@@ -350,7 +259,7 @@ public class AddWidgetViewModel : ViewModelBase
                         .Select(pi => new RemoteWidgetMetadataPreview(packagesStorage.Uri, pi))
                         .Select(pr => new RemoteWidgetNodePreviewInfo(pr));
                     categoryModel.TryAddWidgetNode(
-                        new WidgetNode(
+                        new AddWidgetDetailsViewModel(
                             remoteModel,
                             new RemoteWidgetPackage(packagesStorage.Uri, remotePackage),
                             previews.Cast<object>().ToArray()

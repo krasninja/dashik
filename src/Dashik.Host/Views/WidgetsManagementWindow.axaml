@@ -16,7 +16,7 @@
         x:DataType="viewModels:WidgetsManagementViewModel">
     <TabControl x:Name="MainTab" SelectedIndex="{Binding SelectedTabIndex}">
         <TabItem Header="Widgets">
-            <controls:AddWidgetControl DataContext="{Binding AddWidgetViewModel}" />
+            <controls:AddWidgetListControl DataContext="{Binding AddWidgetViewModel}" />
         </TabItem>
         <TabItem Header="Packages">
             <controls:AddPackageControl DataContext="{Binding AddPackageViewModel}" />

@@ -3,9 +3,73 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Dashik.Host.ViewModels"
+             xmlns:views="clr-namespace:Dashik.Host.Views"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
              x:Class="Dashik.Host.Views.AddWidgetListControl"
              x:DataType="viewModels:AddWidgetListViewModel">
+    <ScrollViewer>
+        <StackPanel>
+            <!-- Widgets list -->
+            <Grid IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNull}}"
+                  HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <ItemsControl ItemsSource="{Binding Widgets}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Width="160"
+                                    Height="160"
+                                    Padding="10"
+                                    Command="{Binding $parent[UserControl].((viewModels:AddWidgetListViewModel)DataContext).SelectWidgetCommand}"
+                                    CommandParameter="{Binding}">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                    <Image Source="{Binding Icon^}" Height="64" Margin="5" />
+                                    <TextBlock FontSize="16"
+                                               HorizontalAlignment="Center"
+                                               TextAlignment="Center"
+                                               VerticalAlignment="Bottom"
+                                               TextWrapping="Wrap"
+                                               Text="{Binding Title}" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+
+            <!-- Selected widget details -->
+            <Grid IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Vertical">
+                    <Button Command="{Binding SelectWidgetCommand}"
+                            CommandParameter="{x:Null}"
+                            HorizontalAlignment="Left">
+                        Back
+                    </Button>
+                    <views:AddWidgetDetailsControl HorizontalAlignment="Center" DataContext="{Binding SelectedWidgetNode}" />
+                    <Button Command="{Binding AddWidgetCommand}"
+                            CommandParameter="{Binding SelectedWidgetNode}"
+                            Content="Add"
+                            Width="120"
+                            Padding="10"
+                            Margin="5"
+                            HorizontalAlignment="Center"
+                            HorizontalContentAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>
