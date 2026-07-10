@@ -5,7 +5,7 @@ using Dashik.Host.Utils;
 
 namespace Dashik.Host.ViewModels;
 
-public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<string?>
+public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<string[]>
 {
     public AddWidgetViewModel AddWidgetViewModel { get; }
 
@@ -29,7 +29,7 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
     #region IDialogViewModel
 
     /// <inheritdoc />
-    public string? ResultValue { get; private set; }
+    public string[] ResultValue { get; private set; }
 
     /// <inheritdoc />
     public DialogResult Result { get; private set; } = DialogResult.Cancel;
@@ -63,19 +63,17 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
             });
     }
 
-    private async Task AddWidgetAsync(AddWidgetViewModel.WidgetNode? widgetNode, CancellationToken cancellationToken)
+    private async Task AddWidgetAsync(AddWidgetViewModel.WidgetNode[] widgetNodes, CancellationToken cancellationToken)
     {
-        if (widgetNode == null)
+        foreach (var package in widgetNodes.Select(wn => wn.RemoteWidgetPackage).Distinct())
         {
-            return;
+            if (package != null)
+            {
+                await AddPackageViewModel.InstallPackageAsync(package, cancellationToken);
+            }
         }
 
-        if (!widgetNode.IsLocal && widgetNode.RemoteWidgetPackage != null)
-        {
-            await AddPackageViewModel.InstallPackageAsync(widgetNode.RemoteWidgetPackage, cancellationToken);
-        }
-
-        ResultValue = widgetNode.Id;
+        ResultValue = widgetNodes.Select(w => w.Id).ToArray();
         Result = DialogResult.OK;
         CloseRequest?.Invoke(this, EventArgs.Empty);
     }

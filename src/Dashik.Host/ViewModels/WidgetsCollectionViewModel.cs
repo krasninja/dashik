@@ -278,24 +278,26 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     private async Task AddWidgetWindow(SpaceViewModel spaceViewModel, CancellationToken cancellationToken)
     {
         var viewModel = _mvvmService.CreateViewModel<WidgetsManagementViewModel>();
-        if (await _mvvmService.OpenAsync(viewModel, this, cancellationToken) == DialogResult.OK
-            && viewModel.ResultValue != null)
+        if (await _mvvmService.OpenAsync(viewModel, this, cancellationToken) == DialogResult.OK)
         {
-            var widgetInfo = _widgetsProvider.GetById(viewModel.ResultValue);
-            if (widgetInfo == null)
+            foreach (var widgetId in viewModel.ResultValue)
             {
-                return;
+                var widgetInfo = _widgetsProvider.GetById(widgetId);
+                if (widgetInfo == null)
+                {
+                    return;
+                }
+                var instance = new WidgetInstance(widgetInfo, _stateStorage);
+                var widgetViewModel = await CreateAndPrepareWidgetViewModelAsync(instance, cancellationToken);
+                if (widgetViewModel.WidgetInstance != null)
+                {
+                    widgetViewModel.WidgetInstance.MainSettings.SpaceId = spaceViewModel.Id;
+                }
+                spaceViewModel.Widgets.Add(widgetViewModel);
+                WidgetsCollectionUpdate.OnNext(spaceViewModel);
+                await _widgetInstanceProvider.SaveAsync(instance, cancellationToken);
+                await widgetViewModel.UpdateWidgetAsync(cancellationToken: cancellationToken);
             }
-            var instance = new WidgetInstance(widgetInfo, _stateStorage);
-            var widgetViewModel = await CreateAndPrepareWidgetViewModelAsync(instance, cancellationToken);
-            if (widgetViewModel.WidgetInstance != null)
-            {
-                widgetViewModel.WidgetInstance.MainSettings.SpaceId = spaceViewModel.Id;
-            }
-            spaceViewModel.Widgets.Add(widgetViewModel);
-            WidgetsCollectionUpdate.OnNext(spaceViewModel);
-            await _widgetInstanceProvider.SaveAsync(instance, cancellationToken);
-            await widgetViewModel.UpdateWidgetAsync(cancellationToken: cancellationToken);
         }
     }
 

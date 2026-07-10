@@ -199,7 +199,10 @@ public class AddWidgetViewModel : ViewModelBase
 
     public bool LoadRemoteWidgets { get; set; } = true;
 
-    public IObservable<WidgetNode?> AddWidgetRequested => AddWidgetCommand.Select(_ => SelectedWidgetNode);
+    public IObservable<WidgetNode[]> AddWidgetRequested
+        => AddWidgetCommand
+            .Where(_ => SelectedWidgetNode != null)
+            .Select(_ => new[] { SelectedWidgetNode! });
 
     public ReactiveCommand<WidgetNode, Unit> AddWidgetCommand { get; internal set; }
 
