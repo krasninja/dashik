@@ -58,6 +58,7 @@ public class WidgetInstance : IWidgetInstance, IDisposable
             if (!string.IsNullOrEmpty(MainSettings.WebProxy))
             {
                 var proxy = new System.Net.WebProxy(MainSettings.WebProxy);
+                proxy.BypassProxyOnLocal = true;
                 _clientHandler = new HttpClientHandler
                 {
                     Proxy = proxy,
