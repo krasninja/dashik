@@ -56,9 +56,8 @@
                 <StackPanel Grid.Column="0" Orientation="Vertical">
                     <Button Command="{Binding SelectWidgetCommand}"
                             CommandParameter="{x:Null}"
-                            HorizontalAlignment="Left">
-                        Back
-                    </Button>
+                            HorizontalAlignment="Left"
+                            Content="Back" />
                     <views:AddWidgetDetailsControl HorizontalAlignment="Center" DataContext="{Binding SelectedWidgetNode}" />
                     <Button Command="{Binding AddWidgetCommand}"
                             CommandParameter="{Binding SelectedWidgetNode}"
@@ -66,6 +65,8 @@
                             Width="120"
                             Padding="10"
                             Margin="5"
+                            Foreground="White"
+                            Background="DarkBlue"
                             HorizontalAlignment="Center"
                             HorizontalContentAlignment="Center" />
                 </StackPanel>

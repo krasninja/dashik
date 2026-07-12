@@ -106,6 +106,8 @@
                                 Width="120"
                                 Padding="10"
                                 Margin="5"
+                                Foreground="White"
+                                Background="DarkBlue"
                                 HorizontalContentAlignment="Center" />
                     </Grid>
                 </Grid>
