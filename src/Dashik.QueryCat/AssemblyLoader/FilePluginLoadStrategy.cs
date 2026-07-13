@@ -36,7 +36,7 @@ internal sealed class FilePluginLoadStrategy : IPluginLoadStrategy
     public Task<long> GetFileSizeAsync(string file, CancellationToken cancellationToken = default)
     {
         var fileInfo = new FileInfo(file);
-        var filesSize = fileInfo.Exists ? file.Length : 0;
-        return Task.FromResult<long>(filesSize);
+        var fileSize = fileInfo.Exists ? file.Length : 0;
+        return Task.FromResult<long>(fileSize);
     }
 }
