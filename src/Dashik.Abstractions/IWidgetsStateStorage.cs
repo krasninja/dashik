@@ -13,7 +13,7 @@ public interface IWidgetsStateStorage
     /// <param name="instanceId">Widget file name.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Awaitable task.</returns>
-    Task SetStateAsync(object state, string instanceId, CancellationToken cancellationToken = default);
+    Task SetStateAsync(object? state, string instanceId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get state.

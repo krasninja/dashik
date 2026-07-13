@@ -18,7 +18,7 @@ public sealed class FileWidgetsStateStorage : IWidgetsStateStorage
     }
 
     /// <inheritdoc />
-    public async Task SetStateAsync(object state, string instanceId, CancellationToken cancellationToken = default)
+    public async Task SetStateAsync(object? state, string instanceId, CancellationToken cancellationToken = default)
     {
         var stateDirectory = _appService.GetStateDirectory();
         if (!Directory.Exists(stateDirectory))
@@ -26,13 +26,16 @@ public sealed class FileWidgetsStateStorage : IWidgetsStateStorage
             Directory.CreateDirectory(stateDirectory);
         }
 
-        await using var settingsFile = new FileStream(
-            Path.Combine(stateDirectory, instanceId + JsonExtension),
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.Inheritable);
-        await JsonSerializer.SerializeAsync(settingsFile, state, cancellationToken: cancellationToken);
-        settingsFile.Close();
+        var file = Path.Combine(stateDirectory, instanceId + JsonExtension);
+        if (state == null)
+        {
+            File.Delete(file);
+            return;
+        }
+
+        await using var settingsFileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Inheritable);
+        await JsonSerializer.SerializeAsync(settingsFileStream, state, cancellationToken: cancellationToken);
+        settingsFileStream.Close();
     }
 
     /// <inheritdoc />
@@ -44,14 +47,17 @@ public sealed class FileWidgetsStateStorage : IWidgetsStateStorage
             return null;
         }
 
-        await using var fileStream = File.OpenRead(
-            Path.Combine(stateDirectory, instanceId + JsonExtension)
-        );
+        var file = Path.Combine(stateDirectory, instanceId + JsonExtension);
+        if (!File.Exists(file))
+        {
+            return null;
+        }
+        await using var fileStream = File.OpenRead(file);
         var model = await JsonSerializer.DeserializeAsync(
             fileStream,
             stateType,
             new JsonSerializerOptions(JsonSerializerDefaults.General),
             cancellationToken);
-        return model!;
+        return model;
     }
 }
