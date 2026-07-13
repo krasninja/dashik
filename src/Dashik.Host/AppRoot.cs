@@ -39,7 +39,7 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Awaitable task.</returns>
     public async Task SetupServicesAsync(CancellationToken cancellationToken = default)
-        => await SetupServicesAsync(_ => { }, cancellationToken).ConfigureAwait(false);
+        => await SetupServicesAsync(_ => { }, cancellationToken);
 
     /// <summary>
     /// Set up application services.
@@ -49,8 +49,7 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
     /// <returns>Awaitable task.</returns>
     public async Task SetupServicesAsync(Action<Container> builder, CancellationToken cancellationToken = default)
     {
-        var appSettings = await LoadSettingsAsync(cancellationToken)
-            .ConfigureAwait(false);
+        var appSettings = await LoadSettingsAsync(cancellationToken);
 
         new LoggingSetup(Container, AppArguments).Setup();
         new AppServicesSetup(Container, AppArguments, appSettings, GetApplicationDataDirectory()).Setup();
@@ -94,8 +93,7 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
             try
             {
                 settings = await JsonSerializer.DeserializeAsync(settingsFile,
-                    SourceGenerationContext.Default.AppSettings, cancellationToken: cancellationToken)
-                        .ConfigureAwait(false);
+                    SourceGenerationContext.Default.AppSettings, cancellationToken: cancellationToken);
             }
             catch (JsonException e)
             {
@@ -151,7 +149,7 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
         var loadedWidgetsCount = await loader.LoadAsync(new PluginsLoadingOptions
         {
             SkipDuplicates = true,
-        }, cancellationToken).ConfigureAwait(false);
+        }, cancellationToken);
 
         // Register internal widgets.
         _logger.LogInformation("Loaded {WidgetsCount} widgets.", loadedWidgetsCount);
@@ -166,6 +164,6 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
-        await Container.DisposeAsync().ConfigureAwait(false);
+        await Container.DisposeAsync();
     }
 }

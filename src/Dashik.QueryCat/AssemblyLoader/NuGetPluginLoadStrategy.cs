@@ -22,36 +22,32 @@ internal sealed class NuGetPluginLoadStrategy : IPluginLoadStrategy
             return [];
         }
 
-        var zip = await ZipFile.OpenReadAsync(_file, cancellationToken)
-            .ConfigureAwait(false);
+        var zip = await ZipFile.OpenReadAsync(_file, cancellationToken);
         try
         {
             return zip.Entries.Select(e => e.FullName).ToArray();
         }
         finally
         {
-            await zip.DisposeAsync()
-                .ConfigureAwait(false);
+            await zip.DisposeAsync();
         }
     }
 
     /// <inheritdoc />
     public async Task<Stream> GetFileAsync(string file, CancellationToken cancellationToken = default)
     {
-        var zip = await ZipFile.OpenReadAsync(_file, cancellationToken)
-            .ConfigureAwait(false);
+        var zip = await ZipFile.OpenReadAsync(_file, cancellationToken);
         file = FixFilePath(file);
         var entry = zip.GetEntry(file);
         return entry == null
             ? Stream.Null
-            : new ZipStreamWrapper(await entry.OpenAsync(cancellationToken).ConfigureAwait(false), zip);
+            : new ZipStreamWrapper(await entry.OpenAsync(cancellationToken), zip);
     }
 
     /// <inheritdoc />
     public async Task<long> GetFileSizeAsync(string file, CancellationToken cancellationToken = default)
     {
-        await using var zip = await ZipFile.OpenReadAsync(_file, cancellationToken)
-            .ConfigureAwait(false);
+        await using var zip = await ZipFile.OpenReadAsync(_file, cancellationToken);
         file = FixFilePath(file);
         var entry = zip.GetEntry(file);
         if (entry == null)

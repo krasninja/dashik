@@ -43,7 +43,7 @@ internal sealed class PluginAssemblyLoadContext : AssemblyLoadContext
         // Format native library name.
         var targetDllName = GetTargetDllName(unmanagedDllName);
         var files = AsyncUtils.RunSync(async () => (
-            await _pluginLoadStrategy.GetAllFilesAsync().ConfigureAwait(false)).ToArray()
+            await _pluginLoadStrategy.GetAllFilesAsync()).ToArray()
         )!;
 
         // Try to load from runtime path. Example: runtimes/linux-arm64/native/libduckdb.so .
@@ -142,15 +142,13 @@ internal sealed class PluginAssemblyLoadContext : AssemblyLoadContext
         }
         else
         {
-            fileSize = await _pluginLoadStrategy.GetFileSizeAsync(libraryPath, cancellationToken)
-                .ConfigureAwait(false);
+            fileSize = await _pluginLoadStrategy.GetFileSizeAsync(libraryPath, cancellationToken);
         }
         if (!File.Exists(libraryPath) ||
             new FileInfo(libraryPath).Length != fileSize)
         {
             await using var newFile = File.Create(libraryPath);
-            await file.CopyToAsync(newFile, cancellationToken)
-                .ConfigureAwait(false);
+            await file.CopyToAsync(newFile, cancellationToken);
             newFile.Close();
             _logger.LogDebug("Cached native library '{FilePath}'.", libraryPath);
         }

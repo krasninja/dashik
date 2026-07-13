@@ -157,8 +157,7 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
             var strategies = GetLoadStrategies(pluginFile);
             foreach (var strategy in strategies)
             {
-                var assembly = await LoadWithStrategyAsync(strategy, Path.GetFileName(pluginFile), cancellationToken)
-                    .ConfigureAwait(false);
+                var assembly = await LoadWithStrategyAsync(strategy, Path.GetFileName(pluginFile), cancellationToken);
                 if (assembly != null)
                 {
                     var assemblyName = assembly.GetName().Name;
@@ -229,12 +228,10 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
         CancellationToken cancellationToken)
     {
         // Find target framework directory.
-        var monikerRoot = await FindTargetFrameworkDirectoryAsync(strategy, cancellationToken)
-            .ConfigureAwait(false);
+        var monikerRoot = await FindTargetFrameworkDirectoryAsync(strategy, cancellationToken);
 
         // Get DLL files.
-        var dllFiles = (await strategy.GetAllFilesAsync(cancellationToken)
-            .ConfigureAwait(false))
+        var dllFiles = (await strategy.GetAllFilesAsync(cancellationToken))
             .Where(f => f.StartsWith(monikerRoot)
                         && Path.GetExtension(f).Equals(DllExtension, StringComparison.InvariantCultureIgnoreCase))
             .ToArray();
@@ -296,8 +293,7 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
 
         // Load plugin library.
         await using var pluginFileStream = await strategy.GetFileAsync(pluginDll, cancellationToken);
-        var pluginStream = await CloneStreamAsync(pluginFileStream, cancellationToken)
-            .ConfigureAwait(false);
+        var pluginStream = await CloneStreamAsync(pluginFileStream, cancellationToken);
         if (pluginStream == Stream.Null)
         {
             return null;
@@ -379,8 +375,7 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
         {
             try
             {
-                await RegisterFromAssemblyAsync(pluginAssembly.Value, cancellationToken)
-                    .ConfigureAwait(false);
+                await RegisterFromAssemblyAsync(pluginAssembly.Value, cancellationToken);
             }
             catch (Exception e)
             {
@@ -440,8 +435,7 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
     private static async Task<string> FindTargetFrameworkDirectoryAsync(IPluginLoadStrategy pluginLoadStrategy,
         CancellationToken cancellationToken)
     {
-        var files = (await pluginLoadStrategy.GetAllFilesAsync(cancellationToken)
-            .ConfigureAwait(false)).ToArray();
+        var files = (await pluginLoadStrategy.GetAllFilesAsync(cancellationToken)).ToArray();
         foreach (var moniker in _monikerDirectories)
         {
             var monikerDirectory = "lib/" + moniker + "/";
@@ -456,7 +450,7 @@ public class DotNetAssemblyPluginsLoader : PluginsLoader, IDisposable
     private static async Task<MemoryStream> CloneStreamAsync(Stream stream, CancellationToken cancellationToken)
     {
         var ms = stream.CanSeek ? new MemoryStream(capacity: (int)stream.Length) : new MemoryStream();
-        await stream.CopyToAsync(ms, cancellationToken).ConfigureAwait(false);
+        await stream.CopyToAsync(ms, cancellationToken);
         ms.Seek(0, SeekOrigin.Begin);
         return ms;
     }

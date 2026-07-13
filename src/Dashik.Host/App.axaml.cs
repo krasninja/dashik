@@ -6,7 +6,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using QueryCat.Backend.Core.Utils;
 using QueryCat.Backend.Parser;
 using Dashik.Host.Infrastructure.Setup;
 using Dashik.Host.ViewModels;
@@ -55,16 +54,19 @@ public sealed partial class App : Application, IDisposable
         // UI thread exceptions.
         Dispatcher.UIThread.UnhandledException += (s, e) =>
         {
+            UIThreadOnUnhandledException(s, e);
             e.Handled = true;
         };
 
-        _ = Dispatcher.InvokeAsync(async () =>
-        {
-            await OnFrameworkInitializationCompleteInternalAsync();
-        });
+        _ = Dispatcher.InvokeAsync(async () => await InitializeApplicationAsync());
     }
 
-    private async Task OnFrameworkInitializationCompleteInternalAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Initialize application.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public async Task InitializeApplicationAsync(CancellationToken cancellationToken = default)
     {
         await Root.InitializeAsync(cancellationToken);
 
@@ -125,7 +127,8 @@ public sealed partial class App : Application, IDisposable
         {
             var messageBoxVm = new MessageBoxViewModel(message, "Error").SetErrorMode();
             var mvvmService = Container.GetRequiredService<IMvvmService>();
-            await mvvmService.OpenAsync(messageBoxVm);
+            await mvvmService.OpenAsync(messageBoxVm)
+                .ConfigureAwait(false);
         });
     }
 
