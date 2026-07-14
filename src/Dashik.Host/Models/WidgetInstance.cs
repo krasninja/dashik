@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Logging;
 using Dashik.Abstractions;
 using Dashik.Sdk;
 using Dashik.Sdk.Models;
@@ -12,6 +13,7 @@ namespace Dashik.Host.Models;
 /// </summary>
 public class WidgetInstance : IWidgetInstance, IDisposable
 {
+    private readonly ILogger _logger;
     private readonly IWidgetsStateStorage _stateStorage;
 
     /// <inheritdoc />
@@ -29,9 +31,12 @@ public class WidgetInstance : IWidgetInstance, IDisposable
     /// <inheritdoc />
     public bool PreviewMode => false;
 
+    /// <summary>
+    /// The delegate to send messages from the widget.
+    /// </summary>
     internal Func<WidgetMessage, CancellationToken, Task<JsonObject?>> OnMessageSend { get; set; }
 
-    public WidgetInstance(string id, WidgetInfo info, IWidgetsStateStorage stateStorage)
+    public WidgetInstance(string id, WidgetInfo info, IWidgetsStateStorage stateStorage, ILoggerFactory loggerFactory)
     {
         Id = id;
         Info = info;
@@ -39,10 +44,11 @@ public class WidgetInstance : IWidgetInstance, IDisposable
         OnMessageSend = (_, _) => Task.FromResult((JsonObject?)null);
 
         _stateStorage = stateStorage;
+        _logger = loggerFactory.CreateLogger("Widget" + id);
     }
 
-    public WidgetInstance(WidgetInfo info, IWidgetsStateStorage widgetsStateStorage)
-        : this(IdGenerator.Generate(length: 8), info, widgetsStateStorage)
+    public WidgetInstance(WidgetInfo info, IWidgetsStateStorage widgetsStateStorage, ILoggerFactory loggerFactory)
+        : this(IdGenerator.Generate(length: 8), info, widgetsStateStorage, loggerFactory)
     {
     }
 
@@ -89,6 +95,22 @@ public class WidgetInstance : IWidgetInstance, IDisposable
     public Task<object?> GetStateAsync(Type stateType, CancellationToken cancellationToken = default)
     {
         return _stateStorage.GetStateAsync(stateType, GetStateId(), cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async void QueueWidgetUpdate()
+    {
+        try
+        {
+            await OnMessageSend.Invoke(
+                new WidgetMessage(Id, WidgetMessage.UpdateMessageId),
+                CancellationToken.None
+            );
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error while sending update message to widget '{WidgetId}'.", Id);
+        }
     }
 
     /// <inheritdoc />

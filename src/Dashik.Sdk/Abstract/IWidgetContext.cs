@@ -35,6 +35,11 @@ public interface IWidgetContext
     Task<object?> GetStateAsync(Type stateType, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Queue widget to update.
+    /// </summary>
+    void QueueWidgetUpdate();
+
+    /// <summary>
     /// Send message to another widget. Allows to have communication between widgets.
     /// </summary>
     /// <param name="toWidgetId">Target widget identifier.</param>

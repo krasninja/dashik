@@ -36,6 +36,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     private readonly IWidgetInstanceProvider _widgetInstanceProvider;
     private readonly IWidgetsProvider _widgetsProvider;
     private readonly IWidgetsStateStorage _stateStorage;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
 
     private readonly IDisposable _widgetsUpdateTimerObservable;
@@ -119,6 +120,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         IWidgetInstanceProvider widgetInstanceProvider,
         IWidgetsProvider widgetsProvider,
         IWidgetsStateStorage stateStorage,
+        ILoggerFactory loggerFactory,
         ILogger<WidgetsCollectionViewModel> logger) : this()
     {
         _appSettings = appSettings;
@@ -129,6 +131,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         _widgetInstanceProvider = widgetInstanceProvider;
         _widgetsProvider = widgetsProvider;
         _stateStorage = stateStorage;
+        _loggerFactory = loggerFactory;
         _logger = logger;
 
         AddWidgetCommand = ReactiveCommand.CreateFromTask<SpaceViewModel>(AddWidgetWindow);
@@ -226,7 +229,8 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     {
         if (instance is WidgetInstance widgetInstance)
         {
-            widgetInstance.OnMessageSend = ProcessMessageAsync;
+            widgetInstance.OnMessageSend =
+                async (message, ct) => await ProcessMessageAsync(widgetInstance, message, ct);
         }
         WidgetViewModel widgetViewModel;
         try
@@ -287,7 +291,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
                 {
                     return;
                 }
-                var instance = new WidgetInstance(widgetInfo, _stateStorage);
+                var instance = new WidgetInstance(widgetInfo, _stateStorage, _loggerFactory);
                 var widgetViewModel = await CreateAndPrepareWidgetViewModelAsync(instance, cancellationToken);
                 if (widgetViewModel.WidgetInstance != null)
                 {
@@ -301,8 +305,13 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private async Task<JsonObject?> ProcessMessageAsync(WidgetMessage message, CancellationToken cancellationToken)
+    private async Task<JsonObject?> ProcessMessageAsync(WidgetInstance instance, WidgetMessage message, CancellationToken cancellationToken)
     {
+        if (await ProcessSystemMessageAsync(instance, message, cancellationToken))
+        {
+            return null;
+        }
+
         foreach (var widget in ActiveWidgets)
         {
             if (widget.Widget is not IWidgetBus widgetBus)
@@ -313,14 +322,23 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
             if (message.WidgetId == widget.WidgetId || message.WidgetId == "*"
                                                     || string.IsNullOrEmpty(message.WidgetId))
             {
-                var response = await widgetBus.ReceiveMessageAsync(message.WidgetId, message.MessageId, message.Payload, cancellationToken);
-                if (response != null)
-                {
-                    return response;
-                }
+                var response = await widgetBus.ReceiveMessageAsync(instance.Id, message.MessageId, message.Payload, cancellationToken);
+                return response;
             }
         }
         return null;
+    }
+
+    private async Task<bool> ProcessSystemMessageAsync(WidgetInstance instance, WidgetMessage message,
+        CancellationToken cancellationToken)
+    {
+        var widgetVm = Widgets.FirstOrDefault(w => w.WidgetInstance == instance);
+        if (message.MessageId == WidgetMessage.UpdateMessageId && widgetVm != null)
+        {
+            await widgetVm.UpdateWidgetAsync(cancellationToken: cancellationToken);
+            return true;
+        }
+        return false;
     }
 
     private async Task CheckUpdatesAsync(CancellationToken cancellationToken)

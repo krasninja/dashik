@@ -23,6 +23,7 @@ public class AddWidgetViewModel : ViewModelBase
     private readonly IWidgetsProvider _widgetsProvider;
     private readonly IServiceProvider _serviceProvider;
     private readonly IPackagesStorage[] _packagesStorages;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
     private readonly IWidgetsFactory _widgetsFactory;
     private readonly IWidgetsStateStorage _stateStorage;
@@ -157,6 +158,7 @@ public class AddWidgetViewModel : ViewModelBase
         IWidgetsStateStorage stateStorage,
         IServiceProvider serviceProvider,
         IPackagesStorage[] packagesStorages,
+        ILoggerFactory loggerFactory,
         ILogger<AddWidgetViewModel> logger)
     {
         _widgetsProvider = widgetsProvider;
@@ -164,6 +166,7 @@ public class AddWidgetViewModel : ViewModelBase
         _stateStorage = stateStorage;
         _serviceProvider = serviceProvider;
         _packagesStorages = packagesStorages;
+        _loggerFactory = loggerFactory;
         _logger = logger;
 
         AddWidgetCommand = ReactiveCommand.Create<AddWidgetDetailsViewModel>(_ => { });
@@ -289,7 +292,7 @@ public class AddWidgetViewModel : ViewModelBase
             );
             var widgetPreviewViewModel = _serviceProvider.GetRequiredService<WidgetViewModel>();
             widgetPreviewViewModel.Widget = (IWidget)widgetPreview;
-            widgetPreviewViewModel.WidgetInstance = new WidgetInstance(widgetInfo, _stateStorage);
+            widgetPreviewViewModel.WidgetInstance = new WidgetInstance(widgetInfo, _stateStorage, _loggerFactory);
             widgetPreviewViewModel.ReadOnly = true;
 
             widgetPreview.SetPreview(previewConfiguration);

@@ -29,6 +29,11 @@ public sealed class PreviewWidgetContext : IWidgetContext
     }
 
     /// <inheritdoc />
+    public void QueueWidgetUpdate()
+    {
+    }
+
+    /// <inheritdoc />
     public Task<JsonObject?> SendMessageAsync(string toWidgetId, string messageId, JsonObject payload, CancellationToken cancellationToken = default)
     {
         return Task.FromResult((JsonObject?)null);

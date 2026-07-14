@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Dashik.Host.Models;
 using Dashik.Sdk.Widgets;
 
@@ -20,12 +21,14 @@ internal sealed class TransientWidgetInstance : WidgetInstance
     public bool RequiresSetup { get; set; }
 
     /// <inheritdoc />
-    public TransientWidgetInstance(string id, WidgetInfo widgetInfo) : base(id, widgetInfo, StubWidgetStateStorage.Instance)
+    public TransientWidgetInstance(string id, WidgetInfo widgetInfo)
+        : base(id, widgetInfo, StubWidgetStateStorage.Instance, NullLoggerFactory.Instance)
     {
     }
 
     /// <inheritdoc />
-    public TransientWidgetInstance(WidgetInfo widgetInfo) : base(widgetInfo, StubWidgetStateStorage.Instance)
+    public TransientWidgetInstance(WidgetInfo widgetInfo)
+        : base(widgetInfo, StubWidgetStateStorage.Instance, NullLoggerFactory.Instance)
     {
     }
 }

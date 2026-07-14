@@ -16,6 +16,7 @@ public sealed class AddWidgetListViewModel : AddWidgetViewModel
         IWidgetsStateStorage stateStorage,
         IServiceProvider serviceProvider,
         IPackagesStorage[] packagesStorages,
+        ILoggerFactory loggerFactory,
         ILogger<AddWidgetListViewModel> logger)
         : base(
             widgetsProvider,
@@ -23,6 +24,7 @@ public sealed class AddWidgetListViewModel : AddWidgetViewModel
             stateStorage,
             serviceProvider,
             packagesStorages,
+            loggerFactory,
             logger)
     {
         SelectWidgetCommand = ReactiveCommand.Create<AddWidgetDetailsViewModel?>(w =>
