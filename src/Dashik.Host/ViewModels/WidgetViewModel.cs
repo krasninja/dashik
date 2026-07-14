@@ -222,10 +222,6 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             CopySettings((WidgetAllSettings)viewModel.Settings);
             UpdateTitle();
             _saveWidgetRequested.OnNext(vm.WidgetId);
-            await vm.Widget.InitializeAsync(
-                new WidgetInitInfo(vm.WidgetInstance, vm.WidgetInstance.MainSettings, vm.WidgetInstance.WidgetSettings),
-                cancellationToken);
-            Initialized = false;
             await InitializeAsync(cancellationToken);
             await UpdateWidgetAsync(force: true, cancellationToken);
             await LoadAsync(cancellationToken);
@@ -288,6 +284,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         {
             return;
         }
+        Initialized = false;
 
         var initInfo = new WidgetInitInfo(WidgetInstance, WidgetInstance.MainSettings, WidgetInstance.WidgetSettings);
 
