@@ -20,6 +20,5 @@
     </Window.Resources>
 
     <StackPanel Orientation="Horizontal">
-
     </StackPanel>
 </Window>

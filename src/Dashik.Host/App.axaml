@@ -19,12 +19,11 @@
 
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon
-                Clicked="TrayIcon_OnClicked"
-                IsVisible="{Binding ShowSystemTrayIcon}"
-                Command="{Binding ShowTrayIconCommand}"
-                Icon="/Assets/Icon.ico"
-                ToolTipText="Dashik">
+            <TrayIcon Clicked="TrayIcon_OnClicked"
+                      IsVisible="{Binding ShowSystemTrayIcon}"
+                      Command="{Binding ShowTrayIconCommand}"
+                      Icon="/Assets/Icon.ico"
+                      ToolTipText="Dashik">
                 <TrayIcon.Menu>
                     <NativeMenu>
                         <NativeMenuItem Header="Add Widget" Command="{Binding WidgetsCollectionViewModel.AddWidgetCommand}" />

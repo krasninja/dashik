@@ -63,32 +63,29 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" Orientation="Vertical">
-                                    <Button
-                                        Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).ApplyFeedCommand}"
-                                        CommandParameter="{Binding}"
-                                        IsVisible="{Binding InEditMode}"
-                                        HorizontalAlignment="Center"
-                                        HorizontalContentAlignment="Center"
-                                        Width="70"
-                                        Margin="5"
-                                        Content="Apply" />
-                                    <Button
-                                        Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).EditFeedCommand}"
-                                        CommandParameter="{Binding}"
-                                        IsVisible="{Binding !InEditMode}"
-                                        HorizontalAlignment="Center"
-                                        HorizontalContentAlignment="Center"
-                                        Width="70"
-                                        Margin="5"
-                                        Content="Edit" />
-                                    <Button
-                                        Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).RemoveFeedCommand}"
-                                        CommandParameter="{Binding}"
-                                        HorizontalAlignment="Center"
-                                        HorizontalContentAlignment="Center"
-                                        Width="70"
-                                        Margin="5"
-                                        Content="Remove" />
+                                    <Button Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).ApplyFeedCommand}"
+                                            CommandParameter="{Binding}"
+                                            IsVisible="{Binding InEditMode}"
+                                            HorizontalAlignment="Center"
+                                            HorizontalContentAlignment="Center"
+                                            Width="70"
+                                            Margin="5"
+                                            Content="Apply" />
+                                    <Button Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).EditFeedCommand}"
+                                            CommandParameter="{Binding}"
+                                            IsVisible="{Binding !InEditMode}"
+                                            HorizontalAlignment="Center"
+                                            HorizontalContentAlignment="Center"
+                                            Width="70"
+                                            Margin="5"
+                                            Content="Edit" />
+                                    <Button Command="{Binding $parent[UserControl].((viewModels:AddFeedViewModel)DataContext).RemoveFeedCommand}"
+                                            CommandParameter="{Binding}"
+                                            HorizontalAlignment="Center"
+                                            HorizontalContentAlignment="Center"
+                                            Width="70"
+                                            Margin="5"
+                                            Content="Remove" />
                                 </StackPanel>
                             </Grid>
                         </Border>

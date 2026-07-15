@@ -31,7 +31,8 @@
                        Content="{Binding Category}" />
             </StackPanel>
         </Grid>
-        <Panel IsVisible="{Binding HasPreviewItems}">
+        <StackPanel IsVisible="{Binding HasPreviewItems}" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetDetailsViewModel)DataContext).PreviousPreviewCommand}">&lt;</Button>
             <Carousel Name="PreviewCarousel"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
@@ -77,11 +78,8 @@
                     </DataTemplate>
                 </Carousel.DataTemplates>
             </Carousel>
-            <Panel Margin="10">
-                <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetDetailsViewModel)DataContext).PreviousPreviewCommand}">&lt;</Button>
-                <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetDetailsViewModel)DataContext).NextPreviewCommand}" HorizontalAlignment="Right">&gt;</Button>
-            </Panel>
-        </Panel>
+            <Button Command="{Binding $parent[UserControl].((viewModels:AddWidgetDetailsViewModel)DataContext).NextPreviewCommand}" HorizontalAlignment="Right">&gt;</Button>
+        </StackPanel>
         <TextBlock FontSize="18"
                    HorizontalAlignment="Center"
                    TextWrapping="Wrap"
