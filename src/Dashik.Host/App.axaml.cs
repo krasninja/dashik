@@ -25,6 +25,11 @@ public sealed partial class App : Application, IDisposable
 
     private MainViewModel? ViewModel => (MainViewModel?)DataContext;
 
+    /// <summary>
+    /// Is invoked on app initialization completion.
+    /// </summary>
+    public event EventHandler? OnInitialized;
+
     public App() : this(new AppRoot(new AppArguments()))
     {
     }
@@ -58,7 +63,11 @@ public sealed partial class App : Application, IDisposable
             e.Handled = true;
         };
 
-        _ = Dispatcher.InvokeAsync(async () => await InitializeApplicationAsync());
+        _ = Dispatcher.InvokeAsync(async () =>
+        {
+            await InitializeApplicationAsync();
+            OnInitialized?.Invoke(this, EventArgs.Empty);
+        });
     }
 
     /// <summary>

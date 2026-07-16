@@ -12,6 +12,12 @@ public interface IAppService
     string GetDataDirectory();
 
     /// <summary>
+    /// Get application configuration directory.
+    /// </summary>
+    /// <returns>Configuration directory.</returns>
+    string GetConfigDirectory();
+
+    /// <summary>
     /// Get application widgets instances directory.
     /// </summary>
     /// <returns>Instances directory.</returns>

@@ -52,7 +52,8 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
         var appSettings = await LoadSettingsAsync(cancellationToken);
 
         new LoggingSetup(Container, AppArguments).Setup();
-        new AppServicesSetup(Container, AppArguments, appSettings, GetApplicationDataDirectory()).Setup();
+        new AppServicesSetup(Container, AppArguments, appSettings, GetApplicationDataDirectory(), GetConfigDirectory())
+            .Setup();
         builder.Invoke(Container);
         SetupMissedDependencies();
 
@@ -127,6 +128,18 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
     {
         var directory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            AppServicesSetup.ApplicationDirectory);
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+        return directory;
+    }
+
+    private static string GetConfigDirectory()
+    {
+        var directory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             AppServicesSetup.ApplicationDirectory);
         if (!Directory.Exists(directory))
         {

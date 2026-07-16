@@ -10,12 +10,14 @@ public sealed class AppService : IAppService
     internal const string WindowsDirectory = "windows";
 
     private readonly AppSettings _appSettings;
+    private readonly string _configDirectory;
     private readonly string _dataDirectory;
     private readonly string[] _additionalPackagesDirectories;
 
-    public AppService(AppSettings appSettings, string dataDirectory, string[] additionalPackagesDirectories)
+    public AppService(AppSettings appSettings, string configDirectory, string dataDirectory, string[] additionalPackagesDirectories)
     {
         _appSettings = appSettings;
+        _configDirectory = configDirectory;
         _dataDirectory = dataDirectory;
         _additionalPackagesDirectories = additionalPackagesDirectories;
     }
@@ -24,10 +26,13 @@ public sealed class AppService : IAppService
     public string GetDataDirectory() => _dataDirectory;
 
     /// <inheritdoc />
-    public string GetInstancesDirectory() => Path.Combine(_dataDirectory, _appSettings.InstancesDirectory);
+    public string GetConfigDirectory() => _configDirectory;
 
     /// <inheritdoc />
-    public string GetStateDirectory() => Path.Combine(_dataDirectory, _appSettings.InstanceStateDirectory);
+    public string GetInstancesDirectory() => Path.Combine(GetConfigDirectory(), _appSettings.InstancesDirectory);
+
+    /// <inheritdoc />
+    public string GetStateDirectory() => Path.Combine(GetConfigDirectory(), _appSettings.InstanceStateDirectory);
 
     /// <inheritdoc />
     public string[] GetPackagesDirectories()
