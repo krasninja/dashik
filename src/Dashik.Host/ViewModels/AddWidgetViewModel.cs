@@ -3,10 +3,10 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json.Nodes;
 using ReactiveUI;
-using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using DynamicData;
 using Dashik.Abstractions;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.Models;
@@ -145,12 +145,36 @@ public class AddWidgetViewModel : ViewModelBase
 
     public bool LoadRemoteWidgets { get; set; } = true;
 
+    public string FilterWidgetName
+    {
+        get;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref field, value);
+            ApplyFilter();
+        }
+    }
+
+    public WidgetCategoryNode? FilterWidgetCategory
+    {
+        get;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref field, value);
+            ApplyFilter();
+        }
+    }
+
+    public ObservableCollection<AddWidgetDetailsViewModel> FilteredWidgets { get; } = new();
+
     public IObservable<AddWidgetDetailsViewModel[]> AddWidgetRequested
         => AddWidgetCommand
             .Where(_ => SelectedWidgetNode != null)
             .Select(_ => new[] { SelectedWidgetNode! });
 
     public ReactiveCommand<AddWidgetDetailsViewModel, Unit> AddWidgetCommand { get; internal set; }
+
+    public ReactiveCommand<Unit, Unit> ClearFilterCommand { get; internal set; }
 
     public AddWidgetViewModel(
         IWidgetsProvider widgetsProvider,
@@ -170,6 +194,22 @@ public class AddWidgetViewModel : ViewModelBase
         _logger = logger;
 
         AddWidgetCommand = ReactiveCommand.Create<AddWidgetDetailsViewModel>(_ => { });
+        ClearFilterCommand = ReactiveCommand.Create(() =>
+        {
+            FilterWidgetName = string.Empty;
+            FilterWidgetCategory = null;
+        });
+    }
+
+    public void ApplyFilter()
+    {
+        FilteredWidgets.Clear();
+        var filtered = Widgets.Where(w =>
+            (string.IsNullOrEmpty(FilterWidgetName) || w.Title.Contains(FilterWidgetName, StringComparison.OrdinalIgnoreCase) == true)
+            &&
+            (FilterWidgetCategory == null || w.Category == FilterWidgetCategory.Info.Category)
+        );
+        FilteredWidgets.AddRange(filtered);
     }
 
     private WidgetCategoryNode? GetOrCreateCategoryNode(
@@ -208,6 +248,7 @@ public class AddWidgetViewModel : ViewModelBase
         SelectedWidgetNode = Categories.SelectMany(c => c.Widgets).FirstOrDefault();
 
         await base.LoadAsync(cancellationToken);
+        ApplyFilter();
     }
 
     private async Task LoadLocalWidgetsAsync(CancellationToken cancellationToken = default)
