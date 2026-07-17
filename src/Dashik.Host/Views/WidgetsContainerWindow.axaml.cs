@@ -3,29 +3,16 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using DynamicData.Binding;
 using ReactiveUI;
-using ReactiveUI.Avalonia;
+using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.ViewModels;
 
 namespace Dashik.Host.Views;
 
-public partial class WidgetsContainerWindow : ReactiveWindow<WidgetsContainerViewModel>
+public partial class WidgetsContainerWindow : BaseReactiveWindow<WidgetsContainerViewModel>
 {
     public WidgetsContainerWindow()
     {
         InitializeComponent();
-
-        this.WhenActivated(disposables =>
-        {
-            if (ViewModel == null)
-            {
-                return;
-            }
-            ViewModel.CloseRequest += (sender, args) =>
-            {
-                disposables.Dispose();
-                this.Close();
-            };
-        });
 
         this.WhenAnyValue(p => p.DataContext)
             .Subscribe(_ =>

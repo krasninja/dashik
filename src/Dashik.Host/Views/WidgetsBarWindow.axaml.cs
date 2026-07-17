@@ -1,9 +1,9 @@
-using ReactiveUI.Avalonia;
+using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.ViewModels;
 
 namespace Dashik.Host.Views;
 
-public partial class WidgetsBarWindow : ReactiveWindow<WidgetsBarViewModel>
+public partial class WidgetsBarWindow : BaseReactiveWindow<WidgetsBarViewModel>
 {
     public WidgetsBarWindow()
     {
