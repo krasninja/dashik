@@ -24,6 +24,14 @@ internal sealed class ApplicationRootCommand : RootCommand
         {
             Description = "Instances directory name.",
         };
+        var configDirectoryOption = new Option<string>("--config-dir")
+        {
+            Description = "Configuration directory name.",
+        };
+        var applicationDirectoryOption = new Option<string>("--application-dir")
+        {
+            Description = "Application configuration directory name.",
+        };
         var widgetFilterOption = new Option<string[]>("--widgets-filter")
         {
             AllowMultipleArgumentsPerToken = true,
@@ -55,6 +63,8 @@ internal sealed class ApplicationRootCommand : RootCommand
         this.TreatUnmatchedTokensAsErrors = false;
         this.Add(pluginDirectoriesOption);
         this.Add(instancesDirectoryNameOption);
+        this.Add(configDirectoryOption);
+        this.Add(applicationDirectoryOption);
         this.Add(widgetFilterOption);
         this.Add(configurationOption);
         this.Add(debugOption);
@@ -67,13 +77,14 @@ internal sealed class ApplicationRootCommand : RootCommand
             var appArguments = new AppArguments();
             appArguments.PluginDirectories.AddRange(parseResult.GetValue(pluginDirectoriesOption) ?? []);
             appArguments.InstancesDirectoryName = parseResult.GetValue(instancesDirectoryNameOption) ?? string.Empty;
+            appArguments.ConfigDirectory = parseResult.GetValue(configDirectoryOption) ?? string.Empty;
+            appArguments.ApplicationDirectory = parseResult.GetValue(applicationDirectoryOption) ?? string.Empty;
             appArguments.WidgetsFilter.AddRange(parseResult.GetValue(widgetFilterOption) ?? []);
             appArguments.ConfigurationFile = parseResult.GetValue(configurationOption) ?? string.Empty;
             appArguments.DebugMode = parseResult.GetValue(debugOption);
             appArguments.Mode = parseResult.GetValue(modeOption);
             appArguments.MinLogLevel = parseResult.GetValue(logLevelOption);
             appArguments.LogFile = parseResult.GetValue(logFileOption) ?? string.Empty;
-
             appArguments.PluginDirectories = appArguments.PluginDirectories
                 .Where(Directory.Exists)
                 .ToList();

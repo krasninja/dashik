@@ -17,9 +17,7 @@ namespace Dashik.Host.Infrastructure.Setup;
 internal sealed class AppServicesSetup(
     Container container,
     AppArguments appArguments,
-    AppSettings appSettings,
-    string dataDirectory,
-    string configDirectory)
+    AppSettings appSettings)
 {
     internal const string SettingsFileName = "settings.json";
     internal const string ApplicationDirectory = "dashik";
@@ -33,8 +31,12 @@ internal sealed class AppServicesSetup(
         container.Register<IAppService>(() =>
         {
             var localAppSettings = container.GetRequiredService<AppSettings>();
-            return new AppService(localAppSettings, configDirectory, dataDirectory,
-                appArguments.PluginDirectories.ToArray());
+            return new AppService(
+                localAppSettings,
+                appArguments.ConfigDirectory,
+                appArguments.ApplicationDirectory,
+                appArguments.PluginDirectories.ToArray()
+            );
         });
         container.Register<IWidgetInstanceProvider, LocalWidgetInstanceProvider>();
         container.Register<IMvvmService, AvaloniaMvvmService>();

@@ -19,6 +19,10 @@ public class AppArguments
 
     public string InstancesDirectoryName { get; set; } = string.Empty;
 
+    public string ConfigDirectory { get; set; } = string.Empty;
+
+    public string ApplicationDirectory { get; set; } = string.Empty;
+
     public List<string> WidgetsFilter { get; set; } = new();
 
     public string ConfigurationFile { get; set; } = string.Empty;

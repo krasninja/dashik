@@ -52,8 +52,15 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
         var appSettings = await LoadSettingsAsync(cancellationToken);
 
         new LoggingSetup(Container, AppArguments).Setup();
-        new AppServicesSetup(Container, AppArguments, appSettings, GetApplicationDataDirectory(), GetConfigDirectory())
-            .Setup();
+        if (string.IsNullOrEmpty(AppArguments.ConfigDirectory))
+        {
+            AppArguments.ConfigDirectory = GetConfigDirectory();
+        }
+        if (string.IsNullOrEmpty(AppArguments.ApplicationDirectory))
+        {
+            AppArguments.ApplicationDirectory = GetApplicationDataDirectory();
+        }
+        new AppServicesSetup(Container, AppArguments, appSettings).Setup();
         builder.Invoke(Container);
         SetupMissedDependencies();
 
