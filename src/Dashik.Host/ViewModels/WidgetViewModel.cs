@@ -222,6 +222,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             CopySettings((WidgetAllSettings)viewModel.Settings);
             UpdateTitle();
             _saveWidgetRequested.OnNext(vm.WidgetId);
+            Initialized = false;
             await InitializeAsync(cancellationToken);
             await UpdateWidgetAsync(force: true, cancellationToken);
             await LoadAsync(cancellationToken);
@@ -284,7 +285,6 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         {
             return;
         }
-        Initialized = false;
 
         var initInfo = new WidgetInitInfo(WidgetInstance, WidgetInstance.MainSettings, WidgetInstance.WidgetSettings);
 
@@ -315,7 +315,11 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             ErrorWidget = await CreateErrorWidgetAsync(initInfo, e, cancellationToken);
         }
 
-        Initialized = true;
+        if (!RequireConfiguration)
+        {
+            ErrorWidget = null;
+            Initialized = true;
+        }
     }
 
     private static void ValidateObject(object obj)
@@ -347,6 +351,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             ),
             cancellationToken
         );
+        widget.OriginalWidgetViewModel = this;
 
         return widget;
     }
@@ -362,7 +367,8 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
     {
         if (WidgetInstance == null
             || Widget == null
-            || Updating)
+            || Updating
+            || !Initialized)
         {
             return false;
         }

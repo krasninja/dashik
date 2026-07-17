@@ -50,6 +50,12 @@ internal sealed class StubWidget : ReactiveObject, IWidget
 
     private readonly StubWidgetViewModel _viewModel = new();
 
+    public WidgetViewModel? OriginalWidgetViewModel
+    {
+        get => _viewModel.OriginalWidgetViewModel;
+        set => _viewModel.OriginalWidgetViewModel = value;
+    }
+
     private sealed class StubWidgetViewModel : ViewModelBase
     {
         public string Text
@@ -77,6 +83,12 @@ internal sealed class StubWidget : ReactiveObject, IWidget
         }
 
         public bool RequiresSetup
+        {
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
+        }
+
+        public WidgetViewModel? OriginalWidgetViewModel
         {
             get;
             set => this.RaiseAndSetIfChanged(ref field, value);
@@ -115,9 +127,14 @@ internal sealed class StubWidget : ReactiveObject, IWidget
         };
         requiresSetupButton.Click += (obj, _) =>
         {
-            if (obj is StyledElement control && control.DataContext is WidgetViewModel widgetViewModel)
+            if (rootPanel.DataContext is WidgetViewModel widgetViewModel)
             {
                 widgetViewModel.OpenWidgetSettingsCommand.Execute(widgetViewModel)
+                    .Subscribe();
+            }
+            if (_viewModel.OriginalWidgetViewModel != null)
+            {
+                _viewModel.OriginalWidgetViewModel.OpenWidgetSettingsCommand.Execute(_viewModel.OriginalWidgetViewModel)
                     .Subscribe();
             }
         };
