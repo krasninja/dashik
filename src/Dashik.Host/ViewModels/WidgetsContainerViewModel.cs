@@ -77,6 +77,8 @@ public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseable
 
     public ReactiveCommand<Unit, Unit> OpenWebsiteCommand { get; }
 
+    public ReactiveCommand<Unit, Unit> OpenFeedbackCommand { get; }
+
     public ReactiveCommand<SpaceViewModel, Unit> SwitchSpaceCommand { get; }
 
     public ReactiveCommand<Unit, Unit> ShowTrayIconCommand { get; }
@@ -135,6 +137,7 @@ public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseable
         OpenLogsCommand = ReactiveCommand.CreateFromTask(OpenLogsWindow);
         OpenFontsCommand = ReactiveCommand.CreateFromTask(OpenFontsWindow);
         OpenWebsiteCommand = ReactiveCommand.CreateFromTask(OpenWebsite);
+        OpenFeedbackCommand = ReactiveCommand.CreateFromTask(OpenFeedback);
         SwitchSpaceCommand = ReactiveCommand.Create<SpaceViewModel>(SwitchSpace);
         ShowTrayIconCommand = ReactiveCommand.Create(ShowTrayIcon);
         FitCommand = ReactiveCommand.Create(Fit);
@@ -245,14 +248,22 @@ public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseable
 
     private async Task OpenWebsite(CancellationToken cancellationToken)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var mainWindow = _mvvmService.GetMainWindow();
         if (mainWindow == null)
         {
             return;
         }
-        await mainWindow.Launcher.LaunchUriAsync(new Uri(MainWebsite));
+        await mainWindow.Launcher.LaunchUriAsync(new Uri(General.MainWebsiteUri));
+    }
+
+    private async Task OpenFeedback(CancellationToken cancellationToken)
+    {
+        var mainWindow = _mvvmService.GetMainWindow();
+        if (mainWindow == null)
+        {
+            return;
+        }
+        await mainWindow.Launcher.LaunchUriAsync(new Uri(General.FormFeedbackUri));
     }
 
     private void SwitchSpace(SpaceViewModel space)

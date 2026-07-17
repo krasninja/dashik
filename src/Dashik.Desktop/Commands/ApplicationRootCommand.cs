@@ -93,7 +93,10 @@ internal sealed class ApplicationRootCommand : RootCommand
             await appRoot.SetupServicesAsync(container =>
             {
                 container.RegisterSingleton<IAppUpdateService>(
-                    () => new VelopackAppUpdateService(AppServicesSetup.ReleaseUri, container.GetRequiredService<ILogger<VelopackAppUpdateService>>())
+                    () => new VelopackAppUpdateService(
+                        General.ReleaseUri,
+                        container.GetRequiredService<ILogger<VelopackAppUpdateService>>()
+                    )
                 );
             }, cancellationToken);
             VelopackApp.Build()

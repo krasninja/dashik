@@ -14,6 +14,9 @@ namespace Dashik.Host;
 /// </summary>
 public sealed class AppRoot : IDisposable, IAsyncDisposable
 {
+    internal const string SettingsFileName = "settings.json";
+    internal const string ApplicationDirectory = "dashik";
+
     public AppArguments AppArguments { get; }
 
     public Container Container { get; }
@@ -93,7 +96,7 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
     private async Task<AppSettings> LoadSettingsAsync(string configDirectory, CancellationToken cancellationToken)
     {
         // Load JSON.
-        var settingsFileName = Path.Combine(configDirectory, AppServicesSetup.SettingsFileName);
+        var settingsFileName = Path.Combine(configDirectory, SettingsFileName);
         var settings = new AppSettings();
         if (File.Exists(settingsFileName))
         {
@@ -135,7 +138,7 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
     {
         var directory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            AppServicesSetup.ApplicationDirectory);
+            ApplicationDirectory);
         if (!Directory.Exists(directory))
         {
             Directory.CreateDirectory(directory);
@@ -147,7 +150,7 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
     {
         var directory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            AppServicesSetup.ApplicationDirectory);
+            ApplicationDirectory);
         if (!Directory.Exists(directory))
         {
             Directory.CreateDirectory(directory);

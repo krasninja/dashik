@@ -26,7 +26,7 @@ public sealed class SettingsStorage
     {
         var appDirectory = _appService.GetConfigDirectory();
         await using var settingsFile = new FileStream(
-            Path.Combine(appDirectory, AppServicesSetup.SettingsFileName),
+            Path.Combine(appDirectory, AppRoot.SettingsFileName),
             FileMode.Create,
             FileAccess.Write,
             FileShare.Inheritable);

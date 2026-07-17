@@ -19,10 +19,6 @@ internal sealed class AppServicesSetup(
     AppArguments appArguments,
     AppSettings appSettings)
 {
-    internal const string SettingsFileName = "settings.json";
-    internal const string ApplicationDirectory = "dashik";
-    internal const string ReleaseUri = @"https://dashik.anti-soft.ru/downloads/releases/";
-
     public void Setup()
     {
         container.RegisterInstance(appSettings);

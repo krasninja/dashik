@@ -9,8 +9,6 @@ namespace Dashik.Host.ViewModels;
 
 public abstract class WidgetsBaseViewModel : ViewModelBase, IDisposable
 {
-    internal const string MainWebsite = @"https://github.com/krasninja/dashik";
-
     /// <summary>
     /// Window identifier.
     /// </summary>

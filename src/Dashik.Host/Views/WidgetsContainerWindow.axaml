@@ -120,8 +120,10 @@
                                     <MenuItem Header="Topmost" ToggleType="CheckBox" IsChecked="{Binding Topmost, Mode=TwoWay}" />
                                 </MenuItem>
                                 <MenuItem Header="Help">
-                                    <MenuItem Header="Logs" Command="{Binding OpenLogsCommand}" />
                                     <MenuItem Header="Website" Command="{Binding OpenWebsiteCommand}" />
+                                    <MenuItem Header="Feedback" Command="{Binding OpenFeedbackCommand}" />
+                                    <Separator />
+                                    <MenuItem Header="Logs" Command="{Binding OpenLogsCommand}" />
                                     <MenuItem Header="Fonts" Command="{Binding OpenFontsCommand}" />
                                     <MenuItem Header="Check Updates" Command="{Binding WidgetsViewModel.CheckUpdatesCommand}" />
                                     <Separator />
