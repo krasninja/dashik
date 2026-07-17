@@ -72,7 +72,7 @@
         <TextBox
             Grid.Row="3"
             Margin="10"
-            FontFamily="Adwaita Mono, Consolas, Menlo, Monospace"
+            FontFamily="{StaticResource ConsoleFontFamily}"
             TextWrapping="Wrap"
             IsReadOnly="True">
             <TextBox.Text>

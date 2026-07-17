@@ -137,7 +137,7 @@
                                         <Label Grid.Column="0" Grid.Row="3">Local URI:</Label>
                                         <TextBlock Grid.Column="1"
                                                    Grid.Row="3"
-                                                   FontFamily="Adwaita Mono, Consolas, Menlo, Monospace"
+                                                   FontFamily="{StaticResource ConsoleFontFamily}"
                                                    TextWrapping="Wrap"
                                                    Text="{Binding PackageGroup.Local.NugetPackageFile}" />
 
@@ -147,7 +147,7 @@
                                         <Label Grid.Column="0" Grid.Row="5">Remote URI:</Label>
                                         <TextBlock Grid.Column="1"
                                                    Grid.Row="5"
-                                                   FontFamily="Adwaita Mono, Consolas, Menlo, Monospace"
+                                                   FontFamily="{StaticResource ConsoleFontFamily}"
                                                    VerticalAlignment="Center"
                                                    TextWrapping="Wrap"
                                                    Text="{Binding PackageGroup.Remote.RemoteFileUri}" />

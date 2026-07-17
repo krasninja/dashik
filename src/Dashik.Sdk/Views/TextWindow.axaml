@@ -23,7 +23,7 @@
             Grid.Row="0"
             IsReadOnly="True"
             Text="{Binding Text}"
-            FontFamily="Adwaita Mono, Consolas, Menlo, Monospace"
+            FontFamily="{StaticResource ConsoleFontFamily}"
             TextWrapping="Wrap" />
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
