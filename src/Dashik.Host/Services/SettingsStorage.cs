@@ -24,7 +24,7 @@ public sealed class SettingsStorage
     /// <param name="cancellationToken">Cancellation token.</param>
     public async Task SaveAsync(AppSettings settings, CancellationToken cancellationToken = default)
     {
-        var appDirectory = _appService.GetDataDirectory();
+        var appDirectory = _appService.GetConfigDirectory();
         await using var settingsFile = new FileStream(
             Path.Combine(appDirectory, AppServicesSetup.SettingsFileName),
             FileMode.Create,

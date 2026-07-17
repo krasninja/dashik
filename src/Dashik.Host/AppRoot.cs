@@ -49,9 +49,6 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
     /// <returns>Awaitable task.</returns>
     public async Task SetupServicesAsync(Action<Container> builder, CancellationToken cancellationToken = default)
     {
-        var appSettings = await LoadSettingsAsync(cancellationToken);
-
-        new LoggingSetup(Container, AppArguments).Setup();
         if (string.IsNullOrEmpty(AppArguments.ConfigDirectory))
         {
             AppArguments.ConfigDirectory = GetConfigDirectory();
@@ -60,6 +57,10 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
         {
             AppArguments.ApplicationDirectory = GetApplicationDataDirectory();
         }
+
+        var appSettings = await LoadSettingsAsync(AppArguments.ConfigDirectory, cancellationToken);
+
+        new LoggingSetup(Container, AppArguments).Setup();
         new AppServicesSetup(Container, AppArguments, appSettings).Setup();
         builder.Invoke(Container);
         SetupMissedDependencies();
@@ -89,11 +90,10 @@ public sealed class AppRoot : IDisposable, IAsyncDisposable
 
     #region Settings load
 
-    private async Task<AppSettings> LoadSettingsAsync(CancellationToken cancellationToken)
+    private async Task<AppSettings> LoadSettingsAsync(string configDirectory, CancellationToken cancellationToken)
     {
         // Load JSON.
-        var appDirectory = GetApplicationDataDirectory();
-        var settingsFileName = Path.Combine(appDirectory, AppServicesSetup.SettingsFileName);
+        var settingsFileName = Path.Combine(configDirectory, AppServicesSetup.SettingsFileName);
         var settings = new AppSettings();
         if (File.Exists(settingsFileName))
         {

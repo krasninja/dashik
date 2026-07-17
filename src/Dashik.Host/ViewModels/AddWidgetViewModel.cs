@@ -154,6 +154,7 @@ public class AddWidgetViewModel : ViewModelBase
             ApplyFilter();
         }
     }
+    = string.Empty;
 
     public WidgetCategoryNode? FilterWidgetCategory
     {

@@ -49,13 +49,17 @@ public sealed class AppService : IAppService
     public string GetMainPackageDirectory() => Path.Combine(GetDataDirectory(), WidgetsDirectory);
 
     /// <inheritdoc />
-    public string GetWindowsDirectory() => Path.Combine(GetDataDirectory(), WindowsDirectory);
+    public string GetWindowsDirectory() => Path.Combine(GetConfigDirectory(), WindowsDirectory);
 
     /// <inheritdoc />
     public PackageFeed[] GetFeeds()
     {
         return Array.Empty<PackageFeed>()
-            .Concat([new PackageFeed("Default", new Uri(DefaultPackagesStorage.Instance.Uri))])
+            .Concat(
+            [
+                new PackageFeed(PackageFeed.DefaultPackagesStorageName,
+                    new Uri(DefaultPackagesStorage.Instance.Uri))
+            ])
             .Concat(_appSettings.PackagesFeeds.Select(f => new PackageFeed(f.Name, f.Uri)))
             .ToArray();
     }

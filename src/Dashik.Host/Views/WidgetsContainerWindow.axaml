@@ -134,7 +134,10 @@
                     </Button>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="0">
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Spacing="0">
                     <ItemsControl ItemsSource="{Binding WidgetsViewModel.Spaces}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
