@@ -15,7 +15,11 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
+        <!-- Filter -->
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNull}}"
+                    Margin="5">
             <TextBox Text="{Binding FilterWidgetName}" Width="200" />
             <Label VerticalAlignment="Center" Margin="10,0,0,0">Category:</Label>
             <ComboBox ItemsSource="{Binding Categories}"
@@ -68,7 +72,13 @@
                     </ItemsControl>
                 </Grid>
 
-                <Grid IsVisible="{Binding !FilteredWidgets}">
+                <Grid>
+                    <Grid.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="!FilteredWidgets" />
+                            <Binding Path="SelectedWidgetNode" Converter="{x:Static ObjectConverters.IsNull}" />
+                        </MultiBinding>
+                    </Grid.IsVisible>
                     <Label HorizontalAlignment="Center" VerticalAlignment="Center" Content="No widgets found." />
                 </Grid>
 
