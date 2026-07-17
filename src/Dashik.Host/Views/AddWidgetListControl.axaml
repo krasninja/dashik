@@ -9,83 +9,94 @@
              d:DesignHeight="450"
              x:Class="Dashik.Host.Views.AddWidgetListControl"
              x:DataType="viewModels:AddWidgetListViewModel">
-    <ScrollViewer>
-        <StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <TextBox Text="{Binding FilterWidgetName}" Width="200" />
-                <Label VerticalAlignment="Center" Margin="10,0,0,0">Category:</Label>
-                <ComboBox ItemsSource="{Binding Categories}"
-                          SelectedItem="{Binding FilterWidgetCategory}"
-                          VerticalAlignment="Center">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Title}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <Button Content="Clear" Command="{Binding ClearFilterCommand}" Margin="5,0,0,0" />
-            </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-            <!-- Widgets list -->
-            <Grid IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNull}}"
-                  HorizontalAlignment="Center">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <ItemsControl ItemsSource="{Binding FilteredWidgets}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Width="160"
-                                    Height="160"
-                                    Padding="10"
-                                    Command="{Binding $parent[UserControl].((viewModels:AddWidgetListViewModel)DataContext).SelectWidgetCommand}"
-                                    CommandParameter="{Binding}">
-                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                                    <Image Source="{Binding Icon^}" Height="64" Margin="5" />
-                                    <TextBlock FontSize="16"
-                                               HorizontalAlignment="Center"
-                                               TextAlignment="Center"
-                                               VerticalAlignment="Bottom"
-                                               TextWrapping="Wrap"
-                                               Text="{Binding Title}" />
-                                </StackPanel>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Grid>
-
-            <!-- Selected widget details -->
-            <Grid IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <StackPanel Grid.Column="0" Orientation="Vertical">
-                    <Button Command="{Binding SelectWidgetCommand}"
-                            CommandParameter="{x:Null}"
-                            HorizontalAlignment="Left"
-                            Content="Back" />
-                    <views:AddWidgetDetailsControl HorizontalAlignment="Center" DataContext="{Binding SelectedWidgetNode}" />
-                    <Button Command="{Binding AddWidgetCommand}"
-                            CommandParameter="{Binding SelectedWidgetNode}"
-                            Content="Add"
-                            Width="120"
-                            Padding="10"
-                            Margin="5"
-                            Foreground="White"
-                            Background="DarkBlue"
-                            HorizontalAlignment="Center"
-                            HorizontalContentAlignment="Center" />
-                </StackPanel>
-            </Grid>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
+            <TextBox Text="{Binding FilterWidgetName}" Width="200" />
+            <Label VerticalAlignment="Center" Margin="10,0,0,0">Category:</Label>
+            <ComboBox ItemsSource="{Binding Categories}"
+                      SelectedItem="{Binding FilterWidgetCategory}"
+                      VerticalAlignment="Center">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Margin="5,0,0,0" />
         </StackPanel>
-    </ScrollViewer>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel>
+                <!-- Widgets list -->
+                <Grid IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNull}}"
+                      HorizontalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <ItemsControl ItemsSource="{Binding FilteredWidgets}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Width="160"
+                                        Height="160"
+                                        Padding="10"
+                                        Command="{Binding $parent[UserControl].((viewModels:AddWidgetListViewModel)DataContext).SelectWidgetCommand}"
+                                        CommandParameter="{Binding}">
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                        <Image Source="{Binding Icon^}" Height="64" Margin="5" />
+                                        <TextBlock FontSize="16"
+                                                   HorizontalAlignment="Center"
+                                                   TextAlignment="Center"
+                                                   VerticalAlignment="Bottom"
+                                                   TextWrapping="Wrap"
+                                                   Text="{Binding Title}" />
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+
+                <Grid IsVisible="{Binding !FilteredWidgets}">
+                    <Label HorizontalAlignment="Center" VerticalAlignment="Center" Content="No widgets found." />
+                </Grid>
+
+                <!-- Selected widget details -->
+                <Grid IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Vertical">
+                        <Button Command="{Binding SelectWidgetCommand}"
+                                CommandParameter="{x:Null}"
+                                HorizontalAlignment="Left"
+                                Content="Back" />
+                        <views:AddWidgetDetailsControl HorizontalAlignment="Center" DataContext="{Binding SelectedWidgetNode}" />
+                        <Button Command="{Binding AddWidgetCommand}"
+                                CommandParameter="{Binding SelectedWidgetNode}"
+                                Content="Add"
+                                Width="120"
+                                Padding="10"
+                                Margin="5"
+                                Foreground="White"
+                                Background="DarkBlue"
+                                HorizontalAlignment="Center"
+                                HorizontalContentAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </UserControl>
