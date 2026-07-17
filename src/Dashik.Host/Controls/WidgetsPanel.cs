@@ -75,21 +75,22 @@ public sealed class WidgetsPanel : Panel
         var currentItemIndexInColumn = 0;
         for (var i = 0; i < controlsCount; i++)
         {
-            columnIndexForWidget[i] = currentColumn;
             if (currentItemIndexInColumn >= itemsPerColumn)
             {
+                columnIndexForWidget[i] = ++currentColumn;
                 currentItemIndexInColumn = 0;
-                currentColumn++;
             }
             else
             {
+                columnIndexForWidget[i] = currentColumn;
                 currentItemIndexInColumn++;
             }
         }
 
         // Rebalance.
-        var heights = _heights.Length != GetTotalColumns(columnIndexForWidget)
-            ? new double[GetTotalColumns(columnIndexForWidget)]
+        var totalColumns = GetTotalColumns(columnIndexForWidget);
+        var heights = _heights.Length != totalColumns
+            ? new double[totalColumns]
             : _heights;
         _heights = heights;
         for (var i = 0; i < MaxRebalanceIterations; i++)
