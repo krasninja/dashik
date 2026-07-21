@@ -22,9 +22,9 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
     <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.10" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="NuGet.Packaging" Version="7.6.0" />
     <PackageReference Include="SimpleInjector" Version="5.6.0" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,8 +41,8 @@
       <DependentUpon>SettingsWindow.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Settings\JsonSectionControl.axaml.cs">
-      <DependentUpon>SettingsJsonControl.axaml</DependentUpon>
+    <Compile Update="Views\Settings\YamlSectionControl.axaml.cs">
+      <DependentUpon>YamlSectionControl.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\Settings\AppMainSectionControl.axaml.cs">

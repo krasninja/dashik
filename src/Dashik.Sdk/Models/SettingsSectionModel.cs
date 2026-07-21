@@ -10,7 +10,7 @@ public class SettingsSectionModel : ReactiveObject
     /// <summary>
     /// Settings object.
     /// </summary>
-    public object? Settings
+    public virtual object? Settings
     {
         get => field;
         set => this.RaiseAndSetIfChanged(ref field, value);

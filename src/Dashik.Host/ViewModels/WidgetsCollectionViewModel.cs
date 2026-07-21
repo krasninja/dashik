@@ -458,7 +458,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         viewModel.AddSection(
             SettingsSection.Create<AppSpacesSectionControl, AppSpacesSectionViewModel>("Spaces")
         );
-        viewModel.AddJsonSection();
+        viewModel.AddYamlSection();
 
         if (await _mvvmService.OpenAsync(viewModel, this, cancellationToken) == DialogResult.OK)
         {

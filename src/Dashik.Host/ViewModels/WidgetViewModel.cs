@@ -31,11 +31,11 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger _logger;
 
-    public sealed class WidgetAllSettings(WidgetMainSettings mainSettings, object? settings)
+    public sealed class WidgetAllSettings
     {
-        public WidgetMainSettings MainSettings { get; } = mainSettings;
+        public required WidgetMainSettings MainSettings { get; set; }
 
-        public object? Settings { get; } = settings;
+        public object? Settings { get; set; }
     }
 
     public double WidgetWidth
@@ -212,7 +212,11 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         }
 
         var widgetSettings = vm.Widget is IWidgetSettings widgetWithSettings ? widgetWithSettings.Settings : null;
-        var settingsModel = new WidgetAllSettings(vm.WidgetInstance.MainSettings, widgetSettings);
+        var settingsModel = new WidgetAllSettings
+        {
+            MainSettings = vm.WidgetInstance.MainSettings,
+            Settings = widgetSettings,
+        };
         var originalSpaceId = settingsModel.MainSettings.SpaceId;
         var viewModel = _mvvmService.CreateViewModel<SettingsViewModel>(settingsModel);
         AddSettingsSection(viewModel, vm.Widget);
@@ -252,7 +256,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             }
         }
 
-        viewModel.AddJsonSection();
+        viewModel.AddYamlSection();
     }
 
     private void CopySettings(WidgetAllSettings newSettings)

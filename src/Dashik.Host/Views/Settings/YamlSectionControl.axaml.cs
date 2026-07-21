@@ -3,27 +3,26 @@ using AvaloniaEdit.TextMate;
 using ReactiveUI;
 using ReactiveUI.Avalonia;
 using TextMateSharp.Grammars;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using YamlDotNet.Core;
 using Dashik.Host.Utils;
 using Dashik.Host.ViewModels.Settings;
 
 namespace Dashik.Host.Views.Settings;
 
-public sealed partial class JsonSectionControl : ReactiveUserControl<JsonSectionViewModel>, IDisposable
+public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSectionViewModel>, IDisposable
 {
     private readonly IDisposable _textChangedSubscription;
     private bool _suppressTextChanged;
     private bool _pendingChanges;
 
-    public JsonSectionControl()
+    public YamlSectionControl()
     {
         InitializeComponent();
 
         var registryOptions = new RegistryOptions(ThemeName.LightPlus);
         var textMateInstallation = Editor.InstallTextMate(registryOptions);
         textMateInstallation.SetGrammar(
-            registryOptions.GetScopeByLanguageId(registryOptions.GetLanguageByExtension(".json").Id));
+            registryOptions.GetScopeByLanguageId(registryOptions.GetLanguageByExtension(".yaml").Id));
 
         _textChangedSubscription = Observable.FromEventPattern(
                 h => Editor.TextChanged += h,
@@ -44,8 +43,8 @@ public sealed partial class JsonSectionControl : ReactiveUserControl<JsonSection
             return;
         }
 
-        ViewModel.WhenAnyValue(x => x.JsonSettings)
-            .Subscribe(JsonSettingsUpdate);
+        ViewModel.WhenAnyValue(x => x.Settings)
+            .Subscribe(YamlSettingsUpdate);
 
         ViewModel.Sync += ViewModelSync;
     }
@@ -66,28 +65,28 @@ public sealed partial class JsonSectionControl : ReactiveUserControl<JsonSection
         {
             if (ViewModel.Settings != null)
             {
-                var settings = JsonConvert.DeserializeObject(obj, ViewModel.Settings.GetType(), ViewModel.JsonSerializerOptions);
+                var settings = ViewModel.Deserializer.Deserialize(obj, ViewModel.Settings.GetType());
                 AppCloner.CloneObjectTo(settings, ViewModel.Settings);
             }
             _pendingChanges = false;
-            ViewModel.JsonError = string.Empty;
+            ViewModel.YamlError = string.Empty;
         }
-        catch (JsonException e)
+        catch (YamlException e)
         {
-            ViewModel.JsonError = e.Message;
+            var message = e.InnerException != null ? e.InnerException.Message : e.Message;
+            ViewModel.YamlError = $"(line {e.Start.Line}, col {e.Start.Column}): {message}";
         }
     }
 
-    private void JsonSettingsUpdate(object? obj)
+    private void YamlSettingsUpdate(object? obj)
     {
         if (obj == null)
         {
             return;
         }
 
-        var jsonDocument = (JObject)obj;
         _suppressTextChanged = true;
-        Editor.Text = jsonDocument.ToString(Formatting.Indented);
+        Editor.Text = ViewModel!.Serializer.Serialize(obj);
         _suppressTextChanged = false;
     }
 

@@ -32,6 +32,9 @@ public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDia
         }
     }
 
+    /// <summary>
+    /// Settings object.
+    /// </summary>
     public object Settings
     {
         get => field;
@@ -70,10 +73,10 @@ public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDia
             });
     }
 
-    public void AddJsonSection()
+    public void AddYamlSection()
     {
-        var jsonSection = SettingsSection.Create<JsonSectionControl, JsonSectionViewModel>("JSON");
-        AddSection(jsonSection);
+        var yamlSection = SettingsSection.Create<YamlSectionControl, YamlSectionViewModel>("YAML");
+        AddSection(yamlSection);
     }
 
     public void AddSection(SettingsSection section, Func<object, object?>? settingsFunc = null)

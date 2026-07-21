@@ -1,6 +1,5 @@
 using System.Runtime.Serialization;
 using Avalonia.Collections;
-using Newtonsoft.Json;
 using Dashik.Abstractions;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.Models;
@@ -42,8 +41,7 @@ public class AppSettingsViewModel : ViewModelBase
     /// <summary>
     /// Ctor for deserialization.
     /// </summary>
-    [JsonConstructor]
-    private AppSettingsViewModel()
+    internal AppSettingsViewModel()
     {
     }
 

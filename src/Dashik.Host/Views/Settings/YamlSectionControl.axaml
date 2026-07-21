@@ -7,14 +7,14 @@
              d:DesignHeight="450"
              xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
              xmlns:viewModels="clr-namespace:Dashik.Host.ViewModels.Settings"
-             x:Class="Dashik.Host.Views.Settings.JsonSectionControl"
-             x:DataType="viewModels:JsonSectionViewModel">
+             x:Class="Dashik.Host.Views.Settings.YamlSectionControl"
+             x:DataType="viewModels:YamlSectionViewModel">
     <StackPanel Orientation="Vertical">
         <Border
-            IsVisible="{Binding JsonError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+            IsVisible="{Binding YamlError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
             BorderThickness="1">
             <TextBlock
-                Text="{Binding JsonError}"
+                Text="{Binding YamlError}"
                 Padding="5"
                 TextWrapping="Wrap"
                 Background="LightCoral" />
