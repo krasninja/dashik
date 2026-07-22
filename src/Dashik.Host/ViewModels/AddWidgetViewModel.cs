@@ -171,6 +171,8 @@ public class AddWidgetViewModel : ViewModelBase
 
     public ObservableCollection<AddWidgetDetailsViewModel> FilteredWidgets { get; } = new();
 
+    public bool HasNoFilteredWidgets => FilteredWidgets.Count == 0;
+
     public IObservable<AddWidgetDetailsViewModel[]> AddWidgetRequested
         => AddWidgetCommand
             .Where(_ => SelectedWidgetNode != null)
@@ -200,6 +202,8 @@ public class AddWidgetViewModel : ViewModelBase
         _mvvmService = mvvmService;
         _loggerFactory = loggerFactory;
         _logger = logger;
+
+        FilteredWidgets.CollectionChanged += (_, _) => this.RaisePropertyChanged(nameof(HasNoFilteredWidgets));
 
         AddWidgetCommand = ReactiveCommand.Create<AddWidgetDetailsViewModel>(_ => { });
         ClearFilterCommand = ReactiveCommand.Create(() =>

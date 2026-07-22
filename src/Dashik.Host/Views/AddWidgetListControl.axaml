@@ -24,10 +24,9 @@
         </Grid.RowDefinitions>
 
         <!-- Filter -->
-        <DockPanel Grid.Row="0">
+        <DockPanel Grid.Row="0" IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNull}}">
             <StackPanel Orientation="Horizontal"
                         DockPanel.Dock="Left"
-                        IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNull}}"
                         Margin="5">
                 <TextBox Text="{Binding FilterWidgetName}" Width="200" />
                 <Label VerticalAlignment="Center" Margin="10,0,0,0">Category:</Label>
@@ -92,7 +91,7 @@
                 <Grid>
                     <Grid.IsVisible>
                         <MultiBinding Converter="{x:Static BoolConverters.And}">
-                            <Binding Path="!FilteredWidgets" />
+                            <Binding Path="HasNoFilteredWidgets" />
                             <Binding Path="SelectedWidgetNode" Converter="{x:Static ObjectConverters.IsNull}" />
                         </MultiBinding>
                     </Grid.IsVisible>
