@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using ReactiveUI;
 using DynamicData;
 using Dashik.Host.Infrastructure.UI;
@@ -8,6 +10,7 @@ using Dashik.Host.Models;
 using Dashik.Host.Services;
 using Dashik.Host.Services.Packages;
 using Dashik.Host.Utils;
+using Dashik.Sdk.Models;
 using Dashik.Sdk.Mvvm;
 using Dashik.Sdk.ViewModels;
 
@@ -50,6 +53,8 @@ public sealed class AddFeedViewModel : ViewModelBase
 
     public string DefaultFeedUri { get; set; }
 
+    public IObservable<Unit> PackageFeedUpdateRequested { get; } = new Subject<Unit>();
+
     public ReactiveCommand<Unit, Unit> AddFeedCommand { get; set; }
 
     public ReactiveCommand<FeedViewModel, Unit> EditFeedCommand { get; }
@@ -69,13 +74,13 @@ public sealed class AddFeedViewModel : ViewModelBase
 
         DefaultFeedUri = DefaultPackagesStorage.Instance.Uri;
 
-        AddFeedCommand = ReactiveCommand.Create(AddFeed);
+        AddFeedCommand = ReactiveCommand.CreateFromTask(AddFeedAsync);
         EditFeedCommand = ReactiveCommand.Create<FeedViewModel>(EditFeed);
-        ApplyFeedCommand = ReactiveCommand.CreateFromTask<FeedViewModel>(ApplyFeed);
-        RemoveFeedCommand = ReactiveCommand.CreateFromTask<FeedViewModel>(RemoveFeed);
+        ApplyFeedCommand = ReactiveCommand.CreateFromTask<FeedViewModel>(ApplyFeedAsync);
+        RemoveFeedCommand = ReactiveCommand.CreateFromTask<FeedViewModel>(RemoveFeedAsync);
     }
 
-    public void AddFeed()
+    public async Task AddFeedAsync(CancellationToken cancellationToken)
     {
         var feed = new FeedViewModel
         {
@@ -89,7 +94,7 @@ public sealed class AddFeedViewModel : ViewModelBase
         feed.InEditMode = true;
     }
 
-    public async Task RemoveFeed(FeedViewModel feed, CancellationToken cancellationToken)
+    public async Task RemoveFeedAsync(FeedViewModel feed, CancellationToken cancellationToken)
     {
         var messageBoxVm = new MessageBoxViewModel("Are you sure you want to remove the feed?", Resources.Messages.Remove)
             .SetYesNoMode();
@@ -102,7 +107,7 @@ public sealed class AddFeedViewModel : ViewModelBase
         }
     }
 
-    public async Task ApplyFeed(FeedViewModel feed, CancellationToken cancellationToken)
+    public async Task ApplyFeedAsync(FeedViewModel feed, CancellationToken cancellationToken)
     {
         var context = new ValidationContext(feed);
         var isValid = Validator.TryValidateObject(feed, context, null, true);
@@ -111,8 +116,28 @@ public sealed class AddFeedViewModel : ViewModelBase
             return;
         }
 
+        try
+        {
+            var feedModel = await GetFeedAsync(feed.Uri, cancellationToken);
+            feed.Name = feedModel.Name;
+        }
+        catch (Exception e)
+        {
+            var messageBoxVm = new MessageBoxViewModel($"Cannot verify feed: {e.Message}", "Error")
+                .SetErrorMode();
+            await _mvvmService.OpenAsync(messageBoxVm, cancellationToken: cancellationToken);
+            return;
+        }
+
         await SaveSettings(cancellationToken);
         feed.InEditMode = false;
+    }
+
+    private Task<WidgetPackageFeed> GetFeedAsync(string uri, CancellationToken cancellationToken)
+    {
+        var remotePackagesStorage = new FeedPackagesStorage(uri, "Feed Checker");
+        var feed = remotePackagesStorage.GetFeedAsync(cancellationToken);
+        return feed;
     }
 
     private async Task SaveSettings(CancellationToken cancellationToken)
@@ -122,6 +147,7 @@ public sealed class AddFeedViewModel : ViewModelBase
             .ToList();
 
         await _settingsStorage.SaveAsync(_appSettings, cancellationToken);
+        PackageFeedUpdateRequested.Next();
     }
 
     /// <inheritdoc />

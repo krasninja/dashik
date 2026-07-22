@@ -58,8 +58,14 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
             .SubscribeAsync(async _ =>
             {
                 // Reload widgets after packages are loaded.
-                await AddWidgetViewModel.LoadAsync()
-                    .ConfigureAwait(false);
+                await AddWidgetViewModel.LoadAsync();
+            });
+        AddFeedViewModel.PackageFeedUpdateRequested
+            .SubscribeAsync(async _ =>
+            {
+                // Reload widgets and packages after feeds are loaded.
+                await AddWidgetViewModel.LoadAsync();
+                await AddPackageViewModel.LoadAsync();
             });
     }
 
@@ -83,17 +89,22 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
     {
         Loading = true;
 
-        await AddWidgetViewModel.LoadAsync(cancellationToken);
-        await AddPackageViewModel.LoadAsync(cancellationToken);
-        await AddFeedViewModel.LoadAsync(cancellationToken);
-        await base.LoadAsync(cancellationToken);
-
-        // Select "packages" tab if no widgets installed.
-        if (AddWidgetViewModel.WidgetsCount < 1)
+        try
         {
-            SelectedTabIndex = 1;
-        }
+            await AddWidgetViewModel.LoadAsync(cancellationToken);
+            await AddPackageViewModel.LoadAsync(cancellationToken);
+            await AddFeedViewModel.LoadAsync(cancellationToken);
+            await base.LoadAsync(cancellationToken);
 
-        Loading = false;
+            // Select "packages" tab if no widgets installed.
+            if (AddWidgetViewModel.WidgetsCount < 1)
+            {
+                SelectedTabIndex = 1;
+            }
+        }
+        finally
+        {
+            Loading = false;
+        }
     }
 }

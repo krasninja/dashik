@@ -6,6 +6,8 @@ namespace Dashik.Host.Services.Packages;
 
 public class FeedPackagesStorage : IPackagesStorage
 {
+    private const string IndexJson = "index.json";
+
     /// <inheritdoc />
     public string Uri { get; }
 
@@ -14,21 +16,32 @@ public class FeedPackagesStorage : IPackagesStorage
 
     public FeedPackagesStorage(string uri, string name)
     {
-        Uri = uri;
+        Uri = uri.Trim();
         Name = name;
     }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<WidgetPackage>> GetAsync(CancellationToken cancellationToken = default)
     {
+        var feed = await GetFeedAsync(cancellationToken);
+        return feed.Packages;
+    }
+
+    internal async Task<WidgetPackageFeed> GetFeedAsync(CancellationToken cancellationToken = default)
+    {
         // ReSharper disable once ShortLivedHttpClient
         using var httpClient = new HttpClient();
-        var uri = Uri.EndsWith('/') ? Uri : $"{Uri}/";
-        var packages = await httpClient.GetFromJsonAsync<List<WidgetPackage>>(uri + "index.json", cancellationToken);
-        if (packages == null)
+        var uri = Uri;
+        if (!uri.EndsWith(IndexJson))
         {
-            return [];
+            uri = uri.EndsWith('/') ? uri : $"{uri}/";
+            uri += IndexJson;
         }
-        return packages;
+        var feedPackages = await httpClient.GetFromJsonAsync<WidgetPackageFeed>(uri, cancellationToken);
+        if (feedPackages == null)
+        {
+            return WidgetPackageFeed.Empty;
+        }
+        return feedPackages;
     }
 }

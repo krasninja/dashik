@@ -53,10 +53,6 @@
 
                                 <StackPanel Grid.Column="0" Orientation="Vertical">
                                     <DockPanel LastChildFill="True">
-                                        <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="Name" Width="100" />
-                                        <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" Text="{Binding Name}" IsReadOnly="{Binding !InEditMode}" Margin="3" />
-                                    </DockPanel>
-                                    <DockPanel LastChildFill="True">
                                         <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="URL" Width="100" />
                                         <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" Text="{Binding Uri}" IsReadOnly="{Binding !InEditMode}" Margin="3" />
                                     </DockPanel>
