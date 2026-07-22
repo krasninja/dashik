@@ -14,6 +14,8 @@ using Dashik.Host.Services.Packages;
 using Dashik.Host.Services.Widgets;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Models;
+using Dashik.Sdk.Mvvm;
+using Dashik.Sdk.ViewModels;
 using Dashik.Sdk.Widgets;
 
 namespace Dashik.Host.ViewModels;
@@ -22,7 +24,8 @@ public class AddWidgetViewModel : ViewModelBase
 {
     private readonly IWidgetsProvider _widgetsProvider;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IPackagesStorage[] _packagesStorages;
+    private readonly Func<IPackagesStorage[]> _packagesStoragesFactory;
+    private readonly IMvvmService _mvvmService;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
     private readonly IWidgetsFactory _widgetsFactory;
@@ -177,12 +180,15 @@ public class AddWidgetViewModel : ViewModelBase
 
     public ReactiveCommand<Unit, Unit> ClearFilterCommand { get; internal set; }
 
+    public ReactiveCommand<Unit, Unit> RefreshCommand { get; internal set; }
+
     public AddWidgetViewModel(
         IWidgetsProvider widgetsProvider,
         IWidgetsFactory widgetsFactory,
         IWidgetsStateStorage stateStorage,
         IServiceProvider serviceProvider,
-        IPackagesStorage[] packagesStorages,
+        Func<IPackagesStorage[]> packagesStoragesFactory,
+        IMvvmService mvvmService,
         ILoggerFactory loggerFactory,
         ILogger<AddWidgetViewModel> logger)
     {
@@ -190,7 +196,8 @@ public class AddWidgetViewModel : ViewModelBase
         _widgetsFactory = widgetsFactory;
         _stateStorage = stateStorage;
         _serviceProvider = serviceProvider;
-        _packagesStorages = packagesStorages;
+        _packagesStoragesFactory = packagesStoragesFactory;
+        _mvvmService = mvvmService;
         _loggerFactory = loggerFactory;
         _logger = logger;
 
@@ -199,6 +206,10 @@ public class AddWidgetViewModel : ViewModelBase
         {
             FilterWidgetName = string.Empty;
             FilterWidgetCategory = null;
+        });
+        RefreshCommand = ReactiveCommand.CreateFromTask(async () =>
+        {
+            await LoadAsync();
         });
     }
 
@@ -234,16 +245,29 @@ public class AddWidgetViewModel : ViewModelBase
     /// <inheritdoc />
     public override async Task LoadAsync(CancellationToken cancellationToken = default)
     {
+        foreach (var category in Categories)
+        {
+            category.Widgets.Clear();
+        }
         Categories.Clear();
         SelectedWidgetNode = null;
 
-        if (LoadLocalWidgets)
+        try
         {
-            await LoadLocalWidgetsAsync(cancellationToken);
+            if (LoadLocalWidgets)
+            {
+                await LoadLocalWidgetsAsync(cancellationToken);
+            }
+            if (LoadRemoteWidgets)
+            {
+                await LoadRemoteWidgetsAsync(cancellationToken);
+            }
         }
-        if (LoadRemoteWidgets)
+        catch (Exception e)
         {
-            await LoadRemoteWidgetsAsync(cancellationToken);
+            _logger.LogError(e, e.Message);
+            var messageBoxVm = new MessageBoxViewModel(e.Message, "Error").SetErrorMode();
+            await _mvvmService.OpenAsync(messageBoxVm, cancellationToken);
         }
 
         SelectedWidgetNode = Categories.SelectMany(c => c.Widgets).FirstOrDefault();
@@ -287,7 +311,8 @@ public class AddWidgetViewModel : ViewModelBase
     private async Task LoadRemoteWidgetsAsync(CancellationToken cancellationToken = default)
     {
         var categories = _widgetsProvider.GetCategories().ToArray();
-        foreach (var packagesStorage in _packagesStorages)
+        var packagesStorages = _packagesStoragesFactory.Invoke();
+        foreach (var packagesStorage in packagesStorages)
         {
             var remotePackages = await packagesStorage.GetAsync(cancellationToken);
             foreach (var remotePackage in remotePackages)

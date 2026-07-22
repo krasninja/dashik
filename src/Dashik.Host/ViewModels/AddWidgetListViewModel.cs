@@ -2,6 +2,7 @@ using System.Reactive;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
 using Dashik.Abstractions;
+using Dashik.Sdk.Mvvm;
 
 namespace Dashik.Host.ViewModels;
 
@@ -15,7 +16,8 @@ public sealed class AddWidgetListViewModel : AddWidgetViewModel
         IWidgetsFactory widgetsFactory,
         IWidgetsStateStorage stateStorage,
         IServiceProvider serviceProvider,
-        IPackagesStorage[] packagesStorages,
+        Func<IPackagesStorage[]> packagesStoragesFactory,
+        IMvvmService mvvmService,
         ILoggerFactory loggerFactory,
         ILogger<AddWidgetListViewModel> logger)
         : base(
@@ -23,7 +25,8 @@ public sealed class AddWidgetListViewModel : AddWidgetViewModel
             widgetsFactory,
             stateStorage,
             serviceProvider,
-            packagesStorages,
+            packagesStoragesFactory,
+            mvvmService,
             loggerFactory,
             logger)
     {

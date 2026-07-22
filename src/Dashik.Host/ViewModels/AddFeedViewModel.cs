@@ -53,7 +53,7 @@ public sealed class AddFeedViewModel : ViewModelBase
 
     public string DefaultFeedUri { get; set; }
 
-    public IObservable<Unit> PackageFeedUpdateRequested { get; } = new Subject<Unit>();
+    public Subject<Unit> PackageFeedUpdateRequested { get; } = new();
 
     public ReactiveCommand<Unit, Unit> AddFeedCommand { get; set; }
 
@@ -147,7 +147,7 @@ public sealed class AddFeedViewModel : ViewModelBase
             .ToList();
 
         await _settingsStorage.SaveAsync(_appSettings, cancellationToken);
-        PackageFeedUpdateRequested.Next();
+        PackageFeedUpdateRequested.OnNext(Unit.Default);
     }
 
     /// <inheritdoc />

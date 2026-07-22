@@ -122,10 +122,11 @@ public sealed class AddPackageViewModel : ViewModelBase
     /// <inheritdoc />
     public override async Task LoadAsync(CancellationToken cancellationToken = default)
     {
-        var storages = _widgetsStoragesFactory.Invoke();
+        Packages.Clear();
 
         try
         {
+            var storages = _widgetsStoragesFactory.Invoke();
             var remotePackages = await _packagesInstaller.GetRemoteAsync(storages, cancellationToken);
             var localPackages = await _packagesInstaller.GetLocalAsync(_appService.GetPackagesDirectories(), cancellationToken);
 

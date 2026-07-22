@@ -1,3 +1,5 @@
+using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using ReactiveUI;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Sdk.Mvvm;
@@ -5,8 +7,10 @@ using Dashik.Host.Utils;
 
 namespace Dashik.Host.ViewModels;
 
-public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<string[]>
+public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<string[]>, IDisposable
 {
+    private readonly CompositeDisposable _disposables = new();
+
     public AddWidgetListViewModel AddWidgetViewModel { get; }
 
     public AddPackageViewModel AddPackageViewModel { get; }
@@ -52,21 +56,24 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
         AddFeedViewModel = addFeedViewModel;
 
         AddWidgetViewModel.AddWidgetRequested
-            .SubscribeAsync(AddWidgetAsync);
+            .SubscribeAsync(AddWidgetAsync)
+            .DisposeWith(_disposables);
 
         AddPackageViewModel.PackagesLoaded
             .SubscribeAsync(async _ =>
             {
                 // Reload widgets after packages are loaded.
                 await AddWidgetViewModel.LoadAsync();
-            });
+            })
+            .DisposeWith(_disposables);
         AddFeedViewModel.PackageFeedUpdateRequested
             .SubscribeAsync(async _ =>
             {
                 // Reload widgets and packages after feeds are loaded.
                 await AddWidgetViewModel.LoadAsync();
                 await AddPackageViewModel.LoadAsync();
-            });
+            })
+            .DisposeWith(_disposables);
     }
 
     private async Task AddWidgetAsync(AddWidgetDetailsViewModel[] widgetNodes, CancellationToken cancellationToken)
@@ -106,5 +113,11 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
         {
             Loading = false;
         }
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _disposables.Dispose();
     }
 }

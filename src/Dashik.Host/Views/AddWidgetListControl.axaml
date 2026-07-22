@@ -9,6 +9,14 @@
              d:DesignHeight="450"
              x:Class="Dashik.Host.Views.AddWidgetListControl"
              x:DataType="viewModels:AddWidgetListViewModel">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Dashik.Host/Resources/FontAwesome.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -16,23 +24,32 @@
         </Grid.RowDefinitions>
 
         <!-- Filter -->
-        <StackPanel Grid.Row="0"
-                    Orientation="Horizontal"
-                    IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNull}}"
-                    Margin="5">
-            <TextBox Text="{Binding FilterWidgetName}" Width="200" />
-            <Label VerticalAlignment="Center" Margin="10,0,0,0">Category:</Label>
-            <ComboBox ItemsSource="{Binding Categories}"
-                      SelectedItem="{Binding FilterWidgetCategory}"
-                      VerticalAlignment="Center">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Title}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Margin="5,0,0,0" />
-        </StackPanel>
+        <DockPanel Grid.Row="0">
+            <StackPanel Orientation="Horizontal"
+                        DockPanel.Dock="Left"
+                        IsVisible="{Binding SelectedWidgetNode, Converter={x:Static ObjectConverters.IsNull}}"
+                        Margin="5">
+                <TextBox Text="{Binding FilterWidgetName}" Width="200" />
+                <Label VerticalAlignment="Center" Margin="10,0,0,0">Category:</Label>
+                <ComboBox ItemsSource="{Binding Categories}"
+                          SelectedItem="{Binding FilterWidgetCategory}"
+                          VerticalAlignment="Center">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Content="Clear" Command="{Binding ClearFilterCommand}" Margin="5,0,0,0" />
+            </StackPanel>
+            <Button Command="{Binding RefreshCommand}"
+                    DockPanel.Dock="Right"
+                    HorizontalAlignment="Right"
+                    ToolTip.Tip="Refresh">
+                <PathIcon Data="{StaticResource FontAwesomeSolidRotate}" />
+            </Button>
+        </DockPanel>
+
 
         <ScrollViewer Grid.Row="1">
             <StackPanel>
