@@ -27,7 +27,7 @@
             <Button>Remove</Button>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" ItemsSource="{Binding AppSettings.PackagesFeeds}">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding ((viewModels:AppSettingsObjectViewModel)Settings).PackagesFeeds}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" />
             </DataGrid.Columns>

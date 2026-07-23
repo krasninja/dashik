@@ -1,8 +1,9 @@
-using Avalonia.Controls;
+using ReactiveUI.Avalonia;
+using Dashik.Host.ViewModels.Settings;
 
 namespace Dashik.Host.Views.Settings;
 
-public partial class AppFeedsSectionControl : UserControl
+public partial class AppFeedsSectionControl : ReactiveUserControl<AppFeedsSectionModel>
 {
     public AppFeedsSectionControl()
     {

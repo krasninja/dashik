@@ -51,7 +51,7 @@
             CanUserResizeColumns="False"
             CanUserSortColumns="False"
             SelectedItem="{Binding SelectedSpace}"
-            ItemsSource="{Binding ((viewModels:AppSettingsViewModel)Settings).Spaces}">
+            ItemsSource="{Binding ((viewModels:AppSettingsObjectViewModel)Settings).Spaces}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Id" Width="120" IsReadOnly="True" Binding="{Binding Id}" />
                 <DataGridTextColumn Header="Name" Width="*" Binding="{Binding Name}" />

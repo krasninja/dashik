@@ -7,7 +7,7 @@ namespace Dashik.Host.ViewModels.Settings;
 
 public class AppSpacesSectionViewModel : SettingsSectionModel
 {
-    public AppSettingsViewModel AppSettings => (AppSettingsViewModel)Settings!;
+    public AppSettingsObjectViewModel AppSettings => (AppSettingsObjectViewModel)Settings!;
 
     public SpaceModel? SelectedSpace
     {

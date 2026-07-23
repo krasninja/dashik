@@ -18,22 +18,22 @@
 
         <CheckBox
             Grid.Row="0"
-            IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).LaunchOnSystemStartup}"
+            IsChecked="{Binding ((viewModels:AppSettingsObjectViewModel)Settings).LaunchOnSystemStartup}"
             Content="Launch application at system startup" />
 
         <CheckBox
             Grid.Row="1"
-            IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).StartMinimized}"
+            IsChecked="{Binding ((viewModels:AppSettingsObjectViewModel)Settings).StartMinimized}"
             Content="Minimize window at application startup" />
 
         <CheckBox
             Grid.Row="2"
-            IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).ShowSystemTrayIcon}"
+            IsChecked="{Binding ((viewModels:AppSettingsObjectViewModel)Settings).ShowSystemTrayIcon}"
             Content="Show system tray icon" />
 
         <CheckBox
             Grid.Row="3"
-            IsChecked="{Binding ((viewModels:AppSettingsViewModel)Settings).AutoUpdate}"
+            IsChecked="{Binding ((viewModels:AppSettingsObjectViewModel)Settings).AutoUpdate}"
             Content="Enable auto-update" />
     </Grid>
 </UserControl>

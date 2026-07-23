@@ -9,7 +9,7 @@ namespace Dashik.Host.Models;
 /// Space with the container for widgets.
 /// </summary>
 [DataContract]
-public sealed class SpaceModel : ReactiveObject
+public sealed class SpaceModel : ReactiveObject, ICloneable
 {
     private const string DefaultId = "DEFAULT";
 
@@ -32,6 +32,19 @@ public sealed class SpaceModel : ReactiveObject
 
     [JsonIgnore]
     public bool Default => string.IsNullOrEmpty(Id) || Id == DefaultId;
+
+    public SpaceModel()
+    {
+    }
+
+    public SpaceModel(SpaceModel model)
+    {
+        Id = model.Id;
+        Name = model.Name;
+    }
+
+    /// <inheritdoc />
+    public object Clone() => new SpaceModel(this);
 
     /// <inheritdoc />
     public override string ToString() => $"{Id}: {Name}";

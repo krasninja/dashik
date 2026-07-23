@@ -450,7 +450,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     {
         var appSettingsViewModel = _mvvmService.CreateViewModel<AppSettingsViewModel>();
         await appSettingsViewModel.LoadAsync(cancellationToken);
-        var viewModel = _mvvmService.CreateViewModel<SettingsViewModel>(appSettingsViewModel);
+        var viewModel = _mvvmService.CreateViewModel<SettingsViewModel>(appSettingsViewModel.Model);
 
         viewModel.AddSection(
             SettingsSection.Create<AppMainSectionControl, WidgetMainSectionViewModel>("Main")
@@ -462,14 +462,20 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
 
         if (await _mvvmService.OpenAsync(viewModel, this, cancellationToken) == DialogResult.OK)
         {
-            var newAppSettingsViewModel = (AppSettingsViewModel)viewModel.Settings;
-            var newAppSettings = newAppSettingsViewModel.ToAppSettings();
+            var settingsViewModel = (AppSettingsObjectViewModel)viewModel.Settings;
+            var newAppSettings = settingsViewModel.ToAppSettings();
             using var cloner = new AppCloner();
             cloner.CloneTo(newAppSettings, _appSettings);
             await _settingsStorage.SaveAsync(_appSettings, cancellationToken);
-            await newAppSettingsViewModel.SetApplicationStartupAsync(cancellationToken);
+
+            // Apply new settings.
+            if (settingsViewModel.IsLaunchOnSystemStartupChanged)
+            {
+                await appSettingsViewModel.SetApplicationStartupAsync(settingsViewModel.LaunchOnSystemStartup, cancellationToken);
+            }
             await LoadInternalAsync(cancellationToken);
-            CurrentApplication.ShowSystemTrayIcon = newAppSettingsViewModel.ShowSystemTrayIcon;
+            CurrentApplication.ShowSystemTrayIcon = newAppSettings.ShowSystemTrayIcon;
+
             SpaceCollectionUpdate.OnNext(Unit.Default);
         }
     }
