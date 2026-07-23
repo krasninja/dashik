@@ -6,6 +6,7 @@ using ReactiveUI.Avalonia;
 using Velopack;
 using Dashik.Host;
 using Dashik.Desktop.Infrastructure.Updates;
+using Dashik.Host.Infrastructure;
 using Dashik.Host.Infrastructure.Setup;
 using Dashik.Host.Infrastructure.Updates;
 
@@ -112,6 +113,7 @@ internal sealed class ApplicationRootCommand : RootCommand
                 .WithInterFont()
                 .UseReactiveUI(builder =>
                 {
+                    builder.WithExceptionHandler(new GlobalExceptionHandler());
                 })
                 .LogToTrace();
             var args = parseResult.Tokens.Select(t => t.Value).ToArray();
