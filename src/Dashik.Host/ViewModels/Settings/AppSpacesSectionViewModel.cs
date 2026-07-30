@@ -2,11 +2,15 @@ using System.Reactive;
 using ReactiveUI;
 using Dashik.Host.Models;
 using Dashik.Sdk.Models;
+using Dashik.Sdk.Mvvm;
+using Dashik.Sdk.ViewModels;
 
 namespace Dashik.Host.ViewModels.Settings;
 
 public class AppSpacesSectionViewModel : SettingsSectionModel
 {
+    private readonly IMvvmService _mvvmService;
+
     public AppSettingsObjectViewModel AppSettings => (AppSettingsObjectViewModel)Settings!;
 
     public SpaceModel? SelectedSpace
@@ -28,8 +32,9 @@ public class AppSpacesSectionViewModel : SettingsSectionModel
     }
 
     /// <inheritdoc />
-    public AppSpacesSectionViewModel()
+    public AppSpacesSectionViewModel(IMvvmService mvvmService)
     {
+        _mvvmService = mvvmService;
         AddSpaceCommand = ReactiveCommand.Create(() =>
         {
             var space = new SpaceModel();
@@ -37,13 +42,18 @@ public class AppSpacesSectionViewModel : SettingsSectionModel
             SelectedSpace = space;
         });
 
-        RemoveSpaceCommand = ReactiveCommand.Create(() =>
+        RemoveSpaceCommand = ReactiveCommand.CreateFromTask(async () =>
         {
             if (SelectedSpace == null || SelectedSpace.Default)
             {
                 return;
             }
-            AppSettings.Spaces.Remove(SelectedSpace);
+            var messageBoxVm = new MessageBoxViewModel("Are you sure you want to remove the space?", Resources.Messages.Remove)
+                .SetYesNoMode();
+            if (await _mvvmService.OpenAsync(messageBoxVm, this) == DialogResult.Yes)
+            {
+                AppSettings.Spaces.Remove(SelectedSpace);
+            }
         });
     }
 }

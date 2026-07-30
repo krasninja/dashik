@@ -1,4 +1,5 @@
 using Avalonia.Collections;
+using YamlDotNet.Serialization;
 using Dashik.Host.Models;
 
 namespace Dashik.Host.ViewModels.Settings;
@@ -13,6 +14,7 @@ public class AppSettingsObjectViewModel
 
     public AvaloniaList<SpaceModel> Spaces { get; set; } = [];
 
+    [YamlIgnore]
     public bool OriginalLaunchOnSystemStartup { get; set; }
 
     public bool LaunchOnSystemStartup { get; set; }
