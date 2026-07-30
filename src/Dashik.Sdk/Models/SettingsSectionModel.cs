@@ -8,19 +8,12 @@ namespace Dashik.Sdk.Models;
 public class SettingsSectionModel : ReactiveObject
 {
     /// <summary>
-    /// Settings object.
+    /// Section settings object.
     /// </summary>
     public virtual object? Settings
     {
-        get => field;
+        get;
         set => this.RaiseAndSetIfChanged(ref field, value);
-    }
-
-    /// <summary>
-    /// To be called when update settings are set.
-    /// </summary>
-    public virtual void SyncSetting()
-    {
     }
 
     /// <summary>

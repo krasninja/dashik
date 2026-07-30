@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
 using Avalonia.Controls;
+using Dashik.Abstractions;
 using ReactiveUI;
 using Dashik.Sdk.Models;
 using Dashik.Sdk.Mvvm;
@@ -12,9 +13,23 @@ namespace Dashik.Host.ViewModels.Settings;
 
 /// <summary>
 /// Main view model for settings that contains sections and save functionality.
+/// It is the container for all the settings.
 /// </summary>
 public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<int>
 {
+    /**
+     * SettingsViewModel:
+     * - **GeneralSettings** (object)
+     * - SelectedSection
+     * - Sections[] (SettingsSectionViewModel):
+     *   - Title
+     *   - Control (Control)
+     *   - SettingsConverter (ISectionSettingsConverter)
+     *   - ControlModel (Sdk.Models.SettingsSectionModel):
+     *     - **Settings** (object)
+     *
+     */
+
     private readonly IServiceProvider _serviceProvider;
 
     public ObservableCollection<SettingsSectionViewModel> Sections { get; } = new();
@@ -26,18 +41,30 @@ public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDia
         get => _selectedSection;
         set
         {
-            _selectedSection?.SetSettings(null);
+            var originalSelectedSection = _selectedSection;
             this.RaiseAndSetIfChanged(ref _selectedSection, value);
-            _selectedSection?.SetSettings(Settings);
+
+            // Get updated settings from previous selected section.
+            if (originalSelectedSection != null && originalSelectedSection.ControlModelSettings != null)
+            {
+                GeneralSettings = originalSelectedSection.SettingsConverter
+                    .ConvertBack(GeneralSettings, originalSelectedSection.ControlModelSettings);
+            }
+
+            // Set settings to the new section.
+            if (_selectedSection != null)
+            {
+                _selectedSection.SetSettings(GeneralSettings);
+            }
         }
     }
 
     /// <summary>
     /// Settings object.
     /// </summary>
-    public object Settings
+    public object GeneralSettings
     {
-        get => field;
+        get;
         private set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
@@ -58,19 +85,10 @@ public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDia
     {
         _serviceProvider = serviceProvider;
         using var cloner = new AppCloner();
-        Settings = cloner.Clone(settings);
+        GeneralSettings = cloner.Clone(settings);
 
         CancelCommand = ReactiveCommand.Create(Cancel);
         SaveCommand = ReactiveCommand.Create(Save);
-
-        this.WhenAnyValue(x => x.Settings)
-            .Subscribe(localSettings =>
-            {
-                foreach (var section in Sections)
-                {
-                    section.SetSettings(localSettings);
-                }
-            });
     }
 
     public void AddYamlSection()
@@ -79,16 +97,17 @@ public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDia
         AddSection(yamlSection);
     }
 
-    public void AddSection(SettingsSection section, Func<object, object?>? settingsFunc = null)
+    public void AddSection(
+        SettingsSection section,
+        ISectionSettingsConverter? settingsConverter = null)
     {
         var control = (Control)_serviceProvider.GetService(section.ControlType)!;
         var viewModel = (SettingsSectionModel)_serviceProvider.GetService(section.ViewModelType)!;
-        var sectionTabViewModel = new SettingsSectionViewModel(section.Name, control, viewModel)
+        var sectionTabViewModel = new SettingsSectionViewModel(section.Name, control, viewModel, settingsConverter)
         {
             Icon = section.Icon,
-            SettingsFunc = settingsFunc,
         };
-        sectionTabViewModel.SetSettings(Settings);
+        sectionTabViewModel.SetSettings(GeneralSettings);
         Sections.Add(sectionTabViewModel);
     }
 

@@ -14,6 +14,7 @@ public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSection
     private readonly IDisposable _textChangedSubscription;
     private bool _suppressTextChanged;
     private bool _pendingChanges;
+    private bool _inSync;
 
     public YamlSectionControl()
     {
@@ -46,12 +47,44 @@ public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSection
         ViewModel.WhenAnyValue(x => x.Settings)
             .Subscribe(YamlSettingsUpdate);
 
-        ViewModel.Sync += ViewModelSync;
+        ViewModel.PullSettings += ViewModelPullSettings;
+        ViewModel.PushSettings += ViewModelPushSettings;
     }
 
-    private void ViewModelSync(object? sender, EventArgs e)
+    private void ViewModelPullSettings(object? sender, EventArgs e)
     {
-        OnTextChange(Editor.Text);
+        if (ViewModel == null || _inSync)
+        {
+            return;
+        }
+        _inSync = true;
+
+        try
+        {
+            OnTextChange(Editor.Text);
+        }
+        finally
+        {
+            _inSync = false;
+        }
+    }
+
+    private void ViewModelPushSettings(object? sender, EventArgs e)
+    {
+        if (ViewModel == null || _inSync)
+        {
+            return;
+        }
+        _inSync = true;
+
+        try
+        {
+            YamlSettingsUpdate(ViewModel.Settings);
+        }
+        finally
+        {
+            _inSync = false;
+        }
     }
 
     private void OnTextChange(string obj)
@@ -80,13 +113,14 @@ public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSection
 
     private void YamlSettingsUpdate(object? obj)
     {
-        if (obj == null)
+        var text = string.Empty;
+        if (obj != null && ViewModel != null)
         {
-            return;
+            text = ViewModel.Serializer.Serialize(obj);
         }
 
         _suppressTextChanged = true;
-        Editor.Text = ViewModel!.Serializer.Serialize(obj);
+        Editor.Text = text;
         _suppressTextChanged = false;
     }
 
@@ -97,6 +131,12 @@ public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSection
         if (_pendingChanges)
         {
             OnTextChange(Editor.Text);
+        }
+
+        if (ViewModel != null)
+        {
+            ViewModel.PullSettings -= ViewModelPullSettings;
+            ViewModel.PushSettings -= ViewModelPushSettings;
         }
     }
 }

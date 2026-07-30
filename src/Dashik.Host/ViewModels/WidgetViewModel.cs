@@ -35,7 +35,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
     {
         public required WidgetMainSettings MainSettings { get; set; }
 
-        public object? Settings { get; set; }
+        public required object? Settings { get; set; }
     }
 
     public double WidgetWidth
@@ -223,7 +223,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
         if (await _mvvmService.OpenAsync(viewModel, this, cancellationToken) == DialogResult.OK)
         {
-            CopySettings((WidgetAllSettings)viewModel.Settings);
+            CopySettings((WidgetAllSettings)viewModel.GeneralSettings);
             UpdateTitle();
             _saveWidgetRequested.OnNext(vm.WidgetId);
             Initialized = false;
@@ -238,11 +238,46 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
         }
     }
 
+    private sealed class WidgetAllMainSettingsConverter : ISectionSettingsConverter
+    {
+        /// <inheritdoc />
+        public object Convert(object generalSettings) => ((WidgetAllSettings)generalSettings).MainSettings;
+
+        /// <inheritdoc />
+        public object ConvertBack(object generalSettings, object? sectionSettings)
+        {
+            var allSettings = (WidgetAllSettings)generalSettings;
+            var widgetSectionSettings = (WidgetMainSettings?)sectionSettings;
+            if (widgetSectionSettings != null)
+            {
+                allSettings.MainSettings = (WidgetMainSettings)sectionSettings!;
+            }
+            return allSettings;
+        }
+    }
+
+    private sealed class WidgetAllWidgetSettingsConverter : ISectionSettingsConverter
+    {
+        /// <inheritdoc />
+        public object Convert(object generalSettings) => ((WidgetAllSettings)generalSettings).Settings!;
+
+        /// <inheritdoc />
+        public object ConvertBack(object generalSettings, object? sectionSettings)
+        {
+            var allSettings = (WidgetAllSettings)generalSettings;
+            if (sectionSettings != null)
+            {
+                allSettings.Settings = sectionSettings;
+            }
+            return allSettings;
+        }
+    }
+
     private void AddSettingsSection(SettingsViewModel viewModel, IWidget widget)
     {
         viewModel.AddSection(
             SettingsSection.Create<WidgetMainSettingsControl, WidgetMainSectionViewModel>("Main"),
-            obj => ((WidgetAllSettings)obj).MainSettings
+            new WidgetAllMainSettingsConverter()
         );
 
         if (widget is IWidgetSettings widgetWithSettings)
@@ -251,7 +286,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
             {
                 viewModel.AddSection(
                     new SettingsSection(settingsSection.Name, settingsSection.ControlType, settingsSection.ViewModelType),
-                    obj => ((WidgetAllSettings)obj).Settings
+                    new WidgetAllWidgetSettingsConverter()
                 );
             }
         }

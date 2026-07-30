@@ -1,6 +1,7 @@
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using ReactiveUI;
+using YamlDotNet.Serialization;
 using Dashik.Sdk.Utils;
 
 namespace Dashik.Host.Models;
@@ -19,10 +20,8 @@ public sealed class SpaceModel : ReactiveObject, ICloneable
         Name = "Main",
     };
 
-    [DataMember]
     public string Id { get; set; } = IdGenerator.Generate(length: 12);
 
-    [DataMember]
     public string Name
     {
         get;
@@ -31,6 +30,7 @@ public sealed class SpaceModel : ReactiveObject, ICloneable
         = "New Space";
 
     [JsonIgnore]
+    [YamlIgnore]
     public bool Default => string.IsNullOrEmpty(Id) || Id == DefaultId;
 
     public SpaceModel()

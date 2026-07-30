@@ -462,7 +462,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
 
         if (await _mvvmService.OpenAsync(viewModel, this, cancellationToken) == DialogResult.OK)
         {
-            var settingsViewModel = (AppSettingsObjectViewModel)viewModel.Settings;
+            var settingsViewModel = (AppSettingsObjectViewModel)viewModel.GeneralSettings;
             var newAppSettings = settingsViewModel.ToAppSettings();
             using var cloner = new AppCloner();
             cloner.CloneTo(newAppSettings, _appSettings);

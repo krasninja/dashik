@@ -1,5 +1,7 @@
+using System.Collections.Frozen;
 using ReactiveUI;
 using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.TypeInspectors;
 using Dashik.Host.Utils;
 using Dashik.Sdk.Models;
 
@@ -9,14 +11,63 @@ public class YamlSectionViewModel : SettingsSectionModel
 {
     private static readonly SimpleObjectTraverser _traverser = new();
 
+    /// <summary>
+    /// Ignore system-type properties.
+    /// </summary>
+    private sealed class IgnorePropertiesInspector : TypeInspectorSkeleton
+    {
+        private readonly ITypeInspector _inspector;
+
+        private static readonly FrozenSet<string> _propertiesToIgnore = new HashSet<string>([
+            "PropertyChanged",
+            "PropertyChanging",
+
+            // ReactiveObject.
+            "Changing",
+            "Changed",
+            "ThrownExceptions",
+        ]).ToFrozenSet();
+
+        public IgnorePropertiesInspector(ITypeInspector inspector)
+        {
+            _inspector = inspector;
+        }
+
+        /// <inheritdoc />
+        public override string GetEnumName(Type enumType, string name) => _inspector.GetEnumName(enumType, name);
+
+        /// <inheritdoc />
+        public override string GetEnumValue(object enumValue) => _inspector.GetEnumValue(enumValue);
+
+        /// <inheritdoc />
+        public override bool HasParseMethod(Type type) => _inspector.HasParseMethod(type);
+
+        /// <inheritdoc />
+        public override object? Parse(string value, Type expectedType) => _inspector.Parse(value, expectedType);
+
+        /// <inheritdoc />
+        public override IEnumerable<IPropertyDescriptor> GetProperties(Type type, object? container)
+        {
+            var properties = _inspector.GetProperties(type, container);
+            return properties
+                .Where(p => !_propertiesToIgnore.Contains(p.Name) && p.CanWrite);
+        }
+    }
+
     /// <inheritdoc />
     public override object? Settings
     {
-        get;
+        get
+        {
+            PullSettings?.Invoke(this, EventArgs.Empty);
+            return base.Settings;
+        }
+
         set
         {
+            base.Settings = value;
             RebuildSerializers(value);
-            this.RaiseAndSetIfChanged(ref field, value);
+            PushSettings?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -26,7 +77,15 @@ public class YamlSectionViewModel : SettingsSectionModel
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    public event EventHandler? Sync;
+    /// <summary>
+    /// Update settings FROM control.
+    /// </summary>
+    public event EventHandler? PullSettings;
+
+    /// <summary>
+    /// Update settings TO control.
+    /// </summary>
+    public event EventHandler? PushSettings;
 
     private static readonly ISerializer _defaultSerializer = new SerializerBuilder()
         .Build();
@@ -39,6 +98,8 @@ public class YamlSectionViewModel : SettingsSectionModel
 
     internal IDeserializer Deserializer { get; private set; } = _defaultDeserializer;
 
+    private Type? _settingsObjectType;
+
     /// <inheritdoc />
     public YamlSectionViewModel()
     {
@@ -47,6 +108,15 @@ public class YamlSectionViewModel : SettingsSectionModel
 
     private void RebuildSerializers(object? obj)
     {
+        if (obj == null)
+        {
+            return;
+        }
+        if (_settingsObjectType == obj.GetType())
+        {
+            return;
+        }
+
         var types = new HashSet<Type>();
 
         static string FormatTypeTag(Type type) => $"!type-{type.Name}";
@@ -72,27 +142,27 @@ public class YamlSectionViewModel : SettingsSectionModel
             return true;
         }, types);
 
-        var serializerBuilder = new SerializerBuilder()
-            .DisableAliases();
+        var serializerBuilder = new SerializerBuilder();
         foreach (var type in types)
         {
             serializerBuilder = serializerBuilder.WithTagMapping(FormatTypeTag(type), type);
         }
-        Serializer = serializerBuilder.EnsureRoundtrip().Build();
+        Serializer = serializerBuilder
+            .DisableAliases()
+            .EnsureRoundtrip()
+            .WithTypeInspector(typeInspector => new IgnorePropertiesInspector(typeInspector), w => w.OnBottom())
+            .Build();
 
-        var deserializerBuilder = new DeserializerBuilder()
-            .IgnoreUnmatchedProperties();
+        var deserializerBuilder = new DeserializerBuilder();
         foreach (var type in types)
         {
             deserializerBuilder = deserializerBuilder.WithTagMapping(FormatTypeTag(type), type);
         }
-        Deserializer = deserializerBuilder.Build();
-    }
+        Deserializer = deserializerBuilder
+            .IgnoreUnmatchedProperties()
+            .WithTypeInspector(typeInspector => new IgnorePropertiesInspector(typeInspector))
+            .Build();
 
-    /// <inheritdoc />
-    public override void SyncSetting()
-    {
-        Sync?.Invoke(this, EventArgs.Empty);
-        base.SyncSetting();
+        _settingsObjectType = obj.GetType();
     }
 }
