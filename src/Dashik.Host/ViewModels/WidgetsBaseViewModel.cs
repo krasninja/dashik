@@ -1,9 +1,11 @@
-using System.Reactive.Disposables;
 using Avalonia.Collections;
 using ReactiveUI;
+using ReactiveUI.Primitives.Disposables;
 using Dashik.Sdk.Utils;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.Models;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Signals;
 
 namespace Dashik.Host.ViewModels;
 
@@ -36,7 +38,7 @@ public abstract class WidgetsBaseViewModel : ViewModelBase, IDisposable
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    private readonly CompositeDisposable _disposable = new();
+    private readonly MultipleDisposable _disposables = new();
 
     private IDisposable? _widgetUpdateSubscription;
 
@@ -70,10 +72,9 @@ public abstract class WidgetsBaseViewModel : ViewModelBase, IDisposable
 
     protected WidgetsBaseViewModel()
     {
-        _disposable.Add(
-            this.WhenAnyValue(p => p.SelectedSpace)
-                .Subscribe(_ => { SyncWidgets(); })
-        );
+        this.WhenAnyValue(p => p.SelectedSpace)
+            .Subscribe(new DelegateWitness<SpaceViewModel?>(_ => SyncWidgets()))
+            .DisposeWith(_disposables);
     }
 
     private void SyncWidgets()
@@ -144,7 +145,7 @@ public abstract class WidgetsBaseViewModel : ViewModelBase, IDisposable
     {
         if (disposing)
         {
-            _disposable.Dispose();
+            _disposables.Dispose();
             _widgetUpdateSubscription?.Dispose();
             RemoveWidgets();
         }

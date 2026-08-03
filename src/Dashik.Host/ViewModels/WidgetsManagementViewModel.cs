@@ -1,15 +1,15 @@
-using System.Reactive.Disposables;
-using System.Reactive.Disposables.Fluent;
 using ReactiveUI;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Disposables;
+using ReactiveUI.Primitives.Extensions;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Sdk.Mvvm;
-using Dashik.Host.Utils;
 
 namespace Dashik.Host.ViewModels;
 
 public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewModel, IDialogViewModel<string[]>, IDisposable
 {
-    private readonly CompositeDisposable _disposables = new();
+    private readonly MultipleDisposable _disposables = new();
 
     public AddWidgetListViewModel AddWidgetViewModel { get; }
 
@@ -76,13 +76,13 @@ public sealed class WidgetsManagementViewModel : ViewModelBase, ICloseableViewMo
             .DisposeWith(_disposables);
     }
 
-    private async Task AddWidgetAsync(AddWidgetDetailsViewModel[] widgetNodes, CancellationToken cancellationToken)
+    private async ValueTask AddWidgetAsync(AddWidgetDetailsViewModel[] widgetNodes)
     {
         foreach (var package in widgetNodes.Select(wn => wn.RemoteWidgetPackage).Distinct())
         {
             if (package != null)
             {
-                await AddPackageViewModel.InstallPackageAsync(package, cancellationToken);
+                await AddPackageViewModel.InstallPackageAsync(package, CancellationToken.None);
             }
         }
 

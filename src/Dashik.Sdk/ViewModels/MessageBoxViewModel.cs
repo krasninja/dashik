@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Reactive;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
@@ -7,6 +6,7 @@ using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Dashik.Sdk.Mvvm;
 
 namespace Dashik.Sdk.ViewModels;
@@ -49,12 +49,12 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
     /// <summary>
     /// Message box action selected.
     /// </summary>
-    public ReactiveCommand<DialogResult, Unit> ActionSelectCommand { get; }
+    public ReactiveCommand<DialogResult, RxVoid> ActionSelectCommand { get; }
 
     /// <summary>
     /// Copy message box text command.
     /// </summary>
-    public ReactiveCommand<Unit, Unit> CopyCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> CopyCommand { get; }
 
     /// <summary>
     /// Message box icon.

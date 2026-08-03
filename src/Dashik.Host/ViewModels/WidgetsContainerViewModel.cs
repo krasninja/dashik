@@ -1,15 +1,14 @@
-using System.Reactive;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Text;
 using Avalonia;
 using Avalonia.Collections;
 using ReactiveUI;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Disposables;
+using ReactiveUI.Primitives.Extensions;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
 using Dashik.Sdk.Mvvm;
 using Dashik.Sdk.ViewModels;
-using Dashik.Host.Utils;
 using Dashik.Host.Models;
 using Dashik.Host.Services;
 
@@ -23,7 +22,7 @@ public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseable
     private readonly ILogger<WidgetsContainerViewModel> _logger;
     private bool _savingUiState;
 
-    private readonly CompositeDisposable _disposables = new();
+    private readonly MultipleDisposable _disposables = new();
 
     internal AppSettings ApplicationSettings => _appSettings;
 
@@ -69,29 +68,29 @@ public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseable
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    public ReactiveCommand<Unit, Unit> OpenAboutCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> OpenAboutCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> OpenLogsCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> OpenLogsCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> OpenFontsCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> OpenFontsCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> OpenWebsiteCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> OpenWebsiteCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> OpenFeedbackCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> OpenFeedbackCommand { get; }
 
-    public ReactiveCommand<SpaceViewModel, Unit> SwitchSpaceCommand { get; }
+    public ReactiveCommand<SpaceViewModel, RxVoid> SwitchSpaceCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> ShowTrayIconCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> ShowTrayIconCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> FitCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> FitCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> CloseCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> CloseCommand { get; }
 
 #pragma warning disable CS8618
     internal WidgetsContainerViewModel()
 #pragma warning restore CS8618
     {
-        _disposables.Add(this
+        this
             .WhenAnyValue(
                 p => p.WindowState,
                 p => p.WindowHeight,
@@ -102,10 +101,10 @@ public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseable
             .Where(_ => !Loading)
             .DelaySubscription(TimeSpan.FromSeconds(5))
             .Throttle(TimeSpan.FromSeconds(3))
-            .SubscribeAsync((_, ct) => SaveUiStateAsync(ct))
-        );
+            .SubscribeAsync(async _ => await SaveUiStateAsync(CancellationToken.None))
+            .DisposeWith(_disposables);
 
-        _disposables.Add(this
+        this
             .WhenAnyValue(p => p.WidgetsViewModel)
             .Subscribe(vm =>
             {
@@ -118,7 +117,7 @@ public sealed class WidgetsContainerViewModel : WidgetsBaseViewModel, ICloseable
                     SetSpace(SelectedSpace?.Id);
                 });
             })
-        );
+            .DisposeWith(_disposables);
     }
 
     public WidgetsContainerViewModel(

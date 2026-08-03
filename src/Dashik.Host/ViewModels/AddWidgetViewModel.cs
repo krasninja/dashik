@@ -1,17 +1,16 @@
 using System.Collections.ObjectModel;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Text.Json.Nodes;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Avalonia.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using DynamicData;
 using Dashik.Abstractions;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.Models;
 using Dashik.Host.Services.Packages;
 using Dashik.Host.Services.Widgets;
+using Dashik.Host.Utils;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Models;
 using Dashik.Sdk.Mvvm;
@@ -178,11 +177,11 @@ public class AddWidgetViewModel : ViewModelBase
             .Where(_ => SelectedWidgetNode != null)
             .Select(_ => new[] { SelectedWidgetNode! });
 
-    public ReactiveCommand<AddWidgetDetailsViewModel, Unit> AddWidgetCommand { get; internal set; }
+    public ReactiveCommand<AddWidgetDetailsViewModel, RxVoid> AddWidgetCommand { get; internal set; }
 
-    public ReactiveCommand<Unit, Unit> ClearFilterCommand { get; internal set; }
+    public ReactiveCommand<RxVoid, RxVoid> ClearFilterCommand { get; internal set; }
 
-    public ReactiveCommand<Unit, Unit> RefreshCommand { get; internal set; }
+    public ReactiveCommand<RxVoid, RxVoid> RefreshCommand { get; internal set; }
 
     public AddWidgetViewModel(
         IWidgetsProvider widgetsProvider,

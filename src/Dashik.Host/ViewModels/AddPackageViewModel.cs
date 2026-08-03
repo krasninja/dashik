@@ -1,8 +1,7 @@
 using System.Collections.ObjectModel;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using ReactiveUI;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Signals;
 using Microsoft.Extensions.Logging;
 using QueryCat.Backend.Core.Plugins;
 using Dashik.Abstractions;
@@ -51,11 +50,11 @@ public sealed class AddPackageViewModel : ViewModelBase
 
     public IObservable<string> InstallPackageRequested => InstallPackageCommand.Select(_ => SelectedPackageNode?.Id ?? string.Empty);
 
-    public ReactiveCommand<PackageNode, Unit> InstallPackageCommand { get; internal set; }
+    public ReactiveCommand<PackageNode, RxVoid> InstallPackageCommand { get; internal set; }
 
-    public ReactiveCommand<PackageNode, Unit> RemovePackageCommand { get; internal set; }
+    public ReactiveCommand<PackageNode, RxVoid> RemovePackageCommand { get; internal set; }
 
-    public Subject<Unit> PackagesLoaded { get; } = new();
+    public Signal<RxVoid> PackagesLoaded { get; } = new();
 
     public AddPackageViewModel(
         IAppService appService,
@@ -95,7 +94,7 @@ public sealed class AddPackageViewModel : ViewModelBase
         {
             SkipDuplicates = true,
         }, cancellationToken);
-        PackagesLoaded.OnNext(Unit.Default);
+        PackagesLoaded.OnNext(RxVoid.Default);
 
         return package;
     }

@@ -1,13 +1,11 @@
-using System.Reactive;
-using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Text.Json.Nodes;
 using Avalonia.Collections;
-using DynamicData;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Disposables;
+using ReactiveUI.Primitives.Signals;
+using ReactiveUI.Primitives.Extensions;
 using Dashik.Abstractions;
 using Dashik.Sdk;
 using Dashik.Sdk.Abstract;
@@ -43,8 +41,11 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     private readonly IDisposable _widgetsSaveObservable;
     private bool _disposed;
 
-    private readonly CompositeDisposable _disposables = new();
+    private readonly MultipleDisposable _disposables = new();
     private volatile bool _updating;
+
+    private readonly Dictionary<string, CancellationTokenSource> _pendingWidgetSaves = new();
+    private readonly Lock _pendingWidgetSavesLock = new();
 
     public AvaloniaList<SpaceViewModel> Spaces { get; }
 
@@ -69,19 +70,19 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         (MainViewModel?)Avalonia.Application.Current?.DataContext
             ?? throw new InvalidOperationException("App needs to be initialized.");
 
-    public ReactiveCommand<SpaceViewModel, Unit> AddWidgetCommand { get; }
+    public ReactiveCommand<SpaceViewModel, RxVoid> AddWidgetCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> OpenSettingsCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> OpenSettingsCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> UpdateCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> UpdateCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> CheckUpdatesCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> CheckUpdatesCommand { get; }
 
-    public Subject<SpaceViewModel> WidgetsCollectionUpdate { get; } = new();
+    public Signal<SpaceViewModel> WidgetsCollectionUpdate { get; } = new();
 
-    public Subject<string> WidgetSave { get; } = new();
+    public Signal<string> WidgetSave { get; } = new();
 
-    public Subject<Unit> SpaceCollectionUpdate { get; } = new();
+    public Signal<RxVoid> SpaceCollectionUpdate { get; } = new();
 
 #pragma warning disable CS8618
     internal WidgetsCollectionViewModel()
@@ -89,23 +90,12 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     {
         Spaces = [];
 
-        _widgetsUpdateTimerObservable = Observable
+        _widgetsUpdateTimerObservable = Signal
             .Interval(TimeSpan.FromSeconds(1))
-            .Subscribe(_ => RxSchedulers.MainThreadScheduler.ScheduleAsync(UpdateWidgets));
+            .SubscribeAsync(UpdateWidgets);
 
         _widgetsSaveObservable = WidgetSave
-            .GroupBy(widgetId => widgetId)
-            .SelectMany(group => group.Throttle(TimeSpan.FromSeconds(2)))
-            .SubscribeAsync(async (widgetId, ct) =>
-            {
-                if (_widgetInstanceProvider != null
-                    && TryGetWidgetById(widgetId, out var widget)
-                    && widget != null
-                    && widget.WidgetInstance != null)
-                {
-                    await _widgetInstanceProvider.SaveAsync(widget.WidgetInstance, ct);
-                }
-            });
+            .Subscribe(ScheduleWidgetSave);
 
         _dispatcher.WaitPendingTasksOnDispose = false;
         _dispatcher.Start();
@@ -149,11 +139,10 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     /// <inheritdoc />
     public override async Task LoadAsync(CancellationToken cancellationToken = default)
     {
-        _disposables.Add(
-            Observable
-                .Timer(TimeSpan.FromSeconds(5))
-                .SubscribeAsync(async (_, ct) => { await CheckUpdatesAsync(ct); })
-        );
+        Signal
+            .Timer(TimeSpan.FromSeconds(5))
+            .SubscribeAsync(async _ => await CheckUpdatesAsync(CancellationToken.None))
+            .DisposeWith(_disposables);
         await LoadInternalAsync(cancellationToken: cancellationToken);
         await base.LoadAsync(cancellationToken);
     }
@@ -208,7 +197,10 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
                 .Where(w => w.WidgetInstance != null && w.WidgetInstance.MainSettings.SpaceId == space.Id)
                 .ToArray();
             space.Widgets.AddRange(widgets);
-            vms.Remove(widgets);
+            foreach (var widget in widgets)
+            {
+                vms.Remove(widget);
+            }
         }
 
         // Add not assigned to the default space.
@@ -223,6 +215,43 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
     {
         widget = Widgets.FirstOrDefault(w => w.WidgetId == id);
         return widget != null;
+    }
+
+    // Debounces saves per widget id, since different widgets must not throttle each other.
+    private void ScheduleWidgetSave(string widgetId)
+    {
+        CancellationTokenSource cts;
+        lock (_pendingWidgetSavesLock)
+        {
+            if (_pendingWidgetSaves.TryGetValue(widgetId, out var existingCts))
+            {
+                existingCts.Cancel();
+                existingCts.Dispose();
+            }
+            cts = new CancellationTokenSource();
+            _pendingWidgetSaves[widgetId] = cts;
+        }
+
+        _ = SaveWidgetDelayedAsync(widgetId, cts.Token);
+    }
+
+    private async Task SaveWidgetDelayedAsync(string widgetId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        if (TryGetWidgetById(widgetId, out var widget)
+            && widget != null
+            && widget.WidgetInstance != null)
+        {
+            await _widgetInstanceProvider.SaveAsync(widget.WidgetInstance, cancellationToken);
+        }
     }
 
     private async Task<WidgetViewModel> CreateAndPrepareWidgetViewModelAsync(IWidgetInstance instance, CancellationToken cancellationToken)
@@ -258,21 +287,25 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
             _logger.LogError(e, "Failed to create widget {Id}", instance.Info.Id);
         }
 
-        var subscription = widgetViewModel.RemoveWidgetRequested
-            .SelectMany(widgetId => Observable.FromAsync(ct => RemoveWidgetAsync(widgetId, ct)))
-            .Subscribe();
-        _disposables.Add(subscription);
+        widgetViewModel.RemoveWidgetRequested
+            .SelectMany(widgetId => Signal.FromAsync(async () =>
+            {
+                await RemoveWidgetAsync(widgetId, CancellationToken.None);
+                return RxVoid.Default;
+            }))
+            .Subscribe()
+            .DisposeWith(_disposables);
 
-        subscription = widgetViewModel.SaveWidgetRequested
-            .Subscribe(widgetId => WidgetSave.OnNext(widgetId));
-        _disposables.Add(subscription);
+        widgetViewModel.SaveWidgetRequested
+            .Subscribe(widgetId => WidgetSave.OnNext(widgetId))
+            .DisposeWith(_disposables);
 
-        subscription = widgetViewModel.ReorderWidgetRequested
+        widgetViewModel.ReorderWidgetRequested
             .Subscribe(_ =>
             {
                 ArrangeWidgetsBySpaces(Widgets);
-            });
-        _disposables.Add(subscription);
+            })
+            .DisposeWith(_disposables);
 
         await widgetViewModel.InitializeAsync(cancellationToken);
         await widgetViewModel.LoadAsync(cancellationToken);
@@ -382,11 +415,11 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private Task UpdateWidgets(IScheduler scheduler, CancellationToken cancellationToken)
+    private ValueTask UpdateWidgets(long second)
     {
         if (_updating)
         {
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         try
@@ -421,7 +454,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
             _updating = false;
         }
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     private async Task RemoveWidgetAsync(string widgetId, CancellationToken cancellationToken)
@@ -476,7 +509,7 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
             await LoadInternalAsync(cancellationToken);
             CurrentApplication.ShowSystemTrayIcon = newAppSettings.ShowSystemTrayIcon;
 
-            SpaceCollectionUpdate.OnNext(Unit.Default);
+            SpaceCollectionUpdate.OnNext(RxVoid.Default);
         }
     }
 
@@ -492,6 +525,16 @@ public sealed class WidgetsCollectionViewModel : ViewModelBase, IDisposable
         _disposables.Dispose();
         _widgetsUpdateTimerObservable.Dispose();
         _widgetsSaveObservable.Dispose();
+
+        lock (_pendingWidgetSavesLock)
+        {
+            foreach (var cts in _pendingWidgetSaves.Values)
+            {
+                cts.Cancel();
+                cts.Dispose();
+            }
+            _pendingWidgetSaves.Clear();
+        }
 
         _dispatcher.Stop();
         _dispatcher.Dispose();

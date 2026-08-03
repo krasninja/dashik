@@ -1,7 +1,9 @@
-using System.Reactive.Linq;
 using AvaloniaEdit.TextMate;
 using ReactiveUI;
 using ReactiveUI.Avalonia;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Signals;
+using ReactiveUI.Primitives.Disposables;
 using TextMateSharp.Grammars;
 using YamlDotNet.Core;
 using Dashik.Host.Utils;
@@ -11,7 +13,7 @@ namespace Dashik.Host.Views.Settings;
 
 public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSectionViewModel>, IDisposable
 {
-    private readonly IDisposable _textChangedSubscription;
+    private readonly MultipleDisposable _disposables = new();
     private bool _suppressTextChanged;
     private bool _pendingChanges;
     private bool _inSync;
@@ -25,7 +27,7 @@ public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSection
         textMateInstallation.SetGrammar(
             registryOptions.GetScopeByLanguageId(registryOptions.GetLanguageByExtension(".yaml").Id));
 
-        _textChangedSubscription = Observable.FromEventPattern(
+        Signal.FromEventPattern(
                 h => Editor.TextChanged += h,
                 h => Editor.TextChanged -= h)
             .Where(_ => !_suppressTextChanged)
@@ -33,7 +35,8 @@ public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSection
             .Select(_ => Editor.Text)
             .Throttle(TimeSpan.FromSeconds(2))
             .ObserveOn(RxSchedulers.MainThreadScheduler)
-            .Subscribe(OnTextChange);
+            .Subscribe(new DelegateWitness<string>(OnTextChange))
+            .DisposeWith(_disposables);
         DataContextChanged += OnDataContextChanged;
     }
 
@@ -45,7 +48,8 @@ public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSection
         }
 
         ViewModel.WhenAnyValue(x => x.Settings)
-            .Subscribe(YamlSettingsUpdate);
+            .Subscribe(new DelegateWitness<object?>(YamlSettingsUpdate))
+            .DisposeWith(_disposables);
 
         ViewModel.PullSettings += ViewModelPullSettings;
         ViewModel.PushSettings += ViewModelPushSettings;
@@ -127,7 +131,7 @@ public sealed partial class YamlSectionControl : ReactiveUserControl<YamlSection
     /// <inheritdoc />
     public void Dispose()
     {
-        _textChangedSubscription.Dispose();
+        _disposables.Dispose();
         if (_pendingChanges)
         {
             OnTextChange(Editor.Text);

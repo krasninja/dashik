@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using Avalonia.Collections;
 
 namespace Dashik.Host.Utils;
 
@@ -88,6 +89,31 @@ internal static class CollectionUtils
             case NotifyCollectionChangedAction.Reset:
                 dest.Clear();
                 break;
+        }
+    }
+
+    /// <summary>
+    /// Adds range of elements to collection.
+    /// </summary>
+    /// <param name="collection">Collection to update.</param>
+    /// <param name="elements">Elements to add.</param>
+    /// <typeparam name="T">Element type.</typeparam>
+    public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> elements)
+    {
+        if (collection is List<T> list)
+        {
+            list.AddRange(elements);
+            return;
+        }
+        if (collection is AvaloniaList<T> avaloniaList)
+        {
+            avaloniaList.AddRange(elements);
+            return;
+        }
+
+        foreach (T element in elements)
+        {
+            collection.Add(element);
         }
     }
 }

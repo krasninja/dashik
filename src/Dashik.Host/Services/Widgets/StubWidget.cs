@@ -6,6 +6,7 @@ using Avalonia.Media;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.ViewModels;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Widgets;
 

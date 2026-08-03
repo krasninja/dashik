@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using ReactiveUI;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Signals;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Dashik.Abstractions;
@@ -127,29 +126,29 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
     public AvaloniaList<MenuItem> WidgetMenuItems { get; } = new();
 
-    public ReactiveCommand<WidgetViewModel, Unit> UpdateWidgetCommand { get; }
+    public ReactiveCommand<WidgetViewModel, RxVoid> UpdateWidgetCommand { get; }
 
-    public ReactiveCommand<WidgetViewModel, Unit> DisableWidgetCommand { get; }
+    public ReactiveCommand<WidgetViewModel, RxVoid> DisableWidgetCommand { get; }
 
-    public ReactiveCommand<WidgetViewModel, Unit> EnableWidgetCommand { get; }
+    public ReactiveCommand<WidgetViewModel, RxVoid> EnableWidgetCommand { get; }
 
-    public ReactiveCommand<WidgetViewModel, Unit> RemoveWidgetCommand { get; }
+    public ReactiveCommand<WidgetViewModel, RxVoid> RemoveWidgetCommand { get; }
 
-    public ReactiveCommand<WidgetViewModel, Unit> ExpandWidgetCommand { get; }
+    public ReactiveCommand<WidgetViewModel, RxVoid> ExpandWidgetCommand { get; }
 
-    public ReactiveCommand<WidgetViewModel, Unit> CollapseWidgetCommand { get; }
+    public ReactiveCommand<WidgetViewModel, RxVoid> CollapseWidgetCommand { get; }
 
-    public ReactiveCommand<WidgetViewModel, Unit> OpenWidgetSettingsCommand { get; }
+    public ReactiveCommand<WidgetViewModel, RxVoid> OpenWidgetSettingsCommand { get; }
 
     public IObservable<string> RemoveWidgetRequested => RemoveWidgetCommand.Select(_ => WidgetId);
 
-    private readonly Subject<string> _saveWidgetRequested = new();
+    private readonly Signal<string> _saveWidgetRequested = new();
 
     public IObservable<string> SaveWidgetRequested => _saveWidgetRequested;
 
-    private readonly Subject<Unit> _reorderWidgetRequested = new();
+    private readonly Signal<RxVoid> _reorderWidgetRequested = new();
 
-    public IObservable<Unit> ReorderWidgetRequested => _reorderWidgetRequested;
+    public IObservable<RxVoid> ReorderWidgetRequested => _reorderWidgetRequested;
 
     public WidgetViewModel(
         IMvvmService mvvmService,
@@ -233,7 +232,7 @@ public sealed class WidgetViewModel : ViewModelBase, IDisposable
 
             if (originalSpaceId != settingsModel.MainSettings.SpaceId)
             {
-                _reorderWidgetRequested.OnNext(Unit.Default);
+                _reorderWidgetRequested.OnNext(RxVoid.Default);
             }
         }
     }

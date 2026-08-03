@@ -1,7 +1,8 @@
-using System.Reactive.Disposables;
 using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Disposables;
 using Dashik.Sdk.Abstract;
 using Dashik.Host.Infrastructure.UI;
 
@@ -10,7 +11,7 @@ namespace Dashik.Host.ViewModels;
 public sealed class WidgetControlViewModel : ViewModelBase, IDisposable
 {
     private readonly WidgetViewModel _widgetViewModel;
-    private readonly CompositeDisposable _disposables = new();
+    private readonly MultipleDisposable _disposables = new();
 
     private Control? _control;
     private Control? _errorControl;
@@ -37,12 +38,12 @@ public sealed class WidgetControlViewModel : ViewModelBase, IDisposable
     {
         _widgetViewModel = widgetViewModel;
 
-        _disposables.Add(
-            widgetViewModel.WhenAnyValue(p => p.ErrorWidget).Subscribe(_ => { UpdateErrorControl(); })
-        );
-        _disposables.Add(
-            widgetViewModel.WhenAnyValue(p => p.Widget).Subscribe(_ => { UpdateWidgetControl(); })
-        );
+        widgetViewModel.WhenAnyValue(p => p.ErrorWidget)
+            .Subscribe(_ => { UpdateErrorControl(); })
+            .DisposeWith(_disposables);
+        widgetViewModel.WhenAnyValue(p => p.Widget)
+            .Subscribe(_ => { UpdateWidgetControl(); })
+            .DisposeWith(_disposables);
 
         UpdateErrorControl();
         UpdateWidgetControl();

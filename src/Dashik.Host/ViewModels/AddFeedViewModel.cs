@@ -1,10 +1,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using ReactiveUI;
-using DynamicData;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Signals;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.Models;
 using Dashik.Host.Services;
@@ -53,15 +51,15 @@ public sealed class AddFeedViewModel : ViewModelBase
 
     public string DefaultFeedUri { get; set; }
 
-    public Subject<Unit> PackageFeedUpdateRequested { get; } = new();
+    public Signal<RxVoid> PackageFeedUpdateRequested { get; } = new();
 
-    public ReactiveCommand<Unit, Unit> AddFeedCommand { get; set; }
+    public ReactiveCommand<RxVoid, RxVoid> AddFeedCommand { get; set; }
 
-    public ReactiveCommand<FeedViewModel, Unit> EditFeedCommand { get; }
+    public ReactiveCommand<FeedViewModel, RxVoid> EditFeedCommand { get; }
 
-    public ReactiveCommand<FeedViewModel, Unit> ApplyFeedCommand { get; }
+    public ReactiveCommand<FeedViewModel, RxVoid> ApplyFeedCommand { get; }
 
-    public ReactiveCommand<FeedViewModel, Unit> RemoveFeedCommand { get; }
+    public ReactiveCommand<FeedViewModel, RxVoid> RemoveFeedCommand { get; }
 
     public AddFeedViewModel(
         AppSettings appSettings,
@@ -147,7 +145,7 @@ public sealed class AddFeedViewModel : ViewModelBase
             .ToList();
 
         await _settingsStorage.SaveAsync(_appSettings, cancellationToken);
-        PackageFeedUpdateRequested.OnNext(Unit.Default);
+        PackageFeedUpdateRequested.OnNext(RxVoid.Default);
     }
 
     /// <inheritdoc />

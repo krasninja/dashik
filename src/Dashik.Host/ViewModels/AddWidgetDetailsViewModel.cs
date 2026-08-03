@@ -1,6 +1,6 @@
-using System.Reactive;
 using Avalonia.Media;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Dashik.Host.Services.Packages;
 using Dashik.Sdk.Models;
 using Dashik.Sdk.Widgets;
@@ -64,9 +64,9 @@ public class AddWidgetDetailsViewModel : ReactiveObject
 
     public RemoteWidgetPackage? RemoteWidgetPackage { get; }
 
-    public ReactiveCommand<Unit, Unit> NextPreviewCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> NextPreviewCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> PreviousPreviewCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> PreviousPreviewCommand { get; }
 
     public AddWidgetDetailsViewModel()
     {

@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
     <PackageReference Include="System.CommandLine" Version="2.0.10" />
     <PackageReference Include="Velopack" Version="1.2.0" />
   </ItemGroup>

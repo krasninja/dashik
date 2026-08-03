@@ -3,13 +3,18 @@ using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using ReactiveUI;
 using ReactiveUI.Avalonia;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Signals;
+using ReactiveUI.Primitives.Disposables;
 using Dashik.Sdk.ViewModels;
 
 namespace Dashik.Sdk.Views;
 
-public partial class MessageBoxWindow : ReactiveWindow<MessageBoxViewModel>
+public sealed partial class MessageBoxWindow : ReactiveWindow<MessageBoxViewModel>, IDisposable
 {
     private const int TopBottomPaddings = 80;
+
+    private readonly MultipleDisposable _disposables = new();
 
     public MessageBoxWindow()
     {
@@ -27,11 +32,12 @@ public partial class MessageBoxWindow : ReactiveWindow<MessageBoxViewModel>
                 this.Close();
             };
             ViewModel.WhenAnyValue(p => p.Message)
-                .Subscribe(message =>
+                .Subscribe(new DelegateWitness<string>(message =>
                 {
                     Height = MessageTextBlock.Height + TopBottomPaddings;
-                });
-        });
+                }))
+                .DisposeWith(_disposables);
+        }).DisposeWith(_disposables);
 
         this.AttachedToVisualTree += (s, e) =>
         {
@@ -47,5 +53,11 @@ public partial class MessageBoxWindow : ReactiveWindow<MessageBoxViewModel>
                 }
             }, DispatcherPriority.Loaded);
         };
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _disposables.Dispose();
     }
 }

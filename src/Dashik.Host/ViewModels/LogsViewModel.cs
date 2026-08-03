@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
-using System.Reactive;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Dashik.Sdk.Mvvm;
 using Dashik.Host.Infrastructure.Logging;
 using Dashik.Host.Infrastructure.UI;
@@ -50,9 +50,9 @@ public sealed class LogsViewModel : ViewModelBase, ICloseableViewModel
     }
     = string.Empty;
 
-    public ReactiveCommand<Unit, Unit> CloseCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> CloseCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> ClearCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> ClearCommand { get; }
 
     public LogsViewModel(RingBufferLoggerProvider loggerProvider)
     {

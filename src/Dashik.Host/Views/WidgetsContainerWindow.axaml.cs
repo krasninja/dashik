@@ -1,15 +1,18 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using DynamicData.Binding;
 using ReactiveUI;
+using ReactiveUI.Primitives;
+using ReactiveUI.Primitives.Disposables;
 using Dashik.Host.Infrastructure.UI;
 using Dashik.Host.ViewModels;
 
 namespace Dashik.Host.Views;
 
-public partial class WidgetsContainerWindow : BaseReactiveWindow<WidgetsContainerViewModel>
+public sealed partial class WidgetsContainerWindow : BaseReactiveWindow<WidgetsContainerViewModel>, IDisposable
 {
+    private readonly MultipleDisposable _disposables = new();
+
     public WidgetsContainerWindow()
     {
         InitializeComponent();
@@ -24,7 +27,8 @@ public partial class WidgetsContainerWindow : BaseReactiveWindow<WidgetsContaine
                 var screen = Screens.Primary;
                 ViewModel.WindowScreen = screen != null && !string.IsNullOrEmpty(screen.DisplayName)
                     ? screen.DisplayName : string.Empty;
-            });
+            })
+            .DisposeWith(_disposables);
     }
 
     /// <inheritdoc />
@@ -49,12 +53,14 @@ public partial class WidgetsContainerWindow : BaseReactiveWindow<WidgetsContaine
                 {
                     Position = new PixelPoint(pos.X, pos.Y);
                 }
-            });
-        ViewModel.WhenValueChanged(p => p.Topmost)
+            })
+            .DisposeWith(_disposables);
+        ViewModel.WhenAnyValue(p => p.Topmost)
             .Subscribe(isTopmost =>
             {
                 this.Topmost = isTopmost;
-            });
+            })
+            .DisposeWith(_disposables);
 
         base.OnOpened(e);
     }
@@ -71,5 +77,11 @@ public partial class WidgetsContainerWindow : BaseReactiveWindow<WidgetsContaine
     private void InputElement_OnTapped(object? sender, TappedEventArgs e)
     {
         Focus();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _disposables.Dispose();
     }
 }

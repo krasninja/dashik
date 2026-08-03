@@ -1,14 +1,13 @@
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Reactive;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
-using DynamicData;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Dashik.Sdk.Abstract;
 using Dashik.Sdk.Mvvm;
 using Dashik.Sdk.ViewModels;
@@ -24,9 +23,9 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
 {
     public WidgetsCollectionViewModel WidgetsCollectionViewModel { get; }
 
-    public ReactiveCommand<Unit, Unit> ShowTrayIconCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> ShowTrayIconCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> CloseApplicationCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> CloseApplicationCommand { get; }
 
     public AvaloniaList<NativeMenuItem> WidgetMenuItems { get; } = new();
 

@@ -1,5 +1,5 @@
-using System.Reactive;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Dashik.Host.Models;
 using Dashik.Sdk.Models;
 using Dashik.Sdk.Mvvm;
@@ -19,13 +19,13 @@ public class AppSpacesSectionViewModel : SettingsSectionModel
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    public ReactiveCommand<Unit, Unit> AddSpaceCommand
+    public ReactiveCommand<RxVoid, RxVoid> AddSpaceCommand
     {
         get => field;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    public ReactiveCommand<Unit, Unit> RemoveSpaceCommand
+    public ReactiveCommand<RxVoid, RxVoid> RemoveSpaceCommand
     {
         get => field;
         set => this.RaiseAndSetIfChanged(ref field, value);

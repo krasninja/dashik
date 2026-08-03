@@ -1,6 +1,6 @@
-using System.Reactive;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Dashik.Abstractions;
 using Dashik.Sdk.Mvvm;
 
@@ -8,7 +8,7 @@ namespace Dashik.Host.ViewModels;
 
 public sealed class AddWidgetListViewModel : AddWidgetViewModel
 {
-    public ReactiveCommand<AddWidgetDetailsViewModel?, Unit> SelectWidgetCommand { get; }
+    public ReactiveCommand<AddWidgetDetailsViewModel?, RxVoid> SelectWidgetCommand { get; }
 
     /// <inheritdoc />
     public AddWidgetListViewModel(

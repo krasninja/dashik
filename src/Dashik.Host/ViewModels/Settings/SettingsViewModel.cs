@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
-using System.Reactive;
 using Avalonia.Controls;
 using Dashik.Abstractions;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Dashik.Sdk.Models;
 using Dashik.Sdk.Mvvm;
 using Dashik.Host.Infrastructure.UI;
@@ -77,9 +77,9 @@ public sealed class SettingsViewModel : ViewModelBase, ICloseableViewModel, IDia
     /// <inheritdoc />
     public DialogResult Result { get; private set; }
 
-    public ReactiveCommand<Unit, Unit> CancelCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> CancelCommand { get; }
 
-    public ReactiveCommand<Unit, Unit> SaveCommand { get; }
+    public ReactiveCommand<RxVoid, RxVoid> SaveCommand { get; }
 
     public SettingsViewModel(object settings, IServiceProvider serviceProvider)
     {
