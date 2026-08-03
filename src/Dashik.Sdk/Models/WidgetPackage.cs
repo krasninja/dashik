@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Avalonia.Media.Imaging;
 using ReactiveUI;
 
@@ -71,6 +72,7 @@ public class WidgetPackage : ReactiveObject
     /// <summary>
     /// Icon image.
     /// </summary>
+    [JsonIgnore]
     public virtual Task<Bitmap?> IconFileImage { get; } = Task.FromResult((Bitmap?)null);
 
     /// <summary>
@@ -78,10 +80,22 @@ public class WidgetPackage : ReactiveObject
     /// </summary>
     public long FileSize { get; set; }
 
+    /// <summary>
+    /// Widgets.
+    /// </summary>
+    public List<WidgetMetadata> Widgets { get; set; } = [];
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
     public WidgetPackage()
     {
     }
 
+    /// <summary>
+    /// Clone constructor.
+    /// </summary>
+    /// <param name="package">Package to clone.</param>
     public WidgetPackage(WidgetPackage package)
     {
         this.Id = package.Id;
@@ -96,6 +110,7 @@ public class WidgetPackage : ReactiveObject
         this.Owner = package.Owner;
         this.IconFileName = package.IconFileName;
         this.FileSize = package.FileSize;
+        this.Widgets = package.Widgets.Select(w => new WidgetMetadata(w)).ToList();
     }
 
     /// <inheritdoc />

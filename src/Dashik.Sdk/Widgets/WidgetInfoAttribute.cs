@@ -1,5 +1,3 @@
-using Avalonia.Platform;
-
 namespace Dashik.Sdk.Widgets;
 
 /// <summary>
@@ -43,7 +41,6 @@ public sealed class WidgetInfoAttribute : Attribute
     /// <inheritdoc />
     public WidgetInfoAttribute(string id, string name)
     {
-        AssetLoader.Open(new Uri("avares://Dashik.Sdk/Assets/GenericWidgetIcon.png"));
         Id = id;
         Name = name;
     }

@@ -20,6 +20,13 @@ public interface IWidgetsProvider
     IEnumerable<WidgetInfo> GetAll();
 
     /// <summary>
+    /// Get widget by the specific id.
+    /// </summary>
+    /// <param name="widgetId">Widget identifier.</param>
+    /// <returns>Instance of <see cref="WidgetInfo" /> or null if not found.</returns>
+    WidgetInfo? GetById(string widgetId);
+
+    /// <summary>
     /// Get widget by the specific type id.
     /// </summary>
     /// <param name="widgetTypeId">Widget type identifier.</param>

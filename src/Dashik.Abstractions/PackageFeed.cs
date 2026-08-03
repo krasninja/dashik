@@ -5,6 +5,8 @@ namespace Dashik.Abstractions;
 /// </summary>
 public class PackageFeed
 {
+    public const string DefaultPackagesStorageName = "Default";
+
     /// <summary>
     /// Feed name.
     /// </summary>

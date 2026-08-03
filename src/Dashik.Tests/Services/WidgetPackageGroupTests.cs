@@ -1,6 +1,6 @@
 using Xunit;
 using Dashik.Sdk.Models;
-using Dashik.Shared.Services.Packages;
+using Dashik.Host.Services.Packages;
 
 namespace Dashik.Tests.Services;
 

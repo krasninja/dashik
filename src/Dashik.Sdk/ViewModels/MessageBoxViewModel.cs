@@ -1,14 +1,19 @@
 using System.ComponentModel.DataAnnotations;
-using System.Reactive;
 using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Dashik.Sdk.Mvvm;
 
 namespace Dashik.Sdk.ViewModels;
 
+/// <summary>
+/// View model for message box.
+/// </summary>
 public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogViewModel<DialogResult>
 {
     private static readonly IImage _infoIcon;
@@ -41,8 +46,19 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
     /// <inheritdoc />
     public DialogResult Result { get; private set; } = DialogResult.OK;
 
-    public ReactiveCommand<DialogResult, Unit> ActionSelectCommand { get; }
+    /// <summary>
+    /// Message box action selected.
+    /// </summary>
+    public ReactiveCommand<DialogResult, RxVoid> ActionSelectCommand { get; }
 
+    /// <summary>
+    /// Copy message box text command.
+    /// </summary>
+    public ReactiveCommand<RxVoid, RxVoid> CopyCommand { get; }
+
+    /// <summary>
+    /// Message box icon.
+    /// </summary>
     public IImage? Icon
     {
         get;
@@ -136,9 +152,16 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         _errorIcon = GetIconResource(resourceInclude, "FontAwesomeRegularCircleXMark", Brushes.Red);
     }
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="message">Message box text.</param>
+    /// <param name="caption">Message box title.</param>
     public MessageBoxViewModel(string message, string? caption = null)
     {
         ActionSelectCommand = ReactiveCommand.Create<DialogResult>(SetValueAndClose);
+        CopyCommand = ReactiveCommand.CreateFromTask(CopyText);
+
         Caption = caption ?? Caption;
 
         Message = message;
@@ -163,6 +186,29 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return bitmap;
     }
 
+    private async Task CopyText()
+    {
+        var text = Message;
+        if (string.IsNullOrEmpty(text))
+        {
+            return;
+        }
+        var clipboard = (Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow?.Clipboard;
+        if (clipboard == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await clipboard.SetTextAsync(text);
+        }
+        catch (Exception)
+        {
+            // Ignore because it might produce unexpected exceptions.
+        }
+    }
+
     private void SetValueAndClose(DialogResult value)
     {
         ResultValue = value;
@@ -170,6 +216,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         CloseRequest?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>
+    /// Show only "OK" button.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetOkMode()
     {
         ShowOkButton = true;
@@ -185,6 +235,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "OK" and "Cancel" buttons.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetOkCancelMode()
     {
         ShowOkButton = true;
@@ -200,6 +254,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "OK" button and error icon.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetErrorMode()
     {
         ShowOkButton = true;
@@ -215,6 +273,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "Yes" and "No" buttons.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetYesNoMode()
     {
         ShowOkButton = false;
@@ -230,6 +292,10 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "Yes", "No" and "Cancel" buttons.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetYesNoCancelMode()
     {
         ShowOkButton = false;
@@ -245,9 +311,13 @@ public class MessageBoxViewModel : ReactiveObject, ICloseableViewModel, IDialogV
         return this;
     }
 
+    /// <summary>
+    /// Show only "Abort", "Retry" and "Ignore" buttons.
+    /// </summary>
+    /// <returns>Instance of <see cref="MessageBoxViewModel" />.</returns>
     public MessageBoxViewModel SetAbortRetryIgnoreMode()
     {
-        ShowOkButton = true;
+        ShowOkButton = false;
         ShowCancelButton = false;
         ShowYesButton = false;
         ShowNoButton = false;

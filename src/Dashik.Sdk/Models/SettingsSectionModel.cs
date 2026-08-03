@@ -2,19 +2,18 @@ using ReactiveUI;
 
 namespace Dashik.Sdk.Models;
 
+/// <summary>
+/// Settings section.
+/// </summary>
 public class SettingsSectionModel : ReactiveObject
 {
-    public object? Settings
-    {
-        get => field;
-        set => this.RaiseAndSetIfChanged(ref field, value);
-    }
-
     /// <summary>
-    /// To be called when update settings are set.
+    /// Section settings object.
     /// </summary>
-    public virtual void SyncSetting()
+    public virtual object? Settings
     {
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     /// <summary>

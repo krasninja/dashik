@@ -26,6 +26,11 @@ public class WidgetPreview
     /// </summary>
     public object? Data { get; }
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="name">The name of the widget preview.</param>
+    /// <param name="data">Custom data for the widget preview.</param>
     public WidgetPreview(string name, object? data = null)
     {
         Name = name;

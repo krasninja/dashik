@@ -4,10 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ReactiveUI.Avalonia;
 using Velopack;
-using Dashik.Shared;
+using Dashik.Host;
 using Dashik.Desktop.Infrastructure.Updates;
-using Dashik.Shared.Infrastructure.Setup;
-using Dashik.Shared.Infrastructure.Updates;
+using Dashik.Host.Infrastructure;
+using Dashik.Host.Infrastructure.Setup;
+using Dashik.Host.Infrastructure.Updates;
 
 namespace Dashik.Desktop.Commands;
 
@@ -23,6 +24,14 @@ internal sealed class ApplicationRootCommand : RootCommand
         var instancesDirectoryNameOption = new Option<string>("--instances-dir-name")
         {
             Description = "Instances directory name.",
+        };
+        var configDirectoryOption = new Option<string>("--config-dir")
+        {
+            Description = "Configuration directory name.",
+        };
+        var applicationDirectoryOption = new Option<string>("--application-dir")
+        {
+            Description = "Application configuration directory name.",
         };
         var widgetFilterOption = new Option<string[]>("--widgets-filter")
         {
@@ -55,6 +64,8 @@ internal sealed class ApplicationRootCommand : RootCommand
         this.TreatUnmatchedTokensAsErrors = false;
         this.Add(pluginDirectoriesOption);
         this.Add(instancesDirectoryNameOption);
+        this.Add(configDirectoryOption);
+        this.Add(applicationDirectoryOption);
         this.Add(widgetFilterOption);
         this.Add(configurationOption);
         this.Add(debugOption);
@@ -67,13 +78,14 @@ internal sealed class ApplicationRootCommand : RootCommand
             var appArguments = new AppArguments();
             appArguments.PluginDirectories.AddRange(parseResult.GetValue(pluginDirectoriesOption) ?? []);
             appArguments.InstancesDirectoryName = parseResult.GetValue(instancesDirectoryNameOption) ?? string.Empty;
+            appArguments.ConfigDirectory = parseResult.GetValue(configDirectoryOption) ?? string.Empty;
+            appArguments.ApplicationDirectory = parseResult.GetValue(applicationDirectoryOption) ?? string.Empty;
             appArguments.WidgetsFilter.AddRange(parseResult.GetValue(widgetFilterOption) ?? []);
             appArguments.ConfigurationFile = parseResult.GetValue(configurationOption) ?? string.Empty;
             appArguments.DebugMode = parseResult.GetValue(debugOption);
             appArguments.Mode = parseResult.GetValue(modeOption);
             appArguments.MinLogLevel = parseResult.GetValue(logLevelOption);
             appArguments.LogFile = parseResult.GetValue(logFileOption) ?? string.Empty;
-
             appArguments.PluginDirectories = appArguments.PluginDirectories
                 .Where(Directory.Exists)
                 .ToList();
@@ -82,7 +94,10 @@ internal sealed class ApplicationRootCommand : RootCommand
             await appRoot.SetupServicesAsync(container =>
             {
                 container.RegisterSingleton<IAppUpdateService>(
-                    () => new VelopackAppUpdateService(AppServicesSetup.ReleaseUri, container.GetRequiredService<ILogger<VelopackAppUpdateService>>())
+                    () => new VelopackAppUpdateService(
+                        General.ReleaseUri,
+                        container.GetRequiredService<ILogger<VelopackAppUpdateService>>()
+                    )
                 );
             }, cancellationToken);
             VelopackApp.Build()
@@ -98,10 +113,18 @@ internal sealed class ApplicationRootCommand : RootCommand
                 .WithInterFont()
                 .UseReactiveUI(builder =>
                 {
+                    builder.WithExceptionHandler(new GlobalExceptionHandler());
                 })
                 .LogToTrace();
             var args = parseResult.Tokens.Select(t => t.Value).ToArray();
-            avaloniaApp.StartWithClassicDesktopLifetime(args);
+            try
+            {
+                avaloniaApp.StartWithClassicDesktopLifetime(args);
+            }
+            catch (Exception e)
+            {
+                ErrorsHandler.ProcessException(e);
+            }
         });
     }
 }

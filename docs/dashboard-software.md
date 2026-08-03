@@ -34,6 +34,10 @@ The list of currently available software with the similar functionality.
 
 7. [DevHome](https://github.com/microsoft/devhome). Dev Home is a new control center for Windows providing the ability to monitor projects in your dashboard using customizable widgets, set up your dev environment by downloading apps, packages, or repositories, connect to your developer accounts and tools (such as GitHub), and create a Dev Drive for storage all in one place. Archived.
 
+8. [XMonad](https://github.com/Axarva/dotfiles-2.0).
+
+9. [Linux Dash](https://github.com/tariqbuilds/linux-dash). A simple & low-overhead web dashboard for linux systems.
+
 ## Also
 
 - [A curated list of awesome statusbars.](https://github.com/kimond/awesome-statusbars)

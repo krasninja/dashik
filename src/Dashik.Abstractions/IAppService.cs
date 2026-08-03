@@ -12,10 +12,22 @@ public interface IAppService
     string GetDataDirectory();
 
     /// <summary>
+    /// Get application configuration directory.
+    /// </summary>
+    /// <returns>Configuration directory.</returns>
+    string GetConfigDirectory();
+
+    /// <summary>
     /// Get application widgets instances directory.
     /// </summary>
     /// <returns>Instances directory.</returns>
     string GetInstancesDirectory();
+
+    /// <summary>
+    /// Get widgets state directory.
+    /// </summary>
+    /// <returns>State directory.</returns>
+    string GetStateDirectory();
 
     /// <summary>
     /// Get application directories with NuGet packages. The first directory is the default one.
@@ -28,6 +40,12 @@ public interface IAppService
     /// </summary>
     /// <returns>Main package.</returns>
     string GetMainPackageDirectory();
+
+    /// <summary>
+    /// Get directory to store windows settings.
+    /// </summary>
+    /// <returns>Windows directory.</returns>
+    string GetWindowsDirectory();
 
     /// <summary>
     /// Get feeds.

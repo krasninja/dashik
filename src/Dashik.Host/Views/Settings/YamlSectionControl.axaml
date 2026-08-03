@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:viewModels="clr-namespace:Dashik.Host.ViewModels.Settings"
+             x:Class="Dashik.Host.Views.Settings.YamlSectionControl"
+             x:DataType="viewModels:YamlSectionViewModel">
+    <StackPanel Orientation="Vertical">
+        <Border
+            IsVisible="{Binding YamlError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+            BorderThickness="1">
+            <TextBlock
+                Text="{Binding YamlError}"
+                Padding="5"
+                TextWrapping="Wrap"
+                Background="LightCoral" />
+        </Border>
+        <avaloniaEdit:TextEditor
+            Name="Editor"
+            ShowLineNumbers="True"
+            FontFamily="{StaticResource ConsoleFontFamily}" />
+    </StackPanel>
+</UserControl>

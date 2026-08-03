@@ -5,14 +5,26 @@ namespace Dashik.Sdk;
 /// </summary>
 public class WidgetNotConfiguredException : WidgetException
 {
+    /// <summary>
+    /// Constructor.
+    /// </summary>
     public WidgetNotConfiguredException()
     {
     }
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="message">Message text.</param>
     public WidgetNotConfiguredException(string message) : base(message)
     {
     }
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="message">Message text.</param>
+    /// <param name="innerException">Inner exception.</param>
     public WidgetNotConfiguredException(string message, Exception innerException) : base(message, innerException)
     {
     }

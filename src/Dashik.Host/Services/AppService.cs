@@ -1,0 +1,66 @@
+using Dashik.Abstractions;
+using Dashik.Host.Models;
+using Dashik.Host.Services.Packages;
+
+namespace Dashik.Host.Services;
+
+public sealed class AppService : IAppService
+{
+    internal const string WidgetsDirectory = "widgets";
+    internal const string WindowsDirectory = "windows";
+
+    private readonly AppSettings _appSettings;
+    private readonly string _configDirectory;
+    private readonly string _dataDirectory;
+    private readonly string[] _additionalPackagesDirectories;
+
+    public AppService(AppSettings appSettings, string configDirectory, string dataDirectory, string[] additionalPackagesDirectories)
+    {
+        _appSettings = appSettings;
+        _configDirectory = configDirectory;
+        _dataDirectory = dataDirectory;
+        _additionalPackagesDirectories = additionalPackagesDirectories;
+    }
+
+    /// <inheritdoc />
+    public string GetDataDirectory() => _dataDirectory;
+
+    /// <inheritdoc />
+    public string GetConfigDirectory() => _configDirectory;
+
+    /// <inheritdoc />
+    public string GetInstancesDirectory() => Path.Combine(GetConfigDirectory(), _appSettings.InstancesDirectory);
+
+    /// <inheritdoc />
+    public string GetStateDirectory() => Path.Combine(GetConfigDirectory(), _appSettings.InstanceStateDirectory);
+
+    /// <inheritdoc />
+    public string[] GetPackagesDirectories()
+    {
+        string[] pluginsDirs =
+        [
+            Path.Combine(GetDataDirectory(), WidgetsDirectory),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, WidgetsDirectory)
+        ];
+        return _additionalPackagesDirectories.Concat(pluginsDirs).ToArray();
+    }
+
+    /// <inheritdoc />
+    public string GetMainPackageDirectory() => Path.Combine(GetDataDirectory(), WidgetsDirectory);
+
+    /// <inheritdoc />
+    public string GetWindowsDirectory() => Path.Combine(GetConfigDirectory(), WindowsDirectory);
+
+    /// <inheritdoc />
+    public PackageFeed[] GetFeeds()
+    {
+        return Array.Empty<PackageFeed>()
+            .Concat(
+            [
+                new PackageFeed(PackageFeed.DefaultPackagesStorageName,
+                    new Uri(DefaultPackagesStorage.Instance.Uri))
+            ])
+            .Concat(_appSettings.PackagesFeeds.Select(f => new PackageFeed(f.Name, f.Uri)))
+            .ToArray();
+    }
+}

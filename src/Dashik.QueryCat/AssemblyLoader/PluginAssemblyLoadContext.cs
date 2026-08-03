@@ -42,7 +42,9 @@ internal sealed class PluginAssemblyLoadContext : AssemblyLoadContext
 
         // Format native library name.
         var targetDllName = GetTargetDllName(unmanagedDllName);
-        var files = AsyncUtils.RunSync(async () => (await _pluginLoadStrategy.GetAllFilesAsync()).ToArray())!;
+        var files = AsyncUtils.RunSync(async () => (
+            await _pluginLoadStrategy.GetAllFilesAsync()).ToArray()
+        )!;
 
         // Try to load from runtime path. Example: runtimes/linux-arm64/native/libduckdb.so .
         var runtimePath = Path.Combine("runtimes", Application.GetRuntimeIdentifier(), "native", targetDllName);

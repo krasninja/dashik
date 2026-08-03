@@ -26,6 +26,11 @@ public sealed class WidgetInitInfo
     public JsonObject Settings { get; }
 
     /// <summary>
+    /// <c>True</c> if settings object didn't pass validation, <c>false</c> otherwise.
+    /// </summary>
+    public bool IncompleteConfiguration { get; internal set; }
+
+    /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="context">Widget context.</param>
@@ -51,6 +56,7 @@ public sealed class WidgetInitInfo
     /// <returns>Instance of setting.</returns>
     public object GetSettings(Type type)
     {
+        ArgumentNullException.ThrowIfNull(type);
         try
         {
             return Settings.Deserialize(type) ?? Activator.CreateInstance(type)!;
